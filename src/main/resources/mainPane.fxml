@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" minHeight="500.0" minWidth="500.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.unifrankfurt.dbis.GUI.HomeController">
+    <children>
+      <BorderPane prefHeight="712.0" prefWidth="1133.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <VBox>
+               <children>
+                    <Pane styleClass="head-background" stylesheets="@style.css" BorderPane.alignment="CENTER">
+                        <children>
+                            <Label layoutX="84.0" layoutY="33.0" text="SQLChecker" textFill="WHITE">
+                                <font>
+                                    <Font size="36.0" />
+                                </font>
+                            </Label>
+                            <Label layoutX="84.0" layoutY="96.0" text="Version 1.0" textFill="WHITE">
+                                <font>
+                                    <Font size="13.0" />
+                                </font>                </Label>
+                        </children>
+                    </Pane>
+                  <MenuBar>
+                    <menus>
+                      <Menu mnemonicParsing="false" text="Datei">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#newProject" text="Neu ..." />
+                          <MenuItem mnemonicParsing="false" onAction="#loadProject" text="Öffnen ..." />
+                          <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" onAction="#saveProject" text="Speichern" />
+                          <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" onAction="#saveAsProject" text="Speichern unter ..." />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem fx:id="loadConfigMenuItem" mnemonicParsing="false" onAction="#importConfig" text="Lade Config Datei ..." />
+                              <MenuItem fx:id="saveConfigMenuItem" mnemonicParsing="false" onAction="#exportConfig" text="Exportiere Config Datei ..." />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                          <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeProject" text="Schließen" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Bearbeiten">
+                        <items>
+                          <MenuItem fx:id="undoMenuItem" disable="true" mnemonicParsing="false" onAction="#undo" text="Rückgängig" />
+                          <MenuItem fx:id="redoMenuItem" disable="true" mnemonicParsing="false" onAction="#redo" text="Wiederherstellen" />
+                        </items>
+                      </Menu>
+                        <Menu mnemonicParsing="false" text="Ausführen">
+                          <items>
+                              <MenuItem fx:id="resetMenuItem" disable="true" mnemonicParsing="false" onAction="#handleResetDatabase" text="Datenbank Rücksetzen" />
+                            <MenuItem disable="true" mnemonicParsing="false" onAction="#handleRun" text="Aufgabe ausführen" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem disable="true" mnemonicParsing="false" onAction="#handleRunAll" text="Vollständg ausführen" />
+                              <MenuItem disable="true" mnemonicParsing="false" onAction="#handleDBFitTest" text="DBFit Test" />
+                          </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Olat">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#handleExportOlat" text="Exportiere..." />
+                          </items>
+                        </Menu>
+                      <Menu mnemonicParsing="false" text="?">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#aboutPage" text="Über" />
+                        </items>
+                      </Menu>
+                    </menus>
+                  </MenuBar>
+               </children>
+            </VBox>
+         </top>
+         <center>
+            <SplitPane dividerPositions="0.5431654676258992" orientation="VERTICAL">
+              <items>
+                  <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="20.0" tabMaxWidth="200.0">
+                    <tabs>
+                      <Tab fx:id="tabUebung" text="Übung">
+                           <content>
+                              <BorderPane prefHeight="282.0" prefWidth="947.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <top>
+                                    <ToolBar stylesheets="@button.css" BorderPane.alignment="CENTER">
+                                      <items>
+                                          <Button fx:id="saveButton" disable="true" mnemonicParsing="false" onAction="#saveProject" text="speichern" />
+                                          <Button fx:id="runButton" disable="true" mnemonicParsing="false" onAction="#runTaskCode" text="ausführen" />
+                                          <Button fx:id="undoButton" disable="true" mnemonicParsing="false" onAction="#undo" text="undo" />
+                                          <Button fx:id="redoButton" disable="true" mnemonicParsing="false" onAction="#redo" text="redo" />
+                                          <Button fx:id="resetButton" disable="true" mnemonicParsing="false" onAction="#handleResetDatabase" text="reset Database" />
+                                          <Button mnemonicParsing="false" onAction="#raiseEx" text="Exception!" />
+                                      </items>
+                                    </ToolBar>
+                                 </top>
+                                 <center>
+                                    <SplitPane dividerPositions="0.30028735632183906" BorderPane.alignment="CENTER">
+                                      <items>
+                                          <BorderPane>
+                                             <top>
+                                                <Label text="Aufgaben" BorderPane.alignment="CENTER" />
+                                             </top>
+                                             <center>
+                                                <ScrollPane fitToHeight="true" fitToWidth="true">
+                                                   <content>
+                                                      <ListView fx:id="taskListView" onMouseClicked="#taskSelected" BorderPane.alignment="CENTER" />
+                                                   </content>
+                                                </ScrollPane>
+                                             </center>
+                                          </BorderPane>
+                                          <BorderPane fx:id="CODEPANE">
+                                             <top>
+                                                <Label text="SQL" BorderPane.alignment="CENTER" />
+                                             </top>
+                                          </BorderPane>
+                                      </items>
+                                    </SplitPane>
+                                 </center>
+                              </BorderPane>
+                           </content>
+                      </Tab>
+                        <Tab fx:id="tabEinstellung" text="Einstellung">
+                          <content>
+                            <AnchorPane snapToPixel="false">
+                                 <children>
+                                    <Accordion prefHeight="270.0" prefWidth="708.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                      <panes>
+                                        <TitledPane fx:id="DatenbankTitledPane" animated="false" text="Datenbank">
+                                          <content>
+                                                <ScrollPane>
+                                                   <content>
+                                                      <AnchorPane>
+                                                         <children>
+                                                            <GridPane hgap="10.0" vgap="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                              <columnConstraints>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" prefWidth="200.0" />
+                                                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                                              </columnConstraints>
+                                                              <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                              </rowConstraints>
+                                                               <children>
+                                                                  <Label text="Name der SQL-Datenbank" />
+                                                                  <TextField fx:id="databaseTextField" GridPane.columnIndex="1" />
+                                                                  <Label text="Name des Nutzers" GridPane.rowIndex="1" />
+                                                                  <Label text="Passwort" GridPane.rowIndex="2" />
+                                                                  <Label text="Host" GridPane.rowIndex="3" />
+                                                                  <Button mnemonicParsing="false" onAction="#loadResetScript" onMouseClicked="#resetScriptOpen" text="öffne" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                                                  <Label text="Reset Script" GridPane.rowIndex="5" />
+                                                                  <TextField fx:id="resetScriptPathTextField" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                                  <TextField fx:id="usernameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                  <TextField fx:id="passwordTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                  <TextField fx:id="hostTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                  <TextField fx:id="portTextField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                                  <Label text="Port" GridPane.rowIndex="4" />
+                                                               </children>
+                                                            </GridPane>
+                                                         </children>
+                                                      </AnchorPane>
+                                                   </content>
+                                                </ScrollPane>
+                                          </content>
+                                        </TitledPane>
+                                          <TitledPane animated="false" text="Student">
+                                            <content>
+                                                <ScrollPane>
+                                                   <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0">
+                                                         <children>
+                                                            <GridPane hgap="10.0" vgap="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                              <columnConstraints>
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                                                <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" prefWidth="100.0" />
+                                                              </columnConstraints>
+                                                              <rowConstraints>
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                              </rowConstraints>
+                                                               <children>
+                                                                  <CheckBox fx:id="gemeinschaftsabgabenCheckBox" mnemonicParsing="false" onAction="#handleGemeinschaftsabgabenCheckBox" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                                  <Label text="Gemeinschaftsabgabgaben erlaubt" GridPane.rowIndex="3" />
+                                                                  <Label />
+                                                                  <Label text="Matrikelnummer" GridPane.rowIndex="1" />
+                                                                  <Label text="Vor- und Zuname" />
+                                                                  <Label text="Email Adresse" GridPane.rowIndex="2" />
+                                                                  <TextField fx:id="nameStudentTextField" GridPane.columnIndex="1" />
+                                                                  <TextField fx:id="matNrTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                  <TextField fx:id="emailTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                                  <Label text="Vor- und Zuname des Partners" GridPane.rowIndex="4" />
+                                                                  <Label text="Matrikelnummer des Partners" GridPane.rowIndex="5" />
+                                                                  <Label text="Email Adresse des Partners" GridPane.rowIndex="6" />
+                                                                  <TextField fx:id="matNrPartnerTextField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                                  <TextField fx:id="emailPartnerTextField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                                  <TextField fx:id="namePartnerTextField" disable="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                               </children>
+                                                            </GridPane>
+                                                         </children>
+                                                      </AnchorPane>
+                                                   </content>
+                                                </ScrollPane>
+                                            </content>
+                                          </TitledPane>
+                                      </panes>
+                                    </Accordion>
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+                  <BorderPane prefHeight="200.0" prefWidth="200.0">
+                     <center>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="232.0" prefViewportWidth="694.0">
+                           <content>
+                              <TextArea fx:id="console" editable="false" BorderPane.alignment="CENTER" />
+                           </content>
+                        </ScrollPane>
+                     </center>
+                     <top>
+                        <Label text="Console" BorderPane.alignment="CENTER" />
+                     </top>
+                     <left>
+                        <Pane maxWidth="2.0" minWidth="2.0" prefWidth="2.0" BorderPane.alignment="CENTER" />
+                     </left>
+                     <right>
+                        <Pane maxWidth="2.0" minWidth="2.0" prefWidth="2.0" BorderPane.alignment="CENTER" />
+                     </right>
+                     <bottom>
+                        <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" BorderPane.alignment="CENTER" />
+                     </bottom>
+                  </BorderPane>
+              </items>
+            </SplitPane>
+         </center>
+         <bottom>
+            <Pane maxHeight="2.0" minHeight="2.0" prefHeight="2.0" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
+    </children>
+</AnchorPane>

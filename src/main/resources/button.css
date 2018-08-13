@@ -1,0 +1,15 @@
+.button
+    {
+        -fx-background-color: transparent;
+            -fx-border-radius: 6, 5;
+            -fx-border-insets: 0, 1;
+            -fx-border-color: transparent;
+    }
+.button:hover
+    {
+
+        -fx-background-color: -fx-hover-base;
+            -fx-border-radius: 6, 5;
+            -fx-border-insets: 0, 1;
+            -fx-border-color: grey;
+}
