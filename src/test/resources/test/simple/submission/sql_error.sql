@@ -1,0 +1,54 @@
+
+/*1a*/
+
+BINSERT INTO simple.color (name,red,green,blue) VALUES
+('magenta', 255, 0, 255),
+('cyan', 0, 255, 255),
+('yellow', 255, 255, 0);
+
+
+
+
+/*1b*/
+
+CREATE TABLE `simple`.`animal` (
+`name` VARCHAR(45) NOT NULL,
+`genus` VARCHAR(45) NOT NULL,
+`species` VARCHAR(45) NOT NULL,
+PRIMARY KEY (`name`)
+);
+
+
+
+
+/*1c*/
+
+ALTER TABLE `simple`.`animal`
+ADD COLUMN `family` VARCHAR(45) NOT NULL AFTER `name`;
+
+
+
+
+/*1d*/
+
+INSERT INTO `simple`.`animal` (`name`, `family`, `genus`, `species`) VALUES
+('Tiger', 'Felidae', 'Panthera', 'P. tigris');
+
+
+
+
+/*2a*/
+
+/* Welche Farben beinhalten rot?*/
+select c.name from color c where c.red > 0;
+
+
+
+
+/*2b*/
+
+/* alle tiere */
+select a.name from animal a;
+
+
+

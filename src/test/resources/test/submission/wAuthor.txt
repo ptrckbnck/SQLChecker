@@ -1,0 +1,11 @@
+/*authors*/
+foo;bar;test@test.de
+schlub;ba;schlubba@test.de
+
+/*tag*/
+/* this is comment */
+Select * from * ;
+
+/*tag2*/
+/* this is comment 2 */
+SELECT USER(), DATABASE() ;

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class SQLHighlighter {
 
-    private static final String[] KEYWORDS = new String[] {
+    private static final String[] KEYWORDS = new String[]{
             "ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ANALYZE", "AND", "AS", "ASC", "ATTACH", "AUTOINCREMENT",
             "BEFORE", "BEGIN", "BETWEEN", "BY", "CASCADE", "CASE", "CAST", "CHECK", "COLLATE", "COLUMN", "COMMIT",
             "CONFLICT", "CONSTRAINT", "CREATE", "CROSS", "CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP",
@@ -33,26 +33,26 @@ public class SQLHighlighter {
 
 
     private static final Pattern PATTERN = Pattern.compile(
-            "(?<COMMENT>" + COMMENT_PATTERN  + ")" +
+            "(?<COMMENT>" + COMMENT_PATTERN + ")" +
                     "|(?<STRING>" + STRING_PATTERN + ")" +
                     "|(?<KEYWORD>" + KEYWORD_PATTERN + ")" +
-                    "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"+
-                    "|(?<NUMERIC>"+NUMERIC_LITERAL_PATTERN + ")"
+                    "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")" +
+                    "|(?<NUMERIC>" + NUMERIC_LITERAL_PATTERN + ")"
 
-            ,Pattern.DOTALL);
+            , Pattern.DOTALL);
 
     public static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
                 = new StyleSpansBuilder<>();
-        while(matcher.find()) {
+        while (matcher.find()) {
             String styleClass =
-                    matcher.group("COMMENT")!= null ? "comment":
+                    matcher.group("COMMENT") != null ? "comment" :
                             matcher.group("STRING") != null ? "string" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
                                             matcher.group("SEMICOLON") != null ? "semicolon" :
-                                                    matcher.group("NUMERIC") != null ? "numeric":
+                                                    matcher.group("NUMERIC") != null ? "numeric" :
                                                             null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());

@@ -1,0 +1,3 @@
+Name(s);Student ID(s);Submission;Max. Edit Distance;Tag Mistake;Static queries;Right (static);Wrong (static);Ignored (static);Exceptions (static);Right;Wrong;Ignored;Exceptions;Query1a (1a);Query1b (1b);Query1c (1c);Query1d (1d);Query2a (2a);Query2b (2b)
+/home/patrick/SQLChecker/src/test/resources/simple/submission/sample_with_author.sql;?
+/home/patrick/SQLChecker/src/test/resources/simple/submission/sample_with_faulty _author1.sql;?

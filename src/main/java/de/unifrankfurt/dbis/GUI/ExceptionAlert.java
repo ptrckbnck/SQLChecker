@@ -10,9 +10,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
-public class ExceptionAlert extends Alert{
+public class ExceptionAlert extends Alert {
 
-    public ExceptionAlert(Throwable ex){
+    public ExceptionAlert(Throwable ex) {
         super(Alert.AlertType.ERROR);
         this.setTitle(ex.getMessage());
         this.setHeaderText("Exception");
@@ -22,7 +22,7 @@ public class ExceptionAlert extends Alert{
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8);
         ex.printStackTrace(ps);
-        String exceptionText =  new String(baos.toByteArray(), StandardCharsets.UTF_8);
+        String exceptionText = new String(baos.toByteArray(), StandardCharsets.UTF_8);
 
         Label label = new Label("The exception stacktrace was:");
 
@@ -41,8 +41,6 @@ public class ExceptionAlert extends Alert{
         expContent.add(textArea, 0, 1);
         this.getDialogPane().setExpandableContent(expContent);
     }
-
-
 
 
 }

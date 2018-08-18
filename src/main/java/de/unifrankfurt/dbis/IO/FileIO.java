@@ -11,7 +11,7 @@ public class FileIO {
 
 
     private static String loadString(Path path) throws IOException {
-         return new String(Files.readAllBytes(path));
+        return new String(Files.readAllBytes(path));
     }
 
     public static <T> T load(Path path, Class<T> classOf) throws IOException {
@@ -23,6 +23,6 @@ public class FileIO {
             Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
         }
         Files.createFile(path);
-        Files.write(path,(new Gson()).toJson(object).getBytes());
+        Files.write(path, (new Gson()).toJson(object).getBytes());
     }
 }

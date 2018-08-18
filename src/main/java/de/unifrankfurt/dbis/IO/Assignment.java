@@ -1,6 +1,4 @@
-package de.unifrankfurt.dbis;
-
-import com.google.gson.Gson;
+package de.unifrankfurt.dbis.IO;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,11 +9,11 @@ public class Assignment {
     private final String[] tasks;
     private HashMap<String, String> codeMap;
 
-    public Assignment(String name, String... tasks){
+    public Assignment(String name, String... tasks) {
         this.name = name;
         this.tasks = tasks;
         this.codeMap = new HashMap<>();
-        Arrays.stream(tasks).forEach(x->codeMap.put(x,""));
+        Arrays.stream(tasks).forEach(x -> codeMap.put(x, ""));
     }
 
     public String[] getTasks() {

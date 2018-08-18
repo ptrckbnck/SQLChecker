@@ -1,0 +1,78 @@
+<table>
+	<tr>
+		<td>dbfit.MySqlTest</td>
+	</tr>
+</table>
+
+<table> <tr> <td>Connect</td> <td>localhost</td> <td>test</td> <td>test</td> <td>simple</td> </tr> </table>
+
+
+<table>
+	<tr>
+		<td>Execute</td>
+		<td>/*1a*/</td>
+	</tr>
+</table>
+
+
+
+<table>
+	<tr>
+		<td>Execute</td>
+		<td>/*1b*/</td>
+	</tr>
+</table>
+
+
+
+<table>
+	<tr>
+		<td>Execute</td>
+		<td>/*1c*/</td>
+	</tr>
+</table>
+
+
+
+<table>
+	<tr>
+		<td>Execute</td>
+		<td>/*1d*/</td>
+	</tr>
+</table>
+
+
+
+<table>
+	<tr>
+		<td>Query</td>
+		<td>/*2a*/</td>
+	</tr>
+	<tr>
+		<td>name</td>
+	</tr>
+	<tr>
+		<td>magenta</td>
+	</tr>
+	<tr>
+		<td>red</td>
+	</tr>
+	<tr>
+		<td>yellow</td>
+	</tr>
+</table>
+
+
+
+<table>
+	<tr>
+		<td>Query</td>
+		<td>/*2b*/</td>
+	</tr>
+	<tr>
+		<td>name</td>
+	</tr>
+	<tr>
+		<td>Tiger</td>
+	</tr>
+</table>

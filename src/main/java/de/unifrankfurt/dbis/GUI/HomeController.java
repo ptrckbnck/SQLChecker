@@ -7,8 +7,11 @@ package de.unifrankfurt.dbis.GUI;/*
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.*;
+import de.unifrankfurt.dbis.IO.Assignment;
+import de.unifrankfurt.dbis.config.GUIConfig;
+import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import de.unifrankfurt.dbis.IO.FileIO;
+import de.unifrankfurt.dbis.IO.SQLCheckerProject;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -25,9 +28,7 @@ import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
-
 import org.reactfx.Subscription;
-
 
 import java.io.File;
 import java.io.IOException;
@@ -38,15 +39,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ResourceBundle;
 
 import static de.unifrankfurt.dbis.GUI.SQLHighlighter.computeHighlighting;
 
 
 /**
- *
  * @author oXCToo
  */
 
@@ -128,7 +129,7 @@ public class HomeController implements Initializable {
     private CodeArea activeCodeArea = null;
 
     private Assignment assignment;
-    private Config config;
+    private GUIConfig GUIConfig;
     private Path projectPath;
     private Object resetScript;
 
@@ -158,10 +159,7 @@ public class HomeController implements Initializable {
     }
 
 
-
-
-
-    public CodeArea initCodeArea(){
+    public CodeArea initCodeArea() {
         CodeArea codeArea = new CodeArea();
         codeArea.setStyle("-fx-font-family: monospaced; -fx-font-size: 10pt;");
         // add line numbers to the left of area
@@ -183,12 +181,12 @@ public class HomeController implements Initializable {
 
         codeArea.undoAvailableProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    if (this.activeCodeArea == codeArea){
-                        undoMenuItem.setDisable(!newValue);
-                        undoButton.setDisable(!newValue);
-                        undoMenuItem.isDisable(); //undoMenuItem setDisable does not show properly without this. no idea
+                            if (this.activeCodeArea == codeArea) {
+                                undoMenuItem.setDisable(!newValue);
+                                undoButton.setDisable(!newValue);
+                                undoMenuItem.isDisable(); //undoMenuItem setDisable does not show properly without this. no idea
+                            }
                         }
-                }
                 );
         codeArea.redoAvailableProperty()
                 .addListener((observable, oldValue, newValue) -> {
@@ -210,9 +208,8 @@ public class HomeController implements Initializable {
     }
 
 
-
-    public void updateConfig(){
-        this.config = new ConfigBuilder().setUsername(usernameTextField.getText())
+    public void updateConfig() {
+        this.GUIConfig = new GUIConfigBuilder().setUsername(usernameTextField.getText())
                 .setPassword(passwordTextField.getText())
                 .setHost(hostTextField.getText())
                 .setPort(portTextField.getText())
@@ -228,32 +225,32 @@ public class HomeController implements Initializable {
                 .createConfig();
     }
 
-    private void initConfig(Config config){
-        if (config == null)
-            this.config = new ConfigBuilder().createConfig();
+    private void initConfig(GUIConfig GUIConfig) {
+        if (GUIConfig == null)
+            this.GUIConfig = new GUIConfigBuilder().createConfig();
         else
-            this.config = config;
+            this.GUIConfig = GUIConfig;
 
-        usernameTextField.setText(this.config.getUsername());
-        passwordTextField.setText(this.config.getPassword());
-        hostTextField.setText(this.config.getHost());
-        portTextField.setText(this.config.getPort());
-        databaseTextField.setText(this.config.getDatabaseName());
-        resetScriptPathTextField.setText(this.config.getResetScript());
-        nameStudentTextField.setText(this.config.getNameStudent());
-        matNrTextField.setText(this.config.getMatNr());
-        emailTextField.setText(this.config.getEmail());
-        gemeinschaftsabgabenCheckBox.setSelected(this.config.isPartnerOk());
-        namePartnerTextField.setText(this.config.getPartnerName());
-        matNrPartnerTextField.setText(this.config.getPartnerMatNr());
-        emailPartnerTextField.setText(this.config.getPartnerEmail());
-        setDisablePartner(!this.config.isPartnerOk());
+        usernameTextField.setText(this.GUIConfig.getUsername());
+        passwordTextField.setText(this.GUIConfig.getPassword());
+        hostTextField.setText(this.GUIConfig.getHost());
+        portTextField.setText(this.GUIConfig.getPort());
+        databaseTextField.setText(this.GUIConfig.getDatabaseName());
+        resetScriptPathTextField.setText(this.GUIConfig.getResetScript());
+        nameStudentTextField.setText(this.GUIConfig.getNameStudent());
+        matNrTextField.setText(this.GUIConfig.getMatNr());
+        emailTextField.setText(this.GUIConfig.getEmail());
+        gemeinschaftsabgabenCheckBox.setSelected(this.GUIConfig.isPartnerOk());
+        namePartnerTextField.setText(this.GUIConfig.getPartnerName());
+        matNrPartnerTextField.setText(this.GUIConfig.getPartnerMatNr());
+        emailPartnerTextField.setText(this.GUIConfig.getPartnerEmail());
+        setDisablePartner(!this.GUIConfig.isPartnerOk());
 
     }
 
     @FXML
     void handleGemeinschaftsabgabenCheckBox(ActionEvent event) {
-        boolean bool = ((CheckBox)event.getSource()).isSelected();
+        boolean bool = ((CheckBox) event.getSource()).isSelected();
         setDisablePartner(!bool);
         updateConfig();
     }
@@ -267,7 +264,7 @@ public class HomeController implements Initializable {
 
     public void undo(ActionEvent actionEvent) {
 
-        if (activeCodeArea!=null){
+        if (activeCodeArea != null) {
             activeCodeArea.undo();
             tabPane.getSelectionModel().select(this.tabUebung);
             activeCodeArea.requestFocus();
@@ -275,7 +272,7 @@ public class HomeController implements Initializable {
     }
 
     public void redo(ActionEvent actionEvent) {
-        if (activeCodeArea!=null){
+        if (activeCodeArea != null) {
             activeCodeArea.redo();
             tabPane.getSelectionModel().select(this.tabUebung);
             activeCodeArea.requestFocus();
@@ -284,7 +281,7 @@ public class HomeController implements Initializable {
 
     public void taskSelected(MouseEvent mouseEvent) {
         String task = taskListView.getSelectionModel().getSelectedItem();
-        if (task==null) return;
+        if (task == null) return;
         VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(Arrays.asList(assignment.getTasks()).indexOf(task));
         this.activeCodeArea = codeAreaVirtualizedScrollPane.getContent();
         this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
@@ -296,31 +293,31 @@ public class HomeController implements Initializable {
     }
 
     public void newProject(ActionEvent actionEvent) {
-        Assignment a = new Assignment("name","assignment", "b", "c");
-        a.putCodeMap("assignment","this is assignment");
-        a.putCodeMap("b","this is b");
-        a.putCodeMap("c","this is c");
+        Assignment a = new Assignment("name", "assignment", "b", "c");
+        a.putCodeMap("assignment", "this is assignment");
+        a.putCodeMap("b", "this is b");
+        a.putCodeMap("c", "this is c");
         this.initAssignment(a);
         this.updateMenu();
     }
 
-    private void updateMenu(){
-        this.saveMenuItem.setDisable(this.assignment==null|this.projectPath==null);
-        this.saveAsMenuItem.setDisable(this.assignment==null);
-        this.closeMenuItem.setDisable(this.assignment==null);
-        this.saveButton.setDisable(this.assignment==null|this.projectPath==null);
+    private void updateMenu() {
+        this.saveMenuItem.setDisable(this.assignment == null | this.projectPath == null);
+        this.saveAsMenuItem.setDisable(this.assignment == null);
+        this.closeMenuItem.setDisable(this.assignment == null);
+        this.saveButton.setDisable(this.assignment == null | this.projectPath == null);
     }
 
-    public void initAssignment(Assignment assignment){
+    public void initAssignment(Assignment assignment) {
         this.assignment = assignment;
-        if (assignment==null){
-            this.activeCodeArea =null;
+        if (assignment == null) {
+            this.activeCodeArea = null;
             this.codeAreas.clear();
             this.CODEPANE.setCenter(null);
             this.taskListView.setItems(FXCollections.observableArrayList(new ArrayList<>()));
             this.projectPath = null;
-        }else{
-            for(int i = 0; i< assignment.getTasks().length; i++){
+        } else {
+            for (int i = 0; i < assignment.getTasks().length; i++) {
                 VirtualizedScrollPane<CodeArea> newPane = new VirtualizedScrollPane<>(initCodeArea());
                 newPane.getContent().replaceText(assignment.getCodeMap().get(assignment.getTasks()[i]));
                 newPane.getContent().getUndoManager().forgetHistory();
@@ -362,7 +359,7 @@ public class HomeController implements Initializable {
     public void saveProject(Path path) throws IOException {
         Files.write(path,
                 new Gson().toJson(
-                new SQLCheckerProject(this.config,this.assignment)).getBytes(StandardCharsets.UTF_8)
+                        new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
         );
     }
 
@@ -377,10 +374,10 @@ public class HomeController implements Initializable {
         try {
             project = FileIO.load(file.toPath(), SQLCheckerProject.class);
             initAssignment(project.getAssignment());
-            initConfig(project.getConfig());
+            initConfig(project.getGUIConfig());
             this.projectPath = file.toPath();
             updateMenu();
-        } catch (JsonSyntaxException e){
+        } catch (JsonSyntaxException e) {
             alertNoSQLCFile(file);
         } catch (IOException e) {
             e.printStackTrace();
@@ -391,14 +388,14 @@ public class HomeController implements Initializable {
     private void alertNoSQLCFile(File file) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Not a SQLChecker File");
-        alert.setContentText("Parsing of " +file.toString()+" failed.\nIt seems not to be a valid SQLChecker File.");
+        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be a valid SQLChecker File.");
 
         alert.showAndWait();
     }
 
     public void exportConfig(ActionEvent actionEvent) {
         updateConfig();
-        System.out.println(config);
+        System.out.println(GUIConfig);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Speichere aktuelle Konfiguration als Datei.");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
@@ -409,15 +406,16 @@ public class HomeController implements Initializable {
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         try {
-            System.out.println(config);
+            System.out.println(GUIConfig);
             saveConfig(file.toPath());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     public void saveConfig(Path path) throws IOException {
         Files.write(path,
-                (this.config.toJson()).getBytes(StandardCharsets.UTF_8)
+                (this.GUIConfig.toJson()).getBytes(StandardCharsets.UTF_8)
         );
     }
 
@@ -432,7 +430,7 @@ public class HomeController implements Initializable {
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
         try {
-            Config c = FileIO.load(file.toPath(), Config.class);
+            GUIConfig c = FileIO.load(file.toPath(), GUIConfig.class);
             initConfig(c);
             updateMenu();
         } catch (JsonSyntaxException e) {
@@ -456,8 +454,7 @@ public class HomeController implements Initializable {
             stage.setTitle("Über SQLChecker");
             stage.setScene(new Scene(root, 450, 450));
             stage.show();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -485,7 +482,7 @@ public class HomeController implements Initializable {
 
 
     public void handleResetDatabase(ActionEvent actionEvent) {
-        System.out.println("run reset skript now: "+this.resetScript);
+        System.out.println("run reset skript now: " + this.resetScript);
     }
 
     public void runTaskCode(ActionEvent actionEvent) {

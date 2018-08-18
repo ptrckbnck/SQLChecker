@@ -1,8 +1,8 @@
-package de.unifrankfurt.dbis;
+package de.unifrankfurt.dbis.config;
 
 import com.google.gson.Gson;
 
-public class Config {
+public class GUIConfig {
     //database
     private final String databaseName;
     private final String username;
@@ -20,7 +20,7 @@ public class Config {
     private final String partnerMatNr;
     private final String partnerEmail;
 
-   public Config(String databaseName, String username, String password, String host, String port, String resetScript, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
+    public GUIConfig(String databaseName, String username, String password, String host, String port, String resetScript, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
         this.databaseName = databaseName;
         this.username = username;
         this.password = password;
@@ -88,18 +88,18 @@ public class Config {
         return partnerEmail;
     }
 
-    public static Config fromJson(String json){
-        return new Gson().fromJson(json, Config.class);
+    public static GUIConfig fromJson(String json) {
+        return new Gson().fromJson(json, GUIConfig.class);
     }
 
-    public String toJson(){
+    public String toJson() {
         Gson g = new Gson();
         return g.toJson(this);
     }
 
     @Override
     public String toString() {
-        return "Config{" +
+        return "GUIConfig{" +
                 "databaseName='" + databaseName + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +

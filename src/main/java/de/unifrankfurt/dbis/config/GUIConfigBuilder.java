@@ -1,6 +1,6 @@
-package de.unifrankfurt.dbis;
+package de.unifrankfurt.dbis.config;
 
-public class ConfigBuilder {
+public class GUIConfigBuilder {
     private String databaseName = "";
     private String username = "";
     private String password = "";
@@ -15,72 +15,72 @@ public class ConfigBuilder {
     private String partnerMatNr = "";
     private String partnerEmail = "";
 
-    public ConfigBuilder setDatabaseName(String databaseName) {
+    public GUIConfigBuilder setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
         return this;
     }
 
-    public ConfigBuilder setUsername(String username) {
+    public GUIConfigBuilder setUsername(String username) {
         this.username = username;
         return this;
     }
 
-    public ConfigBuilder setPassword(String password) {
+    public GUIConfigBuilder setPassword(String password) {
         this.password = password;
         return this;
     }
 
-    public ConfigBuilder setHost(String host) {
+    public GUIConfigBuilder setHost(String host) {
         this.host = host;
         return this;
     }
 
-    public ConfigBuilder setPort(String port) {
+    public GUIConfigBuilder setPort(String port) {
         this.port = port;
         return this;
     }
 
-    public ConfigBuilder setResetScript(String resetScript) {
+    public GUIConfigBuilder setResetScript(String resetScript) {
         this.resetScript = resetScript;
         return this;
     }
 
-    public ConfigBuilder setStudentName(String studentName) {
+    public GUIConfigBuilder setStudentName(String studentName) {
         this.studentName = studentName;
         return this;
     }
 
-    public ConfigBuilder setMatNr(String matNr) {
+    public GUIConfigBuilder setMatNr(String matNr) {
         this.matNr = matNr;
         return this;
     }
 
-    public ConfigBuilder setEmail(String email) {
+    public GUIConfigBuilder setEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public ConfigBuilder setPartnerOk(boolean partnerOk) {
+    public GUIConfigBuilder setPartnerOk(boolean partnerOk) {
         this.partnerOk = partnerOk;
         return this;
     }
 
-    public ConfigBuilder setPartnerName(String partnerName) {
+    public GUIConfigBuilder setPartnerName(String partnerName) {
         this.partnerName = partnerName;
         return this;
     }
 
-    public ConfigBuilder setPartnerMatNr(String partnerMatNr) {
+    public GUIConfigBuilder setPartnerMatNr(String partnerMatNr) {
         this.partnerMatNr = partnerMatNr;
         return this;
     }
 
-    public ConfigBuilder setPartnerEmail(String partnerEmail) {
+    public GUIConfigBuilder setPartnerEmail(String partnerEmail) {
         this.partnerEmail = partnerEmail;
         return this;
     }
 
-    public Config createConfig() {
-        return new Config(databaseName, username, password, host, port, resetScript, studentName, matNr, email, partnerOk, partnerName, partnerMatNr, partnerEmail);
+    public GUIConfig createConfig() {
+        return new GUIConfig(databaseName, username, password, host, port, resetScript, studentName, matNr, email, partnerOk, partnerName, partnerMatNr, partnerEmail);
     }
 }

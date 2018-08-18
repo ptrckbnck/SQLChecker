@@ -12,7 +12,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="SQLChecker" options="" />
+      <module name="SQLChecker" options="-Xlint:unchecked" />
     </option>
   </component>
 </project>
