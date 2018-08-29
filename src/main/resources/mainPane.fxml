@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <AnchorPane id="AnchorPane" minHeight="500.0" minWidth="500.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="700.0"
-            prefWidth="700.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/8"
+            prefWidth="700.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/10.0.1"
             xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.unifrankfurt.dbis.GUI.HomeController">
     <children>
         <BorderPane prefHeight="712.0" prefWidth="1133.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -99,15 +99,14 @@
                                                         <Button fx:id="saveButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#saveProject"
                                                                 text="speichern"/>
-                                                        <Button fx:id="runButton" disable="true" mnemonicParsing="false"
+                                                        <Button fx:id="runButton" mnemonicParsing="false"
                                                                 onAction="#runTaskCode" text="ausführen"/>
                                                         <Button fx:id="undoButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#undo" text="undo"/>
                                                         <Button fx:id="redoButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#redo" text="redo"/>
-                                                        <Button fx:id="resetButton" disable="true"
-                                                                mnemonicParsing="false" onAction="#handleResetDatabase"
-                                                                text="reset Database"/>
+                                                        <Button fx:id="resetButton" mnemonicParsing="false"
+                                                                onAction="#handleResetDatabase" text="reset Database"/>
                                                         <Button mnemonicParsing="false" onAction="#raiseEx"
                                                                 text="Exception!"/>
                                                     </items>
@@ -197,6 +196,8 @@
                                                                                         <Label text="Name der SQL-Datenbank"/>
                                                                                         <TextField
                                                                                                 fx:id="databaseTextField"
+                                                                                                prefHeight="26.0"
+                                                                                                prefWidth="185.0"
                                                                                                 GridPane.columnIndex="1"/>
                                                                                         <Label text="Name des Nutzers"
                                                                                                GridPane.rowIndex="1"/>
@@ -204,19 +205,6 @@
                                                                                                GridPane.rowIndex="2"/>
                                                                                         <Label text="Host"
                                                                                                GridPane.rowIndex="3"/>
-                                                                                        <Button mnemonicParsing="false"
-                                                                                                onAction="#loadResetScript"
-                                                                                                onMouseClicked="#resetScriptOpen"
-                                                                                                text="öffne"
-                                                                                                GridPane.columnIndex="2"
-                                                                                                GridPane.rowIndex="5"/>
-                                                                                        <Label text="Reset Script"
-                                                                                               GridPane.rowIndex="5"/>
-                                                                                        <TextField
-                                                                                                fx:id="resetScriptPathTextField"
-                                                                                                editable="false"
-                                                                                                GridPane.columnIndex="1"
-                                                                                                GridPane.rowIndex="5"/>
                                                                                         <TextField
                                                                                                 fx:id="usernameTextField"
                                                                                                 GridPane.columnIndex="1"
@@ -231,6 +219,17 @@
                                                                                         <TextField fx:id="portTextField"
                                                                                                    GridPane.columnIndex="1"
                                                                                                    GridPane.rowIndex="4"/>
+                                                                                        <TextField
+                                                                                                fx:id="resetScriptPathTextField"
+                                                                                                GridPane.columnIndex="1"
+                                                                                                GridPane.rowIndex="5"/>
+                                                                                        <Button mnemonicParsing="false"
+                                                                                                onAction="#loadResetScript"
+                                                                                                text="öffne"
+                                                                                                GridPane.columnIndex="2"
+                                                                                                GridPane.rowIndex="5"/>
+                                                                                        <Label text="Reset Script"
+                                                                                               GridPane.rowIndex="5"/>
                                                                                         <Label text="Port"
                                                                                                GridPane.rowIndex="4"/>
                                                                                     </children>
@@ -350,7 +349,11 @@
                                 <ScrollPane fitToHeight="true" fitToWidth="true" prefViewportHeight="232.0"
                                             prefViewportWidth="694.0">
                                     <content>
-                                        <TextArea fx:id="console" editable="false" BorderPane.alignment="CENTER"/>
+                                        <TextArea fx:id="console" editable="false" BorderPane.alignment="CENTER">
+                                            <font>
+                                                <Font name="Courier New Bold" size="13.0"/>
+                                            </font>
+                                        </TextArea>
                                     </content>
                                 </ScrollPane>
                             </center>

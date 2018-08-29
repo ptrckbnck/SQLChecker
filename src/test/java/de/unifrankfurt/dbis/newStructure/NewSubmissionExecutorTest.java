@@ -1,8 +1,8 @@
 package de.unifrankfurt.dbis.newStructure;
 
 import de.unifrankfurt.dbis.DBFit.NewResultStorage;
-import de.unifrankfurt.dbis.Submission.NewScript;
 import de.unifrankfurt.dbis.Submission.NewSubmissionExecutor;
+import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import de.unifrankfurt.dbis.TestResources;
 import de.unifrankfurt.dbis.config.XConfig;
@@ -14,7 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.*;
+import static org.junit.Assume.assumeFalse;
 public class NewSubmissionExecutorTest {
 
     @Test
@@ -24,7 +24,7 @@ public class NewSubmissionExecutorTest {
         TestResources.Simple simple = TestResources.Simple.getInstance();
         simple.runReset();
         XConfig XConfig = simple.getConfig();
-        NewScript script = simple.getReset();
+        SQLScript script = simple.getReset();
 
         Connection con = XConfig.newConnection();
         assumeFalse(con.isClosed());

@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.Submission;
+package de.unifrankfurt.dbis.SQL;
 
 
 import java.sql.SQLException;
@@ -85,6 +85,32 @@ public class SQLResultWrapper {
         if (obj instanceof SQLResultTable)
             return ((SQLResultTable) obj).convertToDBFitHtml();
         else return ""; //if count no DBFITHtml should be created
+    }
+
+    @Override
+    public String toString() {
+        if (this.result.isEmpty()) {
+            return "no result";
+        } else if (this.result.size() == 1) {
+            Object obj = this.result.get(0);
+            if (obj instanceof SQLResultTable)
+                return obj.toString();
+            else if (obj instanceof Integer) {
+                return obj.toString();
+            } else return "?" + obj.toString();
+
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < this.result.size(); i++) {
+                Object obj = this.result.get(i);
+                sb.append("Result ")
+                        .append(i)
+                        .append(":\n")
+                        .append(obj);
+            }
+            return sb.toString();
+        }
+
     }
 
 

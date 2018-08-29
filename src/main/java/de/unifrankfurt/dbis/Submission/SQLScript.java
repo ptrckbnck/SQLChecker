@@ -17,10 +17,10 @@ import java.util.stream.Stream;
 /**
  * todo javadocs
  */
-public class NewScript {
+public class SQLScript {
     private final List<String> queryList;
 
-    public NewScript(List<String> queryList) {
+    public SQLScript(List<String> queryList) {
         this.queryList = queryList;
     }
 
@@ -29,12 +29,12 @@ public class NewScript {
     }
 
 
-    public static NewScript fromPath(Path resetPath) throws IOException {
+    public static SQLScript fromPath(Path resetPath) throws IOException {
         List<String> lines = Files.readAllLines(resetPath, StandardCharsets.UTF_8);
         return fromList(lines);
     }
 
-    private static NewScript fromList(List<String> lines) throws IOException {
+    private static SQLScript fromList(List<String> lines) throws IOException {
         String delimiter = Tag.TAG_PREFIX + Tag.STATIC + Tag.TAG_SUFFIX;
         StringBuilder sb = null;
         ArrayList<String> queryList = new ArrayList<>();
@@ -60,7 +60,7 @@ public class NewScript {
             queryList.add(sb.toString());
         }
 
-        return new NewScript(queryList);
+        return new SQLScript(queryList);
     }
 
     public void storeInPath(Path path) throws IOException {
@@ -81,8 +81,8 @@ public class NewScript {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        NewScript newScript = (NewScript) o;
-        return Objects.equals(queryList, newScript.queryList);
+        SQLScript SQLScript = (SQLScript) o;
+        return Objects.equals(queryList, SQLScript.queryList);
     }
 
     @Override

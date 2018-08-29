@@ -1,19 +1,16 @@
 package de.unifrankfurt.dbis;
 
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-
 import de.unifrankfurt.dbis.Submission.*;
 import de.unifrankfurt.dbis.config.XConfig;
 import de.unifrankfurt.dbis.config.XConfigBuilder;
 
-
-
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -33,7 +30,7 @@ public class TestResources {
         private Submission<TaskSQL> submission;
         private Path submissionPath;
         private Solution solution;
-        private NewScript reset;
+        private SQLScript reset;
         private Path resetPath;
         private Path dbFitHtmlPath;
         private String dbFitHtml;
@@ -91,9 +88,9 @@ public class TestResources {
             return solution;
         }
 
-        public NewScript getReset() throws IOException {
+        public SQLScript getReset() throws IOException {
             if (reset == null)
-                reset = NewScript.fromPath(getResetPath());
+                reset = SQLScript.fromPath(getResetPath());
             return reset;
         }
 

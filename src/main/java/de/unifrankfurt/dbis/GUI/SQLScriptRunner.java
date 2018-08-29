@@ -2,13 +2,14 @@ package de.unifrankfurt.dbis.GUI;
 
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.config.GUIConfig;
+import javafx.concurrent.Task;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SQLScriptRunner implements Runnable {
+public class SQLScriptRunner extends Task {
 
     private final GUIConfig guiConfig;
     private final SQLScript script;
@@ -19,7 +20,9 @@ public class SQLScriptRunner implements Runnable {
         this.script = script;
     }
 
-    public void run() {
+
+    @Override
+    protected Object call() {
         Statement statement = null;
         ResultSet rs = null;
         try (Connection connection = guiConfig.newConnection()) {
@@ -50,6 +53,6 @@ public class SQLScriptRunner implements Runnable {
                 }
             }
         }
+        return null;
     }
-
 }

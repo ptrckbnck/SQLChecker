@@ -1,11 +1,11 @@
 package de.unifrankfurt.dbis.Submission;
 
 
-import de.unifrankfurt.dbis.config.XConfig;
 import de.unifrankfurt.dbis.DBFit.FullCheckResult;
 import de.unifrankfurt.dbis.DBFit.FullCheckResultBuilder;
 import de.unifrankfurt.dbis.DBFit.MySQLTestWrapper;
 import de.unifrankfurt.dbis.DBFit.NewResultStorage;
+import de.unifrankfurt.dbis.config.XConfig;
 import fit.exception.FitParseException;
 
 import java.io.*;
@@ -30,10 +30,10 @@ public class NewSubmissionExecutor {
     private final XConfig XConfig;
     private final Solution solution;
     private final MySQLTestWrapper test;
-    private final NewScript reset;
+    private final SQLScript reset;
 
 
-    public NewSubmissionExecutor(XConfig XConfig, Solution solution, NewScript reset) {
+    public NewSubmissionExecutor(XConfig XConfig, Solution solution, SQLScript reset) {
         this.XConfig = XConfig;
         this.reset = reset;
         this.solution = solution;
@@ -147,7 +147,7 @@ public class NewSubmissionExecutor {
      */
     private void runAllChecks(FullCheckResultBuilder builder,
                               List<Submission<TaskSQL>> subs,
-                              NewScript reset,
+                              SQLScript reset,
                               Connection connection) throws SQLException {
         Map<Submission<TaskSQL>, Exception> errorLogSubmission = new HashMap<>();
         Map<Submission<TaskSQL>, NewResultStorage> result = new HashMap<>();

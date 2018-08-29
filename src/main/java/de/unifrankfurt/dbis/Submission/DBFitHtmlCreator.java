@@ -1,6 +1,9 @@
 package de.unifrankfurt.dbis.Submission;
 
 
+import de.unifrankfurt.dbis.SQL.SQLResultTable;
+import de.unifrankfurt.dbis.SQL.SQLResultWrapper;
+
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;

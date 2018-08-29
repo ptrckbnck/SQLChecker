@@ -1,6 +1,11 @@
 package de.unifrankfurt.dbis.config;
 
 import com.google.gson.Gson;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class GUIConfig {
     //database
@@ -8,7 +13,7 @@ public class GUIConfig {
     private final String username;
     private final String password;
     private final String host;
-    private final String port;
+    private final Integer port;
     private final String resetScript;
 
     //studentdata
@@ -20,7 +25,7 @@ public class GUIConfig {
     private final String partnerMatNr;
     private final String partnerEmail;
 
-    public GUIConfig(String databaseName, String username, String password, String host, String port, String resetScript, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
+    public GUIConfig(String databaseName, String username, String password, String host, Integer port, String resetScript, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
         this.databaseName = databaseName;
         this.username = username;
         this.password = password;
@@ -52,7 +57,7 @@ public class GUIConfig {
         return host;
     }
 
-    public String getPort() {
+    public Integer getPort() {
         return port;
     }
 
@@ -115,4 +120,26 @@ public class GUIConfig {
                 ", partnerEmail='" + partnerEmail + '\'' +
                 '}';
     }
+
+    public DataSource getDataSource() {
+        MysqlDataSource source = new MysqlDataSource();
+        source.setServerName(this.getHost());
+        source.setPortNumber(this.getPort());
+        source.setDatabaseName(this.getDatabaseName());
+        source.setUser(this.getUsername());
+        source.setPassword(this.getPassword());
+        return source;
+    }
+
+
+    /**
+     * Attempts to establish a connection MySQL Server that this GUIConfig represents.
+     *
+     * @return Connection to MySQL Server
+     * @throws SQLException - if a database access error occurs.
+     */
+    public Connection newConnection() throws SQLException {
+        return this.getDataSource().getConnection();
+    }
+
 }

@@ -1,4 +1,6 @@
-package de.unifrankfurt.dbis.Submission;
+package de.unifrankfurt.dbis.SQL;
+
+import de.vandermeer.asciitable.AsciiTable;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -71,6 +73,19 @@ public class SQLResultTable {
             html.append("\t</tr>\n");
         }
         return html.toString();
+    }
+
+    @Override
+    public String toString() {
+        AsciiTable at = new AsciiTable();
+        at.addRule();
+        at.addRow(this.header);
+        at.addRule();
+        for (List<String> row : this.data) {
+            at.addRow(row);
+        }
+        at.addRule();
+        return at.render();
     }
 
 

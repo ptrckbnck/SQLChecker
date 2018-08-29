@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.Submission;
+package de.unifrankfurt.dbis.SQL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

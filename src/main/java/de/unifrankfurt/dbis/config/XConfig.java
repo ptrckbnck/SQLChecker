@@ -1,8 +1,8 @@
 package de.unifrankfurt.dbis.config;
 
 
-import com.mysql.cj.jdbc.MysqlDataSource;
-import de.unifrankfurt.dbis.Submission.NewScript;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import de.unifrankfurt.dbis.Submission.SQLScript;
 
 import javax.sql.DataSource;
 import java.io.*;
@@ -446,8 +446,8 @@ public class XConfig {
         return this.getDataSource().getConnection();
     }
 
-    public NewScript getResetScript() throws IOException {
-        return NewScript.fromPath(Paths.get(this.resetPath));
+    public SQLScript getResetScript() throws IOException {
+        return SQLScript.fromPath(Paths.get(this.resetPath));
     }
 
 

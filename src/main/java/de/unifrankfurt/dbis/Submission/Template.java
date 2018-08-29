@@ -2,18 +2,21 @@ package de.unifrankfurt.dbis.Submission;
 
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Template {
     private Submission<Task> submission;
-    private NewScript resetScript;
+    private SQLScript resetScript;
     public static final String TEMPLATE_NAME = "template.sql";
     public static final String RESET_SCRIPT_NAME = "reset.sql";
 
 
-    Template(Submission<Task> submission, NewScript resetScript) {
+    Template(Submission<Task> submission, SQLScript resetScript) {
         this.submission = submission;
         this.resetScript = resetScript;
     }
@@ -42,7 +45,7 @@ public class Template {
             throw new IOException("Container contains no valid Template");
 
         Submission<Task> submission = Submission.fromPath(submissionPath.get(0));
-        NewScript reset = NewScript.fromPath(resetScriptPath.get(0));
+        SQLScript reset = SQLScript.fromPath(resetScriptPath.get(0));
         return new Template(submission, reset);
     }
 
@@ -59,7 +62,7 @@ public class Template {
 
     }
 
-    public NewScript getResetScript() {
+    public SQLScript getResetScript() {
         return resetScript;
     }
 

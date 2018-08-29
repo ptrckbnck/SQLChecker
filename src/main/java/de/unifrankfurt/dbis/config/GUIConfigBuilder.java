@@ -4,8 +4,8 @@ public class GUIConfigBuilder {
     private String databaseName = "";
     private String username = "";
     private String password = "";
-    private String host = "";
-    private String port = "";
+    private String host = "localhost";
+    private Integer port = 3306;
     private String resetScript = "";
     private String studentName = "";
     private String matNr = "";
@@ -35,7 +35,7 @@ public class GUIConfigBuilder {
         return this;
     }
 
-    public GUIConfigBuilder setPort(String port) {
+    public GUIConfigBuilder setPort(Integer port) {
         this.port = port;
         return this;
     }

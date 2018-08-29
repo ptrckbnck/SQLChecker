@@ -143,6 +143,7 @@ public class HomeController implements Initializable {
 
 
         System.setOut(new PrintStreamCapturer(console, System.out, "> "));
+        System.setErr(new PrintStreamCapturer(console, System.err, "[ERROR]> "));
 
         CODEPANE.getStylesheets().add("/sql.css");
 
@@ -177,10 +178,6 @@ public class HomeController implements Initializable {
         namePartnerTextField.focusedProperty().addListener(configChangeListener);
         matNrPartnerTextField.focusedProperty().addListener(configChangeListener);
         emailPartnerTextField.focusedProperty().addListener(configChangeListener);
-
-
-        System.out.println("wird oe richtig dargestellt?: ö");
-
     }
 
 
@@ -507,7 +504,7 @@ public class HomeController implements Initializable {
 
         Path resetPath = Paths.get(this.GUIConfig.getResetScript());
         if (!isOkResetPath(resetPath)) {
-            System.out.println("Pfad des Reset Skript nicht ok: " + resetPath);
+            System.err.println("Pfad des Reset Skript nicht ok: " + resetPath);
             return;
         }
 
@@ -526,6 +523,12 @@ public class HomeController implements Initializable {
     }
 
     public void runTaskCode(ActionEvent actionEvent) {
+        String sql = this.activeCodeArea.getText();
+        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
+        Thread t = new Thread(new SQLRunner(this.GUIConfig, sql));
+        t.setUncaughtExceptionHandler(h);
+        t.start();
+        System.out.println("sql code wird ausgeführt.");
     }
 
 
