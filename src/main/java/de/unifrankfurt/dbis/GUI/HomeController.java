@@ -13,7 +13,6 @@ import de.unifrankfurt.dbis.IO.SQLCheckerProject;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -34,8 +33,6 @@ import org.reactfx.Subscription;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -144,13 +141,8 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
-        OutputStream out = new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                appendText(String.valueOf((char) b));
-            }
-        };
-        System.setOut(new PrintStream(out, true));
+
+        System.setOut(new PrintStreamCapturer(console, System.out, "> "));
 
         CODEPANE.getStylesheets().add("/sql.css");
 
@@ -235,10 +227,6 @@ public class HomeController implements Initializable {
         return codeArea;
     }
 
-
-    public void appendText(String str) {
-        Platform.runLater(() -> console.appendText(str));
-    }
 
 
     public void updateConfig() {
