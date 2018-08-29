@@ -20,6 +20,8 @@ public class SQLRunner extends Task {
 
     @Override
     protected Object call() {
+
+        checkSQL(sql);
         try (Connection con = guiConfig.newConnection()) {
             Statement stmt = con.createStatement();
             SQLResultWrapper result = SQLResultWrapper.executeStatement(stmt, sql);
@@ -28,5 +30,12 @@ public class SQLRunner extends Task {
             System.err.println(e.getMessage());
         }
         return null;
+    }
+
+    private void checkSQL(String sql) {
+        if (sql.contains("use ") || sql.contains("USE ")) {
+            System.out.println("[Warnung] die Database mittels USE zu wechseln hat keinen Effekt.\n" +
+                    "[Warnung] Bitte richtige Database in Config angeben.");
+        }
     }
 }

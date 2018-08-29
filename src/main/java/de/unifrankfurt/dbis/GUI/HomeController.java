@@ -137,14 +137,14 @@ public class HomeController implements Initializable {
     private Assignment assignment;
     private GUIConfig GUIConfig;
     private Path projectPath;
-    private Object resetScript;
+    private Path resetScript;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
 
         System.setOut(new PrintStreamCapturer(console, System.out, "> "));
-        System.setErr(new PrintStreamCapturer(console, System.err, "[ERROR]> "));
+        System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
 
         CODEPANE.getStylesheets().add("/sql.css");
 
@@ -337,7 +337,7 @@ public class HomeController implements Initializable {
         projectChooser.setTitle("Lege Speicherort des neuen Projekt fest");
         projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
         projectChooser.setInitialFileName(submission.getName() + ".sqlc");
-        Stage stageProject = new FileChooserStage();
+        Stage stageProject = new Stage();
         File project = projectChooser.showSaveDialog(stageProject);
         if (project == null) return;
         try {
