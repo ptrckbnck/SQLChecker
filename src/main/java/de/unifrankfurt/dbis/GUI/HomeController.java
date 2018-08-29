@@ -7,10 +7,12 @@ package de.unifrankfurt.dbis.GUI;/*
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.IO.Assignment;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
 import de.unifrankfurt.dbis.Submission.SQLScript;
+import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Submission.TaskSQL;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import javafx.beans.value.ChangeListener;
@@ -41,7 +43,6 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -300,7 +301,7 @@ public class HomeController implements Initializable {
     public void taskSelected(MouseEvent mouseEvent) {
         String task = taskListView.getSelectionModel().getSelectedItem();
         if (task == null) return;
-        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(Arrays.asList(assignment.getTasks()).indexOf(task));
+        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(assignment.getTasks().indexOf(task));
         this.activeCodeArea = codeAreaVirtualizedScrollPane.getContent();
         this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
         this.activeCodeArea.requestFocus();
@@ -311,12 +312,43 @@ public class HomeController implements Initializable {
     }
 
     public void newProject(ActionEvent actionEvent) {
-        Assignment a = new Assignment("name", "assignment", "b", "c");
-        a.putCodeMap("assignment", "this is assignment");
-        a.putCodeMap("b", "this is b");
-        a.putCodeMap("c", "this is c");
-        this.initAssignment(a);
-        this.updateMenu();
+        FileChooser templateChooser = new FileChooser();
+        templateChooser.setTitle("Öffne Aufgaben-Template Datei");
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
+        Stage stageTemplate = new Stage();
+        File template = templateChooser.showOpenDialog(stageTemplate);
+        if (template == null) return;
+        Submission<TaskSQL> submission;
+        try {
+            submission = Submission.fromPath(template.toPath()).onlyTaskSQLSubmission();
+            this.initAssignment(submission);
+        } catch (IOException e) {
+            System.err.println("Fehler beim Öffnen der Aufgabe.");
+            this.initAssignment((Assignment) null);
+            return;
+        } catch (SubmissionParseException e) {
+            System.err.println("Fehler beim Einlesen der Aufgabe.");
+            this.initAssignment((Assignment) null);
+            return;
+        }
+
+        FileChooser projectChooser = new FileChooser();
+        projectChooser.setTitle("Lege Speicherort des neuen Projekt fest");
+        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
+        Stage stageProject = new FileChooserStage();
+        File project = projectChooser.showSaveDialog(stageProject);
+        if (project == null) return;
+        try {
+            saveProject(project.toPath());
+            projectPath = project.toPath();
+            updateMenu();
+        } catch (IOException e) {
+            System.err.println("Fehler beim anlegen der Projekt-Datei.");
+            projectPath = null;
+        }
+
     }
 
     private void updateMenu() {
@@ -335,15 +367,20 @@ public class HomeController implements Initializable {
             this.taskListView.setItems(FXCollections.observableArrayList(new ArrayList<>()));
             this.projectPath = null;
         } else {
-            for (int i = 0; i < assignment.getTasks().length; i++) {
+            for (String task : assignment.getTasks()) {
                 VirtualizedScrollPane<CodeArea> newPane = new VirtualizedScrollPane<>(initCodeArea());
-                newPane.getContent().replaceText(assignment.getCodeMap().get(assignment.getTasks()[i]));
+                newPane.getContent().replaceText(assignment.getCodeMap().get(task));
                 newPane.getContent().getUndoManager().forgetHistory();
                 codeAreas.add(newPane);
             }
             taskListView.setItems(FXCollections.observableArrayList(assignment.getTasks()));
         }
     }
+
+    public void initAssignment(Submission<TaskSQL> submission) {
+        initAssignment(Assignment.fromSubmission(submission));
+    }
+
 
     public void saveAsProject(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
@@ -459,7 +496,7 @@ public class HomeController implements Initializable {
     }
 
     public void closeProject(ActionEvent actionEvent) {
-        initAssignment(null);
+        initAssignment((Assignment) null);
         updateMenu();
     }
 
