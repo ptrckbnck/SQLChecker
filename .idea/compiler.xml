@@ -12,7 +12,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="SQLChecker" options="-Xlint:unchecked --add-modules=javafx.graphics" />
+      <module name="SQLChecker" options="-Xlint:unchecked --add-modules=javafx.graphics,javafx.base,javafx.fxml,javafx.controls" />
     </option>
   </component>
 </project>

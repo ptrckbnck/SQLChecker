@@ -1,6 +1,5 @@
 package de.unifrankfurt.dbis.Submission;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,11 +70,10 @@ public class SubmissionParser {
      *
      * @param lines List of String which contains the serialized Submission
      * @return Submission created
-     * @throws IOException              from BufferedReader.readLine()
      * @throws SubmissionParseException when something went wring while parsing.
      */
     public static Submission<Task> parse(List<String> lines)
-            throws IOException, SubmissionParseException {
+            throws SubmissionParseException {
         ArrayList<Task> tasks = new ArrayList<>();
         List<Student> authors = null;
         String name = "no_name_found";

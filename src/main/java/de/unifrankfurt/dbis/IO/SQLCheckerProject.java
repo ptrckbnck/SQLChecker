@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis.IO;
 
+import de.unifrankfurt.dbis.GUI.Assignment;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 

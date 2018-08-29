@@ -73,11 +73,11 @@ public abstract class TaskSQL implements Task {
      * @return String
      */
     public String getCodeString() {
-        StringBuilder sb = new StringBuilder();
-        for (String str : commands) {
-            sb.append(str).append("\n");
-        }
-        return sb.toString();
+        String sb = "";
+        if (!this.comment.trim().isEmpty())
+            sb = "/* " + this.comment + " */\n";
+        sb += String.join("\n", commands);
+        return sb;
     }
 
 
@@ -252,7 +252,7 @@ public abstract class TaskSQL implements Task {
     public abstract String generateDBFitHtml(Statement statement) throws SQLException;
 
     public String serialize() {
-        return this.tag.serialized() + "\n" + ("/* ") + this.comment + " */\n" + this.getCodeString();
+        return this.tag.serialized() + "\n" + this.getCodeString();
     }
 
     @Override
@@ -269,4 +269,5 @@ public abstract class TaskSQL implements Task {
     public int hashCode() {
         return Objects.hash(tag, comment, commands);
     }
+
 }
