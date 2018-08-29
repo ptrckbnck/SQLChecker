@@ -8,11 +8,13 @@ package de.unifrankfurt.dbis.GUI;/*
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.IO.Assignment;
-import de.unifrankfurt.dbis.config.GUIConfig;
-import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
+import de.unifrankfurt.dbis.Submission.SQLScript;
+import de.unifrankfurt.dbis.config.GUIConfig;
+import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -38,6 +40,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +89,11 @@ public class HomeController implements Initializable {
     @FXML
     private TextField databaseTextField;
     @FXML
+    private TextField resetScriptPathTextField;
+
+
+
+    @FXML
     private MenuItem saveConfig;
     @FXML
     private ScrollPane studentScrollPane;
@@ -92,8 +101,7 @@ public class HomeController implements Initializable {
     private TextArea console;
     @FXML
     private ListView<String> taskListView;
-    @FXML
-    private TextField resetScriptPathTextField;
+
 
 
     //other
@@ -156,6 +164,31 @@ public class HomeController implements Initializable {
         initConfig(null);
         updateMenu();
 
+        //Config Fields listener
+
+        ChangeListener<Boolean> configChangeListener = (obs, unfocused, focused) ->
+        {
+            if (unfocused) {
+                this.updateConfig();
+            }
+        };
+        databaseTextField.focusedProperty().addListener(configChangeListener);
+        usernameTextField.focusedProperty().addListener(configChangeListener);
+        passwordTextField.focusedProperty().addListener(configChangeListener);
+        hostTextField.focusedProperty().addListener(configChangeListener);
+        portTextField.focusedProperty().addListener(configChangeListener);
+        resetScriptPathTextField.focusedProperty().addListener(configChangeListener);
+        nameStudentTextField.focusedProperty().addListener(configChangeListener);
+        matNrTextField.focusedProperty().addListener(configChangeListener);
+        emailTextField.focusedProperty().addListener(configChangeListener);
+        gemeinschaftsabgabenCheckBox.focusedProperty().addListener(configChangeListener);
+        namePartnerTextField.focusedProperty().addListener(configChangeListener);
+        matNrPartnerTextField.focusedProperty().addListener(configChangeListener);
+        emailPartnerTextField.focusedProperty().addListener(configChangeListener);
+
+
+        System.out.println("wird oe richtig dargestellt?: ö");
+
     }
 
 
@@ -212,7 +245,7 @@ public class HomeController implements Initializable {
         this.GUIConfig = new GUIConfigBuilder().setUsername(usernameTextField.getText())
                 .setPassword(passwordTextField.getText())
                 .setHost(hostTextField.getText())
-                .setPort(portTextField.getText())
+                .setPort(Integer.valueOf(portTextField.getText()))
                 .setDatabaseName(databaseTextField.getText())
                 .setResetScript(resetScriptPathTextField.getText())
                 .setStudentName(nameStudentTextField.getText())
@@ -234,7 +267,7 @@ public class HomeController implements Initializable {
         usernameTextField.setText(this.GUIConfig.getUsername());
         passwordTextField.setText(this.GUIConfig.getPassword());
         hostTextField.setText(this.GUIConfig.getHost());
-        portTextField.setText(this.GUIConfig.getPort());
+        portTextField.setText(this.GUIConfig.getPort().toString());
         databaseTextField.setText(this.GUIConfig.getDatabaseName());
         resetScriptPathTextField.setText(this.GUIConfig.getResetScript());
         nameStudentTextField.setText(this.GUIConfig.getNameStudent());
@@ -474,6 +507,7 @@ public class HomeController implements Initializable {
             this.resetButton.setDisable(false);
             this.resetMenuItem.setDisable(false);
             this.resetScriptPathTextField.setText(file.getPath());
+            this.updateConfig();
         } catch (JsonSyntaxException e) {
             alertNoSQLCFile(file);
         }
@@ -481,16 +515,31 @@ public class HomeController implements Initializable {
     }
 
 
-    public void handleResetDatabase(ActionEvent actionEvent) {
-        System.out.println("run reset skript now: " + this.resetScript);
+    public void handleResetDatabase(ActionEvent actionEvent) throws SQLException, IOException {
+
+        Path resetPath = Paths.get(this.GUIConfig.getResetScript());
+        if (!isOkResetPath(resetPath)) {
+            System.out.println("Pfad des Reset Skript nicht ok: " + resetPath);
+            return;
+        }
+
+        SQLScript script = SQLScript.fromPath(resetPath);
+
+        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
+        Thread t = new Thread(new SQLScriptRunner(this.GUIConfig, script));
+        t.setUncaughtExceptionHandler(h);
+        t.start();
+        System.out.println("start!");
+
+    }
+
+    private boolean isOkResetPath(Path resetPath) {
+        return resetPath.toString().endsWith(".sql");
     }
 
     public void runTaskCode(ActionEvent actionEvent) {
     }
 
-    public void resetScriptOpen(MouseEvent mouseEvent) {
-        this.resetScriptPathTextField.getCharacters();
-    }
 
     public void handleRun(ActionEvent actionEvent) {
     }
