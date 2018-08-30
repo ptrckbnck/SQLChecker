@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis.GUI;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
@@ -25,7 +26,22 @@ public class SQLHighlighter {
             "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE", "WITH", "WITHOUT",
     };
 
-    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
+    private static final String[] FUNCTIONS = new String[]{
+            "ABS", "ACOS", "ADDDATE", "ASCII", "ASIN", "ATAN", "AVG", "BIN", "BINARY", "CASE", "CAST", "CEIL",
+            "CEILING", "COALESCE", "CONCAT", "CONCAT_WS", "CONV", "CONVERT", "COS", "COT", "COUNT", "CURRENT_DATE",
+            "CURRENT_TIME", "CURRENT_TIMESTAMP", "CURRENT_USER", "DATE", "DATE_ADD", "DATE_FORMAT", "DATE_SUB",
+            "DATEDIFF", "DAY", "DEGREES", "ENCRYPT", "EXP", "EXTRACT", "FLOOR", "FORMAT", "FROM_DAYS", "GREATEST",
+            "HOUR", "IF", "IFNULL", "INSERT", "INSTR", "ISNULL", "LAST_DAY", "LCASE", "LEAST", "LEFT", "LENGTH", "LN",
+            "LOCALTIME", "LOCALTIMESTAMP", "LOG", "LOG10", "LOWER", "LPAD", "LTRIM", "MAX", "MID", "MIN", "MINUTE",
+            "MOD", "MONTH", "NULLIF", "PI", "POW", "POWER", "RADIANS", "RAND", "REPEAT", "REPLACE", "REVERSE", "RIGHT",
+            "ROUND", "RPAD", "RTRIM", "SECOND", "SESSION_USER", "SIGN", "SIN", "SPACE", "SQRT", "STRCMP", "SUBDATE",
+            "SUBSTR", "SUBSTRING", "SUBSTRING_INDEX", "SUM", "SYSDATE", "SYSTEM_USER", "TAN", "TIME", "TIMESTAMP",
+            "TO_DAYS", "TRIM", "TRUNCATE", "UCASE", "UPPER", "USER", "YEAR",
+    };
+
+    private static final String[] ALL_KEYWORDS = ArrayUtils.addAll(KEYWORDS, FUNCTIONS);
+
+    private static final String KEYWORD_PATTERN = "\\b(?i)(" + String.join("|", ALL_KEYWORDS) + ")\\b";
     private static final String SEMICOLON_PATTERN = ";";
     private static final String STRING_PATTERN = "'([^'\\\\]|\\\\.)*'";
     private static final String NUMERIC_LITERAL_PATTERN = "\\b([0-9]+(\\.[0-9])*)\\b";
