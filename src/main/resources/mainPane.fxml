@@ -38,9 +38,9 @@
                                                   onAction="#saveAsProject" text="Speichern unter ..."/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="loadConfigMenuItem" mnemonicParsing="false"
-                                                  onAction="#importConfig" text="Lade Config Datei ..."/>
+                                                  onAction="#importConfig" text="Lade Konfigurationsdatei ..."/>
                                         <MenuItem fx:id="saveConfigMenuItem" mnemonicParsing="false"
-                                                  onAction="#exportConfig" text="Exportiere Config Datei ..."/>
+                                                  onAction="#exportConfig" text="Exportiere Konfigurationsdatei ..."/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#closeProject"
                                                   text="Schließen"/>
@@ -64,13 +64,13 @@
                                         <MenuItem disable="true" mnemonicParsing="false" onAction="#handleRunAll"
                                                   text="Vollständg ausführen"/>
                                         <MenuItem disable="true" mnemonicParsing="false" onAction="#handleDBFitTest"
-                                                  text="DBFit Test"/>
+                                                  text="DBFit Test" visible="false"/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Olat">
                                     <items>
                                         <MenuItem mnemonicParsing="false" onAction="#handleExportOlat"
-                                                  text="Exportiere..."/>
+                                                  text="Exportieren ..."/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="?">
@@ -98,17 +98,18 @@
                                                     <items>
                                                         <Button fx:id="saveButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#saveProject"
-                                                                text="speichern"/>
+                                                                text="Speichern"/>
                                                         <Button fx:id="runButton" mnemonicParsing="false"
-                                                                onAction="#runTaskCode" text="ausführen"/>
+                                                                onAction="#runTaskCode" text="Ausführen"/>
                                                         <Button fx:id="undoButton" disable="true"
-                                                                mnemonicParsing="false" onAction="#undo" text="undo"/>
+                                                                mnemonicParsing="false" onAction="#undo"
+                                                                text="Rückgängig"/>
                                                         <Button fx:id="redoButton" disable="true"
-                                                                mnemonicParsing="false" onAction="#redo" text="redo"/>
+                                                                mnemonicParsing="false" onAction="#redo"
+                                                                text="Wiederherstellen"/>
                                                         <Button fx:id="resetButton" mnemonicParsing="false"
-                                                                onAction="#handleResetDatabase" text="reset Database"/>
-                                                        <Button mnemonicParsing="false" onAction="#raiseEx"
-                                                                text="Exception!"/>
+                                                                onAction="#handleResetDatabase"
+                                                                text="Datenbank Rücksetzten"/>
                                                     </items>
                                                 </ToolBar>
                                             </top>
@@ -225,10 +226,10 @@
                                                                                                 GridPane.rowIndex="5"/>
                                                                                         <Button mnemonicParsing="false"
                                                                                                 onAction="#loadResetScript"
-                                                                                                text="öffne"
+                                                                                                text="Öffnen ..."
                                                                                                 GridPane.columnIndex="2"
                                                                                                 GridPane.rowIndex="5"/>
-                                                                                        <Label text="Reset Script"
+                                                                                        <Label text="Reset Skript"
                                                                                                GridPane.rowIndex="5"/>
                                                                                         <Label text="Port"
                                                                                                GridPane.rowIndex="4"/>
@@ -294,7 +295,7 @@
                                                                                         <Label text="Matrikelnummer"
                                                                                                GridPane.rowIndex="1"/>
                                                                                         <Label text="Vor- und Zuname"/>
-                                                                                        <Label text="Email Adresse"
+                                                                                        <Label text="E-Mail Adresse"
                                                                                                GridPane.rowIndex="2"/>
                                                                                         <TextField
                                                                                                 fx:id="nameStudentTextField"
@@ -311,7 +312,7 @@
                                                                                                GridPane.rowIndex="4"/>
                                                                                         <Label text="Matrikelnummer des Partners"
                                                                                                GridPane.rowIndex="5"/>
-                                                                                        <Label text="Email Adresse des Partners"
+                                                                                        <Label text="E-Mail Adresse des Partners"
                                                                                                GridPane.rowIndex="6"/>
                                                                                         <TextField
                                                                                                 fx:id="matNrPartnerTextField"
@@ -358,7 +359,7 @@
                                 </ScrollPane>
                             </center>
                             <top>
-                                <Label text="Console" BorderPane.alignment="CENTER"/>
+                                <Label text="Ausgabe" BorderPane.alignment="CENTER"/>
                             </top>
                             <left>
                                 <Pane maxWidth="2.0" minWidth="2.0" prefWidth="2.0" BorderPane.alignment="CENTER"/>
