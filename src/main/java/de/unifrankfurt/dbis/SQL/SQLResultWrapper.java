@@ -96,7 +96,7 @@ public class SQLResultWrapper {
             if (obj instanceof SQLResultTable)
                 return obj.toString();
             else if (obj instanceof Integer) {
-                return obj.toString();
+                return "Query OK, " + obj.toString() + " Spalten wurden verändert.";
             } else return "?" + obj.toString();
 
         } else {

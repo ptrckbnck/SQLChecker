@@ -30,7 +30,7 @@ public class SQLScriptRunner extends Task {
             statement = connection.createStatement();
             script.execute(statement);
             rs = statement.executeQuery("SHOW tables;");
-            System.out.println("Datenbank wurde zurückgesetzt");
+            System.out.println("Datenbank wurde zurückgesetzt.");
             System.out.println("Datenbank " + guiConfig.getDatabaseName() + " besitzt nun folgende Tabellen:");
             while (rs.next()) {
                 System.out.println(rs.getString(1));

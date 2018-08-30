@@ -3,6 +3,7 @@ package de.unifrankfurt.dbis.IO;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -24,5 +25,10 @@ public class FileIO {
         }
         Files.createFile(path);
         Files.write(path, (new Gson()).toJson(object).getBytes());
+    }
+
+    public static void saveText(Path path, String text) throws IOException {
+        Files.createFile(path);
+        Files.write(path, text.getBytes(StandardCharsets.UTF_8));
     }
 }

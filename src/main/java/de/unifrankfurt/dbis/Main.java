@@ -14,6 +14,7 @@ import java.net.URL;
 
 
 public class Main extends Application {
+    private static Stage primaryStage;
 
     public static void main(String[] args) {
         launch(args);
@@ -21,6 +22,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        Main.primaryStage = primaryStage;
         Thread.currentThread().setUncaughtExceptionHandler(Main::showError);
 
 
@@ -46,5 +48,10 @@ public class Main extends Application {
 
         }
     }
+
+    public static Stage getPrimaryStage() {
+        return Main.primaryStage;
+    }
+
 
 }

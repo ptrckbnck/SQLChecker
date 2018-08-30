@@ -58,11 +58,11 @@
                                     <items>
                                         <MenuItem fx:id="resetMenuItem" disable="true" mnemonicParsing="false"
                                                   onAction="#handleResetDatabase" text="Datenbank Rücksetzen"/>
-                                        <MenuItem disable="true" mnemonicParsing="false" onAction="#handleRun"
-                                                  text="Aufgabe ausführen"/>
+                                        <MenuItem fx:id="runMenuItem" disable="true" mnemonicParsing="false"
+                                                  onAction="#runTaskCode" text="Aufgabe ausführen"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
-                                        <MenuItem disable="true" mnemonicParsing="false" onAction="#handleRunAll"
-                                                  text="Vollständg ausführen"/>
+                                        <MenuItem fx:id="runAllMenuItem" disable="true" mnemonicParsing="false"
+                                                  onAction="#handleRunAll" text="Vollständg ausführen"/>
                                         <MenuItem disable="true" mnemonicParsing="false" onAction="#handleDBFitTest"
                                                   text="DBFit Test" visible="false"/>
                                     </items>
@@ -99,7 +99,7 @@
                                                         <Button fx:id="saveButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#saveProject"
                                                                 text="Speichern"/>
-                                                        <Button fx:id="runButton" mnemonicParsing="false"
+                                                        <Button fx:id="runButton" disable="true" mnemonicParsing="false"
                                                                 onAction="#runTaskCode" text="Ausführen"/>
                                                         <Button fx:id="undoButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#undo"

@@ -2,7 +2,6 @@ package de.unifrankfurt.dbis.GUI;
 
 import de.unifrankfurt.dbis.SQL.SQLResultWrapper;
 import de.unifrankfurt.dbis.config.GUIConfig;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.sql.Connection;
@@ -25,7 +24,7 @@ public class SQLRunner extends Task {
         try (Connection con = guiConfig.newConnection()) {
             Statement stmt = con.createStatement();
             SQLResultWrapper result = SQLResultWrapper.executeStatement(stmt, sql);
-            Platform.runLater(() -> System.out.println(result));
+            System.out.println(result);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }

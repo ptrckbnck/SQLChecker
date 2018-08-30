@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
+import de.unifrankfurt.dbis.Main;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -17,6 +18,7 @@ import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,9 +40,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +76,8 @@ public class HomeController implements Initializable {
     public Button runButton;
     public Button resetButton;
     public MenuItem resetMenuItem;
+    public MenuItem runMenuItem;
+    public MenuItem runAllMenuItem;
 
 
     //database
@@ -140,6 +144,13 @@ public class HomeController implements Initializable {
     private Path projectPath;
     private Path resetScript;
 
+    public void setProjectPath(Path projectPath) {
+        this.projectPath = projectPath;
+        this.updateMenu();
+    }
+
+
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -201,6 +212,14 @@ public class HomeController implements Initializable {
 
                 // run the following code block when previous stream emits an event
                 .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+        Subscription cleanupWhenNoLongerNeedIt2 = codeArea
+                .multiPlainChanges()
+                .successionEnds(Duration.ofMillis(500))
+                .subscribe(ignore -> {
+                            if (getSelectedTask() != null)
+                                this.assignment.putCodeMap(getSelectedTask(), codeArea.getText());
+                        }
+                );
 
 
         codeArea.undoAvailableProperty()
@@ -222,6 +241,19 @@ public class HomeController implements Initializable {
                             }
                         }
                 );
+
+        Subscription cleanupWhenNoLongerNeedIt3 = codeArea
+                .multiPlainChanges()
+                .successionEnds(Duration.ofMillis(5000))
+                .subscribe(ignore -> {
+                    if (this.projectPath != null && this.getSelectedTask() != null) {
+                        try {
+                            this.saveProject(projectPath);
+                        } catch (IOException e) {
+                            //;
+                        }
+                    }
+                });
 
         return codeArea;
     }
@@ -300,18 +332,18 @@ public class HomeController implements Initializable {
     }
 
     public void taskSelected(MouseEvent mouseEvent) {
-        String task = taskListView.getSelectionModel().getSelectedItem();
+        String task = getSelectedTask();
         if (task == null) return;
         VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(assignment.getTasks().indexOf(task));
-        this.activeCodeArea = codeAreaVirtualizedScrollPane.getContent();
+        setActiveCodeArea(codeAreaVirtualizedScrollPane.getContent());
         this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
         this.activeCodeArea.requestFocus();
     }
 
-    public void raiseEx(ActionEvent actionEvent) throws Exception {
-        throw new Exception("EXCEPTION");
-    }
 
+    public String getSelectedTask() {
+        return taskListView.getSelectionModel().getSelectedItem();
+    }
     public void newProject(ActionEvent actionEvent) {
         FileChooser templateChooser = new FileChooser();
         templateChooser.setTitle("Öffne Aufgaben-Template Datei");
@@ -341,31 +373,44 @@ public class HomeController implements Initializable {
         if (project == null) return;
         try {
             saveProject(project.toPath());
-            projectPath = project.toPath();
+            setProjectPath(project.toPath());
             this.initAssignment(submission);
-            updateMenu();
         } catch (IOException e) {
             System.err.println("Fehler beim anlegen der Projekt-Datei.");
-            projectPath = null;
+            setProjectPath(null);
         }
 
     }
 
     private void updateMenu() {
-        this.saveMenuItem.setDisable(this.assignment == null | this.projectPath == null);
-        this.saveAsMenuItem.setDisable(this.assignment == null);
-        this.closeMenuItem.setDisable(this.assignment == null);
-        this.saveButton.setDisable(this.assignment == null | this.projectPath == null);
+        boolean assignmentNotExists = this.assignment == null;
+        boolean projectNotExists = this.projectPath == null;
+
+
+        this.saveMenuItem.setDisable(assignmentNotExists | projectNotExists);
+        this.saveMenuItem.isDisable();
+        this.saveButton.setDisable(assignmentNotExists | projectNotExists);
+        this.saveAsMenuItem.setDisable(assignmentNotExists);
+        this.saveAsMenuItem.isDisable();
+        this.closeMenuItem.setDisable(assignmentNotExists);
+        this.closeMenuItem.isDisable();
+        this.runAllMenuItem.setDisable(assignmentNotExists);
+        this.runAllMenuItem.isDisable();
+        if (!assignmentNotExists)
+            Main.getPrimaryStage().setTitle(this.assignment.getName());
+        else
+            Main.getPrimaryStage().setTitle("");
+
     }
 
     public void initAssignment(Assignment assignment) {
         this.assignment = assignment;
         if (assignment == null) {
-            this.activeCodeArea = null;
+            this.setActiveCodeArea(null);
             this.codeAreas.clear();
             this.CODEPANE.setCenter(null);
             this.taskListView.setItems(FXCollections.observableArrayList(new ArrayList<>()));
-            this.projectPath = null;
+            setProjectPath(null); //implicit updateMenu()
         } else {
             for (String task : assignment.getTasks()) {
                 VirtualizedScrollPane<CodeArea> newPane = new VirtualizedScrollPane<>(initCodeArea());
@@ -374,7 +419,15 @@ public class HomeController implements Initializable {
                 codeAreas.add(newPane);
             }
             taskListView.setItems(FXCollections.observableArrayList(assignment.getTasks()));
+            updateMenu();
         }
+
+    }
+
+    private void setActiveCodeArea(CodeArea a) {
+        this.activeCodeArea = a;
+        this.runButton.setDisable(a == null);
+        this.runMenuItem.setDisable(a == null);
     }
 
     public void initAssignment(Submission<TaskSQL> submission) {
@@ -393,11 +446,13 @@ public class HomeController implements Initializable {
         Stage stage = new Stage();
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
+        Path rollback = this.projectPath;
         try {
+            setProjectPath(file.toPath());
             saveProject(file.toPath());
-            projectPath = file.toPath();
         } catch (IOException e) {
-            e.printStackTrace();
+            setProjectPath(rollback);
+            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
         }
         updateMenu();
     }
@@ -406,12 +461,14 @@ public class HomeController implements Initializable {
         try {
             saveProject(this.projectPath);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
         }
     }
 
 
     public void saveProject(Path path) throws IOException {
+        if (getSelectedTask() != null)
+            this.assignment.putCodeMap(getSelectedTask(), this.activeCodeArea.getText());
         Files.write(path,
                 new Gson().toJson(
                         new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
@@ -439,8 +496,7 @@ public class HomeController implements Initializable {
             project = FileIO.load(file.toPath(), SQLCheckerProject.class);
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
-            this.projectPath = file.toPath();
-            updateMenu();
+            setProjectPath(file.toPath());
             loadConfigImplicit();
             loadResetImplicit();
         } catch (JsonSyntaxException e) {
@@ -456,7 +512,6 @@ public class HomeController implements Initializable {
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
             initConfig(c);
-            updateMenu();
             return;
         } catch (IOException e) {
             //nothing;
@@ -469,7 +524,6 @@ public class HomeController implements Initializable {
             if (conf.isPresent()) {
                 GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
                 initConfig(c);
-                updateMenu();
             }
 
         } catch (IOException e) {
@@ -591,21 +645,30 @@ public class HomeController implements Initializable {
     }
 
 
-    public void handleResetDatabase(ActionEvent actionEvent) throws SQLException, IOException {
+    public void handleResetDatabase(ActionEvent actionEvent) {
 
         Path resetPath = Paths.get(this.GUIConfig.getResetScript());
         if (!isOkResetPath(resetPath)) {
-            System.err.println("Pfad des Reset Skript nicht ok: " + resetPath);
+            System.err.println("Pfad des Reset Skripts nicht ok: " + resetPath);
             return;
         }
 
-        SQLScript script = SQLScript.fromPath(resetPath);
+        SQLScript script;
+        try {
+            script = SQLScript.fromPath(resetPath);
+        } catch (NoSuchFileException e) {
+            System.err.println("Reset Skript nicht gefunden.");
+            return;
+        } catch (IOException e) {
+            System.err.println("Laden der Reset Skript Fehlgeschlagen.");
+            return;
+        }
 
         Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
         Thread t = new Thread(new SQLScriptRunner(this.GUIConfig, script));
         t.setUncaughtExceptionHandler(h);
+        System.out.println("Resette Datenbank.");
         t.start();
-        System.out.println("start!");
 
     }
 
@@ -615,23 +678,55 @@ public class HomeController implements Initializable {
 
     public void runTaskCode(ActionEvent actionEvent) {
         String sql = this.activeCodeArea.getText();
+        runCode(this.getSelectedTask(), sql);
+    }
+
+    private Thread runCode(String task, String sql) {
         Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
         Thread t = new Thread(new SQLRunner(this.GUIConfig, sql));
         t.setUncaughtExceptionHandler(h);
+        System.out.println(task + ": SQL Code wird ausgeführt.");
         t.start();
-        System.out.println("sql code wird ausgeführt.");
+        return t;
     }
 
-
-    public void handleRun(ActionEvent actionEvent) {
-    }
 
     public void handleRunAll(ActionEvent actionEvent) {
+        new Thread(new Task<>() {
+            @Override
+            protected Object call() {
+                for (String task : assignment.getTasks()) {
+                    try {
+                        runCode(task, assignment.getCodeMap().get(task)).join();
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println("Jede Aufgabe wurde ausgeführt.");
+                return null;
+            }
+        }).start();
     }
 
     public void handleDBFitTest(ActionEvent actionEvent) {
     }
 
     public void handleExportOlat(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Erzeuge Zip Datei für Olat");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("ZIP Archiv (*.zip)", "*.zip"));
+        if (projectPath != null) {
+            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+        }
+        Stage stage = new Stage();
+        File file = fileChooser.showSaveDialog(stage);
+        if (file == null) return;
+        try {
+            new SQLCheckerProject(this.GUIConfig, this.assignment).olatZip(file.toPath());
+        } catch (IOException e) {
+            System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
+        }
+
     }
 }
