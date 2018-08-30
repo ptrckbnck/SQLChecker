@@ -44,6 +44,7 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static de.unifrankfurt.dbis.GUI.SQLHighlighter.computeHighlighting;
@@ -415,6 +416,15 @@ public class HomeController implements Initializable {
                 new Gson().toJson(
                         new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
         );
+        try {
+            saveConfig(defaultConfigPath(path));
+        } catch (IOException e) {
+            System.err.println("Speichern der Config-Datei fehlgeschlagen: " + e.getMessage());
+        }
+    }
+
+    private Path defaultConfigPath(Path path) {
+        return path.getParent().resolve(path.getFileName().toString() + ".conf");
     }
 
     public void loadProject(ActionEvent actionEvent) {
@@ -431,6 +441,8 @@ public class HomeController implements Initializable {
             initConfig(project.getGUIConfig());
             this.projectPath = file.toPath();
             updateMenu();
+            loadConfigImplicit();
+            loadResetImplicit();
         } catch (JsonSyntaxException e) {
             alertNoSQLCFile(file);
         } catch (IOException e) {
@@ -438,6 +450,49 @@ public class HomeController implements Initializable {
         }
 
     }
+
+
+    private void loadConfigImplicit() {
+        try {
+            GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
+            initConfig(c);
+            updateMenu();
+            return;
+        } catch (IOException e) {
+            //nothing;
+        }
+        try {
+            Optional<Path> conf = Files.walk(this.projectPath.getParent(), 1)
+                    .filter(Files::isReadable)
+                    .filter((x) -> x.getFileName().toString().endsWith(".conf"))
+                    .findFirst();
+            if (conf.isPresent()) {
+                GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
+                initConfig(c);
+                updateMenu();
+            }
+
+        } catch (IOException e) {
+            //nothing;
+        }
+
+    }
+
+    private void loadResetImplicit() {
+        Path path = defaultResetPath(this.projectPath);
+        if (Files.isReadable(path))
+            initResetScript(defaultResetPath(this.projectPath));
+    }
+
+    private Path defaultResetPath(Path projectPath) {
+        return projectPath
+                .getParent()
+                .resolve(projectPath
+                        .getFileName()
+                        .toString()
+                        .replace(".sqlc", "_reset.sql"));
+    }
+
 
     private void alertNoSQLCFile(File file) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -523,16 +578,16 @@ public class HomeController implements Initializable {
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
-        try {
-            this.resetScript = file.toPath();
-            this.resetButton.setDisable(false);
-            this.resetMenuItem.setDisable(false);
-            this.resetScriptPathTextField.setText(file.getPath());
-            this.updateConfig();
-        } catch (JsonSyntaxException e) {
-            alertNoSQLCFile(file);
-        }
+        initResetScript(file.toPath());
 
+    }
+
+    private void initResetScript(Path path) {
+        this.resetScript = path;
+        this.resetButton.setDisable(false);
+        this.resetMenuItem.setDisable(false);
+        this.resetScriptPathTextField.setText(path.toString());
+        this.updateConfig();
     }
 
 
