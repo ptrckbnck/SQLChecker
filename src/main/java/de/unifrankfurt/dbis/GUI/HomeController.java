@@ -322,14 +322,12 @@ public class HomeController implements Initializable {
         Submission<TaskSQL> submission;
         try {
             submission = Submission.fromPath(template.toPath()).onlyTaskSQLSubmission();
-            this.initAssignment(submission);
+
         } catch (IOException e) {
             System.err.println("Fehler beim Öffnen der Aufgabe.");
-            this.initAssignment((Assignment) null);
             return;
         } catch (SubmissionParseException e) {
             System.err.println("Fehler beim Einlesen der Aufgabe.");
-            this.initAssignment((Assignment) null);
             return;
         }
 
@@ -343,6 +341,7 @@ public class HomeController implements Initializable {
         try {
             saveProject(project.toPath());
             projectPath = project.toPath();
+            this.initAssignment(submission);
             updateMenu();
         } catch (IOException e) {
             System.err.println("Fehler beim anlegen der Projekt-Datei.");
