@@ -2,6 +2,7 @@ package de.unifrankfurt.dbis;
 
 import de.unifrankfurt.dbis.GUI.ExceptionAlert;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,6 +16,7 @@ import java.net.URL;
 
 public class Main extends Application {
     private static Stage primaryStage;
+    private static HostServices hostServices;
 
     public static void main(String[] args) {
         launch(args);
@@ -23,6 +25,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         Main.primaryStage = primaryStage;
+        Main.hostServices = getHostServices();
         Thread.currentThread().setUncaughtExceptionHandler(Main::showError);
 
 
@@ -53,5 +56,7 @@ public class Main extends Application {
         return Main.primaryStage;
     }
 
-
+    public static HostServices getHostServicesStatic() {
+        return hostServices;
+    }
 }

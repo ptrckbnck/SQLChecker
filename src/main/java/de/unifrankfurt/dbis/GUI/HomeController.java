@@ -615,7 +615,12 @@ public class HomeController implements Initializable {
             root = FXMLLoader.load(fxml);
             Stage stage = new Stage();
             stage.setTitle("Über SQLChecker");
-            stage.setScene(new Scene(root, 450, 450));
+            stage.setScene(new Scene(root, 400, 300));
+            /*stage.setMaxHeight(200);
+            stage.setMinHeight(200);
+            stage.setMaxWidth(300);
+            stage.setMinWidth(300);*/
+            stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
