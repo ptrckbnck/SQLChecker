@@ -368,6 +368,7 @@ public class HomeController implements Initializable {
         projectChooser.setTitle("Lege Speicherort des neuen Projekt fest");
         projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
         projectChooser.setInitialFileName(submission.getName() + ".sqlc");
+        projectChooser.setInitialDirectory(template.getParentFile());
         Stage stageProject = new Stage();
         File project = projectChooser.showSaveDialog(stageProject);
         if (project == null) return;
@@ -375,6 +376,8 @@ public class HomeController implements Initializable {
             saveProject(project.toPath());
             setProjectPath(project.toPath());
             this.initAssignment(submission);
+            loadConfigImplicit();
+            loadResetImplicit();
         } catch (IOException e) {
             System.err.println("Fehler beim anlegen der Projekt-Datei.");
             setProjectPath(null);
