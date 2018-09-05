@@ -109,7 +109,7 @@
                                                                 text="Wiederherstellen"/>
                                                         <Button fx:id="resetButton" mnemonicParsing="false"
                                                                 onAction="#handleResetDatabase"
-                                                                text="Datenbank Rücksetzten"/>
+                                                                text="Datenbank Rücksetzen"/>
                                                     </items>
                                                 </ToolBar>
                                             </top>
