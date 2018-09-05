@@ -9,6 +9,10 @@ import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * this class provides method computeHighlighting. The main method for highlighting SQL-Code in RichTextArea.
+ */
 public class SQLHighlighter {
 
     private static final String[] KEYWORDS = new String[]{
@@ -57,6 +61,13 @@ public class SQLHighlighter {
 
             , Pattern.DOTALL);
 
+
+    /**
+     * creates SQL highlighted Text for RichTextArea.
+     *
+     * @param text SQL-Code
+     * @return StyleSpans<Collection       <       String>>
+     */
     public static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;

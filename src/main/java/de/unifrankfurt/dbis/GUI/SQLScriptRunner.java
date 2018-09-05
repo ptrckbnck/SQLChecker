@@ -9,6 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * this class executes SQLScripts
+ */
 public class SQLScriptRunner extends Task {
 
     private final GUIConfig guiConfig;

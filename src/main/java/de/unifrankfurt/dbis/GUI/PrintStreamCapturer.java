@@ -6,12 +6,20 @@ import javafx.scene.control.TextArea;
 import java.io.PrintStream;
 import java.util.Objects;
 
+/**
+ * This class caputres a PrintStream and pipes every output to a given Textarea.
+ */
 public class PrintStreamCapturer extends PrintStream {
 
     private final TextArea text;
     private boolean atLineStart;
     private String indent;
 
+    /**
+     * @param textArea       Textarea output is piped to
+     * @param capturedStream Output providing PrintStream
+     * @param indent         indent in front of every line in TextArea
+     */
     public PrintStreamCapturer(TextArea textArea, PrintStream capturedStream, String indent) {
         super(capturedStream);
         this.text = textArea;
@@ -23,11 +31,22 @@ public class PrintStreamCapturer extends PrintStream {
         this(textArea, capturedStream, "");
     }
 
+    /**
+     * tells Main process to print text to Textarea.
+     *
+     * @param str
+     */
     private void writeToTextArea(String str) {
         Platform.runLater(() -> text.appendText(str));
     }
 
-    private void write(String str) {
+
+    /**
+     * parses given String and prepares it for printing to textarea.
+     *
+     * @param str
+     */
+    private void parse(String str) {
         String[] s = str.split("\n", -1);
         if (s.length == 0)
             return;
@@ -42,6 +61,11 @@ public class PrintStreamCapturer extends PrintStream {
         }
     }
 
+
+    /**
+     * adds indent to s and prints it to TextArea.
+     * @param s single line String
+     */
     private void writeWithPotentialIndent(String s) {
         if (atLineStart) {
             writeToTextArea(indent + s);
@@ -51,15 +75,18 @@ public class PrintStreamCapturer extends PrintStream {
         }
     }
 
+    /**
+     * prints new Line to TextArea
+     */
     private void newLine() {
-        write("\n");
+        parse("\n");
     }
 
     @Override
     public void print(boolean b) {
         synchronized (this) {
             super.print(b);
-            write(String.valueOf(b));
+            parse(String.valueOf(b));
         }
     }
 
@@ -67,7 +94,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(char c) {
         synchronized (this) {
             super.print(c);
-            write(String.valueOf(c));
+            parse(String.valueOf(c));
         }
     }
 
@@ -75,7 +102,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(char[] s) {
         synchronized (this) {
             super.print(s);
-            write(String.valueOf(s));
+            parse(String.valueOf(s));
         }
     }
 
@@ -83,7 +110,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(double d) {
         synchronized (this) {
             super.print(d);
-            write(String.valueOf(d));
+            parse(String.valueOf(d));
         }
     }
 
@@ -91,7 +118,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(float f) {
         synchronized (this) {
             super.print(f);
-            write(String.valueOf(f));
+            parse(String.valueOf(f));
         }
     }
 
@@ -99,7 +126,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(int i) {
         synchronized (this) {
             super.print(i);
-            write(String.valueOf(i));
+            parse(String.valueOf(i));
         }
     }
 
@@ -107,7 +134,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(long l) {
         synchronized (this) {
             super.print(l);
-            write(String.valueOf(l));
+            parse(String.valueOf(l));
         }
     }
 
@@ -115,7 +142,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(Object o) {
         synchronized (this) {
             super.print(o);
-            write(String.valueOf(o));
+            parse(String.valueOf(o));
         }
     }
 
@@ -123,7 +150,7 @@ public class PrintStreamCapturer extends PrintStream {
     public void print(String s) {
         synchronized (this) {
             super.print(s);
-            write(Objects.requireNonNullElse(s, "null"));
+            parse(Objects.requireNonNullElse(s, "null"));
         }
     }
 

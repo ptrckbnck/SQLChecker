@@ -136,19 +136,13 @@ public class HomeController implements Initializable {
     @FXML
     private TextField emailPartnerTextField;
 
+    //intern data
     private List<VirtualizedScrollPane<CodeArea>> codeAreas;
     private CodeArea activeCodeArea = null;
-
     private Assignment assignment;
     private GUIConfig GUIConfig;
     private Path projectPath;
     private Path resetScript;
-
-    public void setProjectPath(Path projectPath) {
-        this.projectPath = projectPath;
-        this.updateMenu();
-    }
-
 
 
     @Override
@@ -193,7 +187,21 @@ public class HomeController implements Initializable {
         emailPartnerTextField.focusedProperty().addListener(configChangeListener);
     }
 
+    /**
+     * set Path of current project, null represents that there is no active Project.
+     *
+     * @param projectPath
+     */
+    public void setProjectPath(Path projectPath) {
+        this.projectPath = projectPath;
+        this.updateMenu();
+    }
 
+    /**
+     * initializes new CodeArea with styles and listener.
+     *
+     * @return CodeArea
+     */
     public CodeArea initCodeArea() {
         CodeArea codeArea = new CodeArea();
         codeArea.setStyle("-fx-font-family: monospaced; -fx-font-size: 10pt;");
@@ -259,7 +267,9 @@ public class HomeController implements Initializable {
     }
 
 
-
+    /**
+     * creates new Config Object everytime settings get modified.
+     */
     public void updateConfig() {
         this.GUIConfig = new GUIConfigBuilder().setUsername(usernameTextField.getText())
                 .setPassword(passwordTextField.getText())
@@ -277,6 +287,12 @@ public class HomeController implements Initializable {
                 .createConfig();
     }
 
+
+    /**
+     * Initializes current Config with given Config or creates empty Config if null.
+     *
+     * @param GUIConfig given GUIConfig or null
+     */
     private void initConfig(GUIConfig GUIConfig) {
         if (GUIConfig == null)
             this.GUIConfig = new GUIConfigBuilder().createConfig();
@@ -300,91 +316,20 @@ public class HomeController implements Initializable {
 
     }
 
-    @FXML
-    void handleGemeinschaftsabgabenCheckBox(ActionEvent event) {
-        boolean bool = ((CheckBox) event.getSource()).isSelected();
-        setDisablePartner(!bool);
-        updateConfig();
-    }
 
+    /**
+     * disables or enables Partner Config Fields
+     * @param bool true disables Fields.
+     */
     private void setDisablePartner(boolean bool) {
         namePartnerTextField.setDisable(bool);
         matNrPartnerTextField.setDisable(bool);
         emailPartnerTextField.setDisable(bool);
     }
 
-
-    public void undo(ActionEvent actionEvent) {
-
-        if (activeCodeArea != null) {
-            activeCodeArea.undo();
-            tabPane.getSelectionModel().select(this.tabUebung);
-            activeCodeArea.requestFocus();
-        }
-    }
-
-    public void redo(ActionEvent actionEvent) {
-        if (activeCodeArea != null) {
-            activeCodeArea.redo();
-            tabPane.getSelectionModel().select(this.tabUebung);
-            activeCodeArea.requestFocus();
-        }
-    }
-
-    public void taskSelected(MouseEvent mouseEvent) {
-        String task = getSelectedTask();
-        if (task == null) return;
-        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(assignment.getTasks().indexOf(task));
-        setActiveCodeArea(codeAreaVirtualizedScrollPane.getContent());
-        this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
-        this.activeCodeArea.requestFocus();
-    }
-
-
-    public String getSelectedTask() {
-        return taskListView.getSelectionModel().getSelectedItem();
-    }
-    public void newProject(ActionEvent actionEvent) {
-        FileChooser templateChooser = new FileChooser();
-        templateChooser.setTitle("Öffne Aufgaben-Template Datei");
-        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
-        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
-        Stage stageTemplate = new Stage();
-        File template = templateChooser.showOpenDialog(stageTemplate);
-        if (template == null) return;
-        Submission<TaskSQL> submission;
-        try {
-            submission = Submission.fromPath(template.toPath()).onlyTaskSQLSubmission();
-
-        } catch (IOException e) {
-            System.err.println("Fehler beim Öffnen der Aufgabe.");
-            return;
-        } catch (SubmissionParseException e) {
-            System.err.println("Fehler beim Einlesen der Aufgabe.");
-            return;
-        }
-
-        FileChooser projectChooser = new FileChooser();
-        projectChooser.setTitle("Lege Speicherort des neuen Projekt fest");
-        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
-        projectChooser.setInitialDirectory(template.getParentFile());
-        Stage stageProject = new Stage();
-        File project = projectChooser.showSaveDialog(stageProject);
-        if (project == null) return;
-        try {
-            saveProject(project.toPath());
-            setProjectPath(project.toPath());
-            this.initAssignment(submission);
-            loadConfigImplicit();
-            loadResetImplicit();
-        } catch (IOException e) {
-            System.err.println("Fehler beim anlegen der Projekt-Datei.");
-            setProjectPath(null);
-        }
-
-    }
-
+    /**
+     * updates menu and stage if projectPath or assignment changes
+     */
     private void updateMenu() {
         boolean assignmentNotExists = this.assignment == null;
         boolean projectNotExists = this.projectPath == null;
@@ -406,6 +351,11 @@ public class HomeController implements Initializable {
 
     }
 
+    /**
+     * Initializes current assignment with given assignment. Null means there is currently no assignment.
+     *
+     * @param assignment Assignment or null
+     */
     public void initAssignment(Assignment assignment) {
         this.assignment = assignment;
         if (assignment == null) {
@@ -427,48 +377,89 @@ public class HomeController implements Initializable {
 
     }
 
-    private void setActiveCodeArea(CodeArea a) {
-        this.activeCodeArea = a;
-        this.runButton.setDisable(a == null);
-        this.runMenuItem.setDisable(a == null);
+    /**
+     * sets given CodeArea to active CodeArea.
+     *
+     * @param codeArea
+     */
+    private void setActiveCodeArea(CodeArea codeArea) {
+        this.activeCodeArea = codeArea;
+        this.runButton.setDisable(codeArea == null);
+        this.runMenuItem.setDisable(codeArea == null);
     }
 
+    /**
+     * Initialize Assignment from Submission.
+     *
+     * @param submission
+     */
     public void initAssignment(Submission<TaskSQL> submission) {
         initAssignment(Assignment.fromSubmission(submission));
     }
 
-
-    public void saveAsProject(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Speichere Checker Datei");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        if (projectPath != null) {
-            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
-            fileChooser.setInitialFileName(projectPath.getFileName().toString());
-        }
-        Stage stage = new Stage();
-        File file = fileChooser.showSaveDialog(stage);
-        if (file == null) return;
-        Path rollback = this.projectPath;
-        try {
-            setProjectPath(file.toPath());
-            saveProject(file.toPath());
-        } catch (IOException e) {
-            setProjectPath(rollback);
-            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
-        }
-        updateMenu();
+    /**
+     * disables or enables Partner Config Fields if box is checked or unchecked.
+     *
+     * @param event
+     */
+    @FXML
+    void handleGemeinschaftsabgabenCheckBox(ActionEvent event) {
+        boolean bool = ((CheckBox) event.getSource()).isSelected();
+        setDisablePartner(!bool);
+        updateConfig();
     }
 
-    public void saveProject(ActionEvent actionEvent) {
-        try {
-            saveProject(this.projectPath);
-        } catch (IOException e) {
-            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
+    /**
+     * undo active CodeArea
+     * @param actionEvent
+     */
+    public void undo(ActionEvent actionEvent) {
+        if (activeCodeArea != null) {
+            activeCodeArea.undo();
+            tabPane.getSelectionModel().select(this.tabUebung);
+            activeCodeArea.requestFocus();
         }
     }
 
+    /**
+     * redo active CodeArea
+     * @param actionEvent
+     */
+    public void redo(ActionEvent actionEvent) {
+        if (activeCodeArea != null) {
+            activeCodeArea.redo();
+            tabPane.getSelectionModel().select(this.tabUebung);
+            activeCodeArea.requestFocus();
+        }
+    }
 
+    /**
+     * sets and focus active CodeArea if corresponding task is clicked.
+     * @param mouseEvent
+     */
+    public void taskSelected(MouseEvent mouseEvent) {
+        String task = getSelectedTask();
+        if (task == null) return;
+        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(assignment.getTasks().indexOf(task));
+        setActiveCodeArea(codeAreaVirtualizedScrollPane.getContent());
+        this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
+        this.activeCodeArea.requestFocus();
+    }
+
+
+    /**
+     * @return currently selected Task or null if none is selected.
+     */
+    public String getSelectedTask() {
+        return taskListView.getSelectionModel().getSelectedItem();
+    }
+
+    /**
+     * Save project to given Path,
+     *
+     * @param path Path to project.
+     * @throws IOException
+     */
     public void saveProject(Path path) throws IOException {
         if (getSelectedTask() != null)
             this.assignment.putCodeMap(getSelectedTask(), this.activeCodeArea.getText());
@@ -483,34 +474,20 @@ public class HomeController implements Initializable {
         }
     }
 
-    private Path defaultConfigPath(Path path) {
-        return path.getParent().resolve(path.getFileName().toString() + ".conf");
-    }
-
-    public void loadProject(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("öffne Checker Datei");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        Stage stage = new Stage();
-        File file = fileChooser.showOpenDialog(stage);
-        if (file == null) return;
-        SQLCheckerProject project;
-        try {
-            project = FileIO.load(file.toPath(), SQLCheckerProject.class);
-            initAssignment(project.getAssignment());
-            initConfig(project.getGUIConfig());
-            setProjectPath(file.toPath());
-            loadConfigImplicit();
-            loadResetImplicit();
-        } catch (JsonSyntaxException e) {
-            alertNoSQLCFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    /**
+     * creates the default path to config for given path to project.
+     *
+     * @param projectPath Path to current Project
+     * @return Path to Config
+     */
+    private Path defaultConfigPath(Path projectPath) {
+        return projectPath.getParent().resolve(projectPath.getFileName().toString() + ".conf");
     }
 
 
+    /**
+     * Load Config from default Path if present.
+     */
     private void loadConfigImplicit() {
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
@@ -535,12 +512,21 @@ public class HomeController implements Initializable {
 
     }
 
+    /**
+     * Load ResetScript from default path if present.
+     */
     private void loadResetImplicit() {
         Path path = defaultResetPath(this.projectPath);
         if (Files.isReadable(path))
             initResetScript(defaultResetPath(this.projectPath));
     }
 
+    /**
+     * Creates default Path to ResetScript for given Path to project.
+     *
+     * @param projectPath
+     * @return Path to ResetScript
+     */
     private Path defaultResetPath(Path projectPath) {
         return projectPath
                 .getParent()
@@ -548,20 +534,194 @@ public class HomeController implements Initializable {
     }
 
 
+    /**
+     * Creates Alert that File file is not a valid .sqlc file.
+     *
+     * @param file
+     */
     private void alertNoSQLCFile(File file) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Not a SQLChecker File");
-        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be a valid SQLChecker File.");
+        alert.setTitle("Not codeArea SQLChecker File");
+        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be codeArea valid SQLChecker File.");
 
         alert.showAndWait();
     }
 
+
+    /**
+     * Save current Config to given Path.
+     *
+     * @param path Path
+     * @throws IOException
+     */
+    public void saveConfig(Path path) throws IOException {
+        Files.write(path,
+                (this.GUIConfig.toJson()).getBytes(StandardCharsets.UTF_8)
+        );
+    }
+
+
+    /**
+     * creates new Project
+     * @param actionEvent
+     */
+    public void newProject(ActionEvent actionEvent) {
+        //select template first
+        FileChooser templateChooser = new FileChooser();
+        templateChooser.setTitle("Öffne Aufgaben-Template Datei");
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
+        Stage stageTemplate = new Stage();
+        File template = templateChooser.showOpenDialog(stageTemplate);
+        if (template == null) return;
+        Submission<TaskSQL> submission;
+        try {
+            submission = Submission.fromPath(template.toPath()).onlyTaskSQLSubmission();
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Öffnen der Aufgabe.");
+            return;
+        } catch (SubmissionParseException e) {
+            System.err.println("Fehler beim Einlesen der Aufgabe.");
+            return;
+        }
+
+        // now select Project Path
+        FileChooser projectChooser = new FileChooser();
+        projectChooser.setTitle("Lege Speicherort des neuen Projekts fest");
+        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
+        projectChooser.setInitialDirectory(template.getParentFile());
+        Stage stageProject = new Stage();
+        File project = projectChooser.showSaveDialog(stageProject);
+        if (project == null) return;
+        try {
+            saveProject(project.toPath());
+            setProjectPath(project.toPath());
+            this.initAssignment(submission);
+            loadConfigImplicit();
+            loadResetImplicit();
+        } catch (IOException e) {
+            System.err.println("Fehler beim Anlegen der Projekt-Datei.");
+            setProjectPath(null);
+        }
+
+    }
+
+    /**
+     * initializes ResetScript Path.
+     *
+     * @param path
+     */
+    private void initResetScript(Path path) {
+        this.resetScript = path;
+        this.resetButton.setDisable(false);
+        this.resetMenuItem.setDisable(false);
+        this.resetScriptPathTextField.setText(path.toString());
+        this.updateConfig();
+    }
+
+    /**
+     * checks if ResetPath is ending with .sql.
+     *
+     * @param resetPath
+     * @return true - if path ends with .sql
+     */
+    private boolean isOkResetPath(Path resetPath) {
+        return resetPath.toString().endsWith(".sql");
+    }
+
+    /**
+     * runs code of given task in new Thread.
+     *
+     * @param task String
+     * @param sql  String
+     * @return Thread
+     */
+    private Thread runCode(String task, String sql) {
+        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
+        Thread t = new Thread(new SQLRunner(this.GUIConfig, sql));
+        t.setUncaughtExceptionHandler(h);
+        System.out.println(task + ": SQL Code wird ausgeführt.");
+        t.start();
+        return t;
+    }
+
+    /**
+     * Save current Project to new Path.
+     * @param actionEvent
+     */
+    public void saveAsProject(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Speichere Checker Datei");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        if (projectPath != null) {
+            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+            fileChooser.setInitialFileName(projectPath.getFileName().toString());
+        }
+        Stage stage = new Stage();
+        File file = fileChooser.showSaveDialog(stage);
+        if (file == null) return;
+        Path rollback = this.projectPath;
+        try {
+            setProjectPath(file.toPath());
+            saveProject(file.toPath());
+        } catch (IOException e) {
+            setProjectPath(rollback);
+            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
+        }
+        updateMenu();
+    }
+
+    /**
+     * Save project to projectPath.
+     * @param actionEvent
+     */
+    public void saveProject(ActionEvent actionEvent) {
+        try {
+            saveProject(this.projectPath);
+        } catch (IOException e) {
+            System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Load Project
+     * @param actionEvent
+     */
+    public void loadProject(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("öffne Checker Datei");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        Stage stage = new Stage();
+        File file = fileChooser.showOpenDialog(stage);
+        if (file == null) return;
+        SQLCheckerProject project;
+        try {
+            project = FileIO.load(file.toPath(), SQLCheckerProject.class);
+            initAssignment(project.getAssignment());
+            initConfig(project.getGUIConfig());
+            setProjectPath(file.toPath());
+            loadConfigImplicit();
+            loadResetImplicit();
+        } catch (JsonSyntaxException e) {
+            alertNoSQLCFile(file);
+        } catch (IOException e) {
+            System.err.println("Fehler beim Laden der Projekt-Datei: " + e.getMessage());
+        }
+
+    }
+
+    /**
+     * exports current Config.
+     * @param actionEvent
+     */
     public void exportConfig(ActionEvent actionEvent) {
         updateConfig();
-        System.out.println(GUIConfig);
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Speichere aktuelle Konfiguration als Datei.");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
+        fileChooser.getExtensionFilters()
+                .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
         }
@@ -569,19 +729,16 @@ public class HomeController implements Initializable {
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         try {
-            System.out.println(GUIConfig);
             saveConfig(file.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Fehler beim Speichern der Config-Datei: " + e.getMessage());
         }
     }
 
-    public void saveConfig(Path path) throws IOException {
-        Files.write(path,
-                (this.GUIConfig.toJson()).getBytes(StandardCharsets.UTF_8)
-        );
-    }
-
+    /**
+     * import Config.
+     * @param actionEvent
+     */
     public void importConfig(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Importiere Konfigurationsdatei");
@@ -603,11 +760,19 @@ public class HomeController implements Initializable {
         }
     }
 
+    /**
+     * close current project.
+     * @param actionEvent
+     */
     public void closeProject(ActionEvent actionEvent) {
         initAssignment((Assignment) null);
         updateMenu();
     }
 
+    /**
+     * shows about-page.
+     * @param actionEvent
+     */
     public void aboutPage(ActionEvent actionEvent) {
         Parent root;
         try {
@@ -616,10 +781,6 @@ public class HomeController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Über SQLChecker");
             stage.setScene(new Scene(root, 400, 300));
-            /*stage.setMaxHeight(200);
-            stage.setMinHeight(200);
-            stage.setMaxWidth(300);
-            stage.setMinWidth(300);*/
             stage.setResizable(false);
             stage.show();
         } catch (IOException e) {
@@ -627,11 +788,17 @@ public class HomeController implements Initializable {
         }
     }
 
+    /**
+     * Loads reset Script.
+     * @param actionEvent
+     */
     public void loadResetScript(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Importiere Resetskript");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Datei (*.sql)", "*.sql"));
-        if (projectPath != null) {
+        if (this.resetScript != null) {
+            fileChooser.setInitialDirectory(this.resetScript.getParent().toFile());
+        } else if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
         }
         Stage stage = new Stage();
@@ -641,15 +808,10 @@ public class HomeController implements Initializable {
 
     }
 
-    private void initResetScript(Path path) {
-        this.resetScript = path;
-        this.resetButton.setDisable(false);
-        this.resetMenuItem.setDisable(false);
-        this.resetScriptPathTextField.setText(path.toString());
-        this.updateConfig();
-    }
-
-
+    /**
+     * resets Database with ResetScript.
+     * @param actionEvent
+     */
     public void handleResetDatabase(ActionEvent actionEvent) {
 
         Path resetPath = Paths.get(this.GUIConfig.getResetScript());
@@ -665,7 +827,7 @@ public class HomeController implements Initializable {
             System.err.println("Reset Skript nicht gefunden.");
             return;
         } catch (IOException e) {
-            System.err.println("Laden der Reset Skript Fehlgeschlagen.");
+            System.err.println("Laden der Reset Skripts Fehlgeschlagen.");
             return;
         }
 
@@ -677,25 +839,21 @@ public class HomeController implements Initializable {
 
     }
 
-    private boolean isOkResetPath(Path resetPath) {
-        return resetPath.toString().endsWith(".sql");
-    }
 
+    /**
+     * runs code of current task.
+     * @param actionEvent
+     */
     public void runTaskCode(ActionEvent actionEvent) {
         String sql = this.activeCodeArea.getText();
         runCode(this.getSelectedTask(), sql);
     }
 
-    private Thread runCode(String task, String sql) {
-        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
-        Thread t = new Thread(new SQLRunner(this.GUIConfig, sql));
-        t.setUncaughtExceptionHandler(h);
-        System.out.println(task + ": SQL Code wird ausgeführt.");
-        t.start();
-        return t;
-    }
 
-
+    /**
+     * runs code of every task consecutively.
+     * @param actionEvent
+     */
     public void handleRunAll(ActionEvent actionEvent) {
         new Thread(new Task<>() {
             @Override
@@ -714,9 +872,17 @@ public class HomeController implements Initializable {
         }).start();
     }
 
+    /**
+     * tests if Code is DBFit usable. TODO
+     * @param actionEvent
+     */
     public void handleDBFitTest(ActionEvent actionEvent) {
     }
 
+    /**
+     * creates zip File with Submission for loading to Olat.
+     * @param actionEvent
+     */
     public void handleExportOlat(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Erzeuge Zip Datei für Olat");

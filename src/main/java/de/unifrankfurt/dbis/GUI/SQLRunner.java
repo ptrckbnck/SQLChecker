@@ -8,6 +8,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * This class executes SQL statements.
+ */
 public class SQLRunner extends Task {
     private final GUIConfig guiConfig;
     private final String sql;
@@ -31,6 +34,11 @@ public class SQLRunner extends Task {
         return null;
     }
 
+    /**
+     * This function checks given SQL-Code before executing. So far only checks for Keyword "use".
+     *
+     * @param sql SQL-String
+     */
     private void checkSQL(String sql) {
         if (sql.contains("use ") || sql.contains("USE ")) {
             System.out.println("[Warnung] die Database mittels USE zu wechseln hat keinen Effekt.\n" +

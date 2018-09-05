@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * represents an Student assignment in SQLChecker Gui.
+ */
 public class Assignment {
 
     private final String name;
@@ -46,10 +49,13 @@ public class Assignment {
         return name;
     }
 
-    public void putCodeMap(String task, String code) {
-        this.codeMap.put(task, code);
-    }
-
+    /**
+     * creates Assignment from Submission. While representing nearly the same Assignment is only used in GUI and
+     * Submission in everything related to DBFIT.
+     *
+     * @param submission Submission<TaskSQL>
+     * @return Assignment
+     */
     public static Assignment fromSubmission(Submission<TaskSQL> submission) {
         Assignment assignment = new Assignment(
                 submission.getName(),
@@ -61,6 +67,16 @@ public class Assignment {
                     t.getCodeString());
         }
         return assignment;
+    }
+
+    /**
+     * sets given to code to given task.
+     *
+     * @param task
+     * @param code
+     */
+    public void putCodeMap(String task, String code) {
+        this.codeMap.put(task, code);
     }
 
 }

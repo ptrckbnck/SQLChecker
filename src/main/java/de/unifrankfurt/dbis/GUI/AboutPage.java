@@ -11,9 +11,17 @@ import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * class provides setText, which intilizes Text for AboutPage.
+ */
 public class AboutPage {
 
-    static void setText(VBox vbox) {
+    /**
+     * intialies Text for Aboutbox.
+     *
+     * @param vbox VBox which will be filled with Text.
+     */
+    public static void setText(VBox vbox) {
 
         String text = "Dieses Programm wurde zur Unterstützung von Datenbanken-Vorlesungen an der Goethe Universität " +
                 "Frankfurt am Main entwickelt. Es soll das Einreichen von SQL-bezogenen Aufgaben erleichtern.";
@@ -40,11 +48,22 @@ public class AboutPage {
 
     }
 
+    /**
+     * creates new Flowpane with given Nodes and preset Settings..
+     *
+     * @param nodes List if Node
+     * @return new Flowpane
+     */
     private static FlowPane initFlowPane(List<Node> nodes) {
         return initFlowPane(nodes.toArray(new Node[0]));
 
     }
 
+    /**
+     * creates new Flowpane with given Nodes and preset Settings..
+     * @param nodes array of Nodes
+     * @return new Flowpane
+     */
     private static FlowPane initFlowPane(Node... nodes) {
         FlowPane flowPane = new FlowPane(nodes);
         flowPane.setHgap(5);

@@ -6,6 +6,9 @@ import javafx.scene.layout.VBox;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for AboutBox only initializes text.
+ */
 public class AboutController implements Initializable {
     public VBox vBox;
 

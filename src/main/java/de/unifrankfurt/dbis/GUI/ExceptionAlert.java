@@ -10,6 +10,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Creates and shows ErrorAlert for given exception.
+ * An ExceptionAlert Object is created for every unhandled Exception in GUI.
+ */
 public class ExceptionAlert extends Alert {
 
     public ExceptionAlert(Throwable ex) {
