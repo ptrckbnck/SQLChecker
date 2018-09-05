@@ -544,10 +544,7 @@ public class HomeController implements Initializable {
     private Path defaultResetPath(Path projectPath) {
         return projectPath
                 .getParent()
-                .resolve(projectPath
-                        .getFileName()
-                        .toString()
-                        .replace(".sqlc", "_reset.sql"));
+                .resolve(this.assignment.getName() + "_reset.sql");
     }
 
 
