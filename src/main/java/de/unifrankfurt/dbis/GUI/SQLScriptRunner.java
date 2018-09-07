@@ -21,11 +21,12 @@ public class SQLScriptRunner extends Task {
     public SQLScriptRunner(GUIConfig guiConfig, SQLScript script) {
         this.guiConfig = guiConfig;
         this.script = script;
+        this.setOnFailed(SQLRunner.getDefaultEventHandler(this, guiConfig, "Resetten der Datenbank fehlgeschlagen"));
     }
 
 
     @Override
-    protected Object call() {
+    protected Object call() throws SQLException {
         Statement statement = null;
         ResultSet rs = null;
         try (Connection connection = guiConfig.newConnection()) {
@@ -38,8 +39,6 @@ public class SQLScriptRunner extends Task {
             while (rs.next()) {
                 System.out.println(rs.getString(1));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         } finally {
             if (statement != null) {
                 try {

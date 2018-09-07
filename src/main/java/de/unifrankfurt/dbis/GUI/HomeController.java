@@ -528,7 +528,6 @@ public class HomeController implements Initializable {
      * @return Path to ResetScript
      */
     private Path defaultResetPath(Path projectPath) {
-        System.err.println(projectPath);
         return projectPath
                 .getParent()
                 .resolve(this.assignment.getName() + "_reset.sql");
@@ -639,9 +638,9 @@ public class HomeController implements Initializable {
      * @return Thread
      */
     private Thread runCode(String task, String sql) {
-        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
-        Thread t = new Thread(new SQLRunner(this.GUIConfig, sql));
-        t.setUncaughtExceptionHandler(h);
+
+        SQLRunner runner = new SQLRunner(this.GUIConfig, sql);
+        Thread t = new Thread(runner);
         System.out.println(task + ": SQL Code wird ausgeführt.");
         t.start();
         return t;
@@ -703,10 +702,7 @@ public class HomeController implements Initializable {
                 alertNoValidSQLCFile(file);
                 return;
             }
-            System.err.println("project: " + project);
-            System.err.println("project.getAssignment(): " + project.getAssignment());
             initAssignment(project.getAssignment());
-            System.err.println("this.assignment: " + this.assignment);
             initConfig(project.getGUIConfig());
             setProjectPath(file.toPath());
             loadConfigImplicit();
@@ -844,9 +840,8 @@ public class HomeController implements Initializable {
             return;
         }
 
-        Thread.UncaughtExceptionHandler h = (th, ex) -> ex.printStackTrace();
-        Thread t = new Thread(new SQLScriptRunner(this.GUIConfig, script));
-        t.setUncaughtExceptionHandler(h);
+        SQLScriptRunner sr = new SQLScriptRunner(this.GUIConfig, script);
+        Thread t = new Thread(sr);
         System.out.println("Resette Datenbank.");
         t.start();
 
