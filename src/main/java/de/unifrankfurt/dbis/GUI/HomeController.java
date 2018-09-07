@@ -44,10 +44,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static de.unifrankfurt.dbis.GUI.SQLHighlighter.computeHighlighting;
 
@@ -78,6 +75,7 @@ public class HomeController implements Initializable {
     public MenuItem resetMenuItem;
     public MenuItem runMenuItem;
     public MenuItem runAllMenuItem;
+    public MenuItem exportMenuItem;
 
 
     //database
@@ -344,6 +342,8 @@ public class HomeController implements Initializable {
         this.closeMenuItem.isDisable();
         this.runAllMenuItem.setDisable(assignmentNotExists);
         this.runAllMenuItem.isDisable();
+        this.exportMenuItem.setDisable(assignmentNotExists);
+
         if (!assignmentNotExists)
             Main.getPrimaryStage().setTitle(this.assignment.getName());
         else
@@ -528,6 +528,7 @@ public class HomeController implements Initializable {
      * @return Path to ResetScript
      */
     private Path defaultResetPath(Path projectPath) {
+        System.err.println(projectPath);
         return projectPath
                 .getParent()
                 .resolve(this.assignment.getName() + "_reset.sql");
@@ -539,11 +540,10 @@ public class HomeController implements Initializable {
      *
      * @param file
      */
-    private void alertNoSQLCFile(File file) {
+    private void alertNoValidSQLCFile(File file) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Not codeArea SQLChecker File");
-        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be codeArea valid SQLChecker File.");
-
+        alert.setTitle("Not a vaLid SQLChecker File");
+        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be a valid SQLChecker File.");
         alert.showAndWait();
     }
 
@@ -699,17 +699,30 @@ public class HomeController implements Initializable {
         SQLCheckerProject project;
         try {
             project = FileIO.load(file.toPath(), SQLCheckerProject.class);
+            if (!projectOK(project)) {
+                alertNoValidSQLCFile(file);
+                return;
+            }
+            System.err.println("project: " + project);
+            System.err.println("project.getAssignment(): " + project.getAssignment());
             initAssignment(project.getAssignment());
+            System.err.println("this.assignment: " + this.assignment);
             initConfig(project.getGUIConfig());
             setProjectPath(file.toPath());
             loadConfigImplicit();
             loadResetImplicit();
         } catch (JsonSyntaxException e) {
-            alertNoSQLCFile(file);
+            alertNoValidSQLCFile(file);
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der Projekt-Datei: " + e.getMessage());
         }
 
+    }
+
+    private boolean projectOK(SQLCheckerProject project) {
+        return Objects.nonNull(project) &&
+                Objects.nonNull(project.getAssignment()) &&
+                Objects.nonNull(project.getGUIConfig());
     }
 
     /**
@@ -754,7 +767,7 @@ public class HomeController implements Initializable {
             initConfig(c);
             updateMenu();
         } catch (JsonSyntaxException e) {
-            alertNoSQLCFile(file);
+            alertNoValidSQLCFile(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
