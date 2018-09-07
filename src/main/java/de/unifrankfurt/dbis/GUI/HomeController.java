@@ -183,6 +183,16 @@ public class HomeController implements Initializable {
         namePartnerTextField.focusedProperty().addListener(configChangeListener);
         matNrPartnerTextField.focusedProperty().addListener(configChangeListener);
         emailPartnerTextField.focusedProperty().addListener(configChangeListener);
+
+
+        ContextMenu cm = new ContextMenu();
+        MenuItem mi = new MenuItem("löschen");
+        mi.setOnAction((x) -> console.setText(""));
+        cm.getItems().add(mi);
+
+
+        console.setContextMenu(cm);
+
     }
 
     /**
