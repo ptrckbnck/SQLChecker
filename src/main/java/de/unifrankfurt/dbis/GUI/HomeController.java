@@ -903,16 +903,18 @@ public class HomeController implements Initializable {
      */
     public void handleExportOlat(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Erzeuge Zip Datei für Olat");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("ZIP Archiv (*.zip)", "*.zip"));
+        fileChooser.setTitle("Erzeuge Abgabe-Datei für Olat");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Datei (*.txt)", "*.txt"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+            fileChooser.setInitialFileName(this.assignment.getName() + "_" + this.GUIConfig.getMatNr() + ".txt");
         }
         Stage stage = new Stage();
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         try {
-            new SQLCheckerProject(this.GUIConfig, this.assignment).olatZip(file.toPath());
+            FileIO.saveText(file.toPath(), new SQLCheckerProject(this.GUIConfig, this.assignment)
+                    .createSubmission().serialize());
         } catch (IOException e) {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }
