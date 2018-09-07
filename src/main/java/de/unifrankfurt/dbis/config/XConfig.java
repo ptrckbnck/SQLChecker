@@ -18,8 +18,7 @@ import java.util.Objects;
 
 
 /**
- * the GUIConfig class contains all user settings.
- * create new GUIConfig with GUIConfigBuilder.
+ * Config for using with DBFit Backend. Isnt deprecated yet, but should be soon.
  */
 public class XConfig {
 

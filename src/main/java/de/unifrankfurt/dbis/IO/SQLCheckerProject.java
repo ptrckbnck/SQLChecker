@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * class for maintaining all data in of serialising for a project.
+ */
 public class SQLCheckerProject {
     private final GUIConfig GUIConfig;
     private final Assignment assignment;
@@ -33,6 +36,9 @@ public class SQLCheckerProject {
     }
 
 
+    /**
+     * @return List<Student>
+     */
     private List<Student> studentList() {
         if (this.GUIConfig.isPartnerOk())
             return List.of(
@@ -52,6 +58,10 @@ public class SQLCheckerProject {
                         this.GUIConfig.getMatNr()));
     }
 
+    /**
+     * creates Submission with data from this project.
+     * @return
+     */
     public Submission<TaskSQL> createSubmission() {
         List<TaskSQL> tasks = assignment.getCodeMap()
                 .entrySet()

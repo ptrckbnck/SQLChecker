@@ -1,5 +1,8 @@
 package de.unifrankfurt.dbis.config;
 
+/**
+ * Builder class for GUIConfig
+ */
 public class GUIConfigBuilder {
     private String databaseName = "";
     private String username = "";

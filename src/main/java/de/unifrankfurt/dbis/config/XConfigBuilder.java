@@ -2,7 +2,7 @@ package de.unifrankfurt.dbis.config;
 
 
 /**
- * Builder class for GUIConfig
+ * Builder class for XConfig
  */
 public class XConfigBuilder {
     private String database;

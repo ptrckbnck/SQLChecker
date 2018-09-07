@@ -7,6 +7,9 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * This class represents the Config state for GUI. Provides DataSource.
+ */
 public class GUIConfig {
     //database
     private final String databaseName;
@@ -97,6 +100,9 @@ public class GUIConfig {
         return new Gson().fromJson(json, GUIConfig.class);
     }
 
+    /**
+     * @return serialisable Json representation of this class. Load with Gson.
+     */
     public String toJson() {
         Gson g = new Gson();
         return g.toJson(this);
@@ -121,6 +127,9 @@ public class GUIConfig {
                 '}';
     }
 
+    /**
+     * @return DataSource Object for connecting to Database defined in this Config.
+     */
     public DataSource getDataSource() {
         MysqlDataSource source = new MysqlDataSource();
         source.setServerName(this.getHost());
@@ -135,7 +144,7 @@ public class GUIConfig {
     /**
      * Attempts to establish a connection MySQL Server that this GUIConfig represents.
      *
-     * @return Connection to MySQL Server
+     * @return Connection to SQL Server
      * @throws SQLException - if a database access error occurs.
      */
     public Connection newConnection() throws SQLException {
