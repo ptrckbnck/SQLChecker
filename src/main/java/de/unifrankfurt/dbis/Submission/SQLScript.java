@@ -1,14 +1,17 @@
 package de.unifrankfurt.dbis.Submission;
 
 
+import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,7 +37,7 @@ public class SQLScript {
         return fromList(lines);
     }
 
-    private static SQLScript fromList(List<String> lines) throws IOException {
+    private static SQLScript fromList(List<String> lines){
         String delimiter = Tag.TAG_PREFIX + Tag.STATIC + Tag.TAG_SUFFIX;
         StringBuilder sb = null;
         ArrayList<String> queryList = new ArrayList<>();
@@ -49,7 +52,7 @@ public class SQLScript {
                     sb = new StringBuilder();
                 } else {
                     if (sb == null) {
-                        throw new IOException("missing tag");
+                        return fromListWithoutStatic(lines); //try non static version
                     } else {
                         sb.append(line).append("\n");
                     }
@@ -62,6 +65,16 @@ public class SQLScript {
 
         return new SQLScript(queryList);
     }
+    private static SQLScript fromListWithoutStatic(List<String> lines) {
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            sb.append(line).append("\n");
+        }
+        String script = sb.toString();
+
+        return new SQLScript(Arrays.asList(script.split("(?<=;)")));
+    }
+
 
     public void storeInPath(Path path) throws IOException {
         Stream<String> stream = this.queryList.stream().map(
@@ -73,8 +86,10 @@ public class SQLScript {
     }
 
     public void execute(Statement statement) throws SQLException {
-        for (String sql : this.queryList)
+        for (String sql : this.queryList) {
+            //System.out.println("run sql: "+sql);
             statement.executeUpdate(sql);
+        }
     }
 
     @Override
@@ -90,4 +105,13 @@ public class SQLScript {
 
         return Objects.hash(queryList);
     }
+
+    public void execute(DataSource dataSource) throws SQLException {
+        try(Connection con = dataSource.getConnection()){
+            try(Statement s = con.createStatement()){
+                this.execute(s);
+            }
+        }
+    }
+
 }

@@ -6,6 +6,7 @@ package de.unifrankfurt.dbis.DBFit;
 
 
 import de.unifrankfurt.dbis.Submission.Count;
+import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Submission;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class NewResultStorage {
     private Submission submission;
 
 
-    public Count count;
+    private Count count;
 
     /**
      * Log entry corresponding to the raw results
@@ -38,7 +39,7 @@ public class NewResultStorage {
 
     private ArrayList<String> status;
 
-    public Count staticCount;
+    private Count staticCount;
 
     /**
      * Creates a ResultStorage object
@@ -67,7 +68,7 @@ public class NewResultStorage {
      * @return True if (WRONG + IGNORED + ERRORS == 0)
      */
     public boolean isPassed() {
-        return (count.wrong + count.ignored + count.exceptions == 0);
+        return (count.getWrong() + count.getIgnored() + count.getExceptions() == 0);
     }
 
     public void setCount(Count count) {
@@ -105,7 +106,7 @@ public class NewResultStorage {
         }
 
         return csvLines;
-    }*/
+    }
 
     public void evaluate() {
         String[] statements = raw.split("</table>");
@@ -184,4 +185,5 @@ public class NewResultStorage {
                 ", logEntry='" + logEntry + '\'' +
                 '}';
     }
+
 }

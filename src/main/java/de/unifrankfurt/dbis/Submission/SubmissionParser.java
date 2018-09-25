@@ -58,7 +58,7 @@ public class SubmissionParser {
             if (parts.length >= 3) {
                 authorList.add(new Student(parts[0], parts[1], parts[2]));
             } else {
-                throw new SubmissionParseException(SubmissionParseException.BAD_AUTHOR);
+                return null; //BAD_AUTHOR
             }
         }
         return authorList;
@@ -66,7 +66,7 @@ public class SubmissionParser {
 
 
     /**
-     * Main function for parsing a serialized Submission.
+     * GUIApp function for parsing a serialized Submission.
      *
      * @param lines List of String which contains the serialized Submission
      * @return Submission created

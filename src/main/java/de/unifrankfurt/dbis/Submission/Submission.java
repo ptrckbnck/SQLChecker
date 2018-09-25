@@ -1,7 +1,9 @@
 package de.unifrankfurt.dbis.Submission;
 
+import de.unifrankfurt.dbis.config.EvalConfig;
 import de.unifrankfurt.dbis.config.XConfig;
 
+import de.unifrankfurt.dbis.config.DataSource;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +38,7 @@ public class Submission<e extends Task> {
      * The Name of Submission for a given solution should be identical.
      */
     private final String name;
+    private Path path = null;
 
     public Submission(List<? extends e> tasks, String name) {
         this.tasks = new ArrayList<>(tasks);
@@ -149,43 +152,34 @@ public class Submission<e extends Task> {
     }
 
 
-    /**
-     * generates Solution for DBFIT.
-     *
-     * @param XConfig GUIConfig File needed for database connection.
-     * @return generated Solution
-     * @throws SQLException Database connection problems
-     */
-    public Solution generateSolution(XConfig XConfig) throws SQLException {
+    public Solution generateSolution(DataSource source) throws SQLException {
         List<TaskSQL> sqlTasks = getTaskSQLList();
         StringBuilder builder = new StringBuilder();
-        Connection connection;
-        try {
-            connection = XConfig.newConnection();
-        } catch (SQLException e) {
-            throw new SQLException("could not establish connection with database", e);
-        }
-        builder.append(generateDBFitHeader(XConfig));
+        try (Connection connection = source.getConnection()) {
+            builder.append(generateDBFitHeader(source));
 
-        for (TaskSQL sql : sqlTasks) {
-            try {
-                builder.append(sql.generateDBFitHtml(connection.createStatement()));
-            } catch (SQLException e) {
-                throw new SQLException("error generating html of: " + sql.getTag().serialized(), e);
+            for (TaskSQL sql : sqlTasks) {
+                try (Statement s = connection.createStatement()){
+                    builder.append(sql.generateDBFitHtml(s));
+                } catch (SQLException e) {
+                    throw new SQLException(e.getMessage()+". Error generating html of: " + sql.getTag().serialized(), e);
+                }
             }
+            return new Solution(this, builder.toString());
+        } catch (SQLException e) {
+            throw e;
         }
-
-        return new Solution(this, builder.toString());
     }
 
 
-    /**
-     * creates Header Section of DBFit html.
-     *
-     * @param conf GUIConfig
-     * @return String DBFit html
-     */
-    private static String generateDBFitHeader(XConfig conf) {
+    private static String generateDBFitHeader(DataSource source) {
+        return generateDBFitHeader(source.getHost(),
+                source.getUser(),
+                source.getPassword(),
+                source.getDatabase());
+    }
+
+    private static String generateDBFitHeader(String hostname, String username, String password, String database) {
 
         String driverName = "dbfit.MySqlTest";
 
@@ -203,12 +197,24 @@ public class Submission<e extends Task> {
          * dbName (default:dbfit) <br>
          */
 
-        //TODO add linebreak if dbfit allows it
+        header += "<table>\n"
+                + "\t<tr>\n"
+                + "\t\t<td>Connect</td>\n"
+                + "\t\t<td>" + hostname + "</td>\n"
+                + "\t\t<td>" + username + "</td>\n"
+                + "\t\t<td>" + password + "</td>\n"
+                + "\t\t<td>" + database+ "</td>\n"
+                + "\t</tr>\n"
+                + "</table>\n\n";
+/*
+
+        //old
         header += "<table> <tr> <td>Connect</td> "
                 + "<td>" + conf.getHostname() + "</td> "
                 + "<td>" + conf.getUsername() + "</td> "
                 + "<td>" + conf.getPassword() + "</td> "
                 + "<td>" + conf.getDatabase() + "</td> </tr> </table>\n\n";
+*/
 
         return header;
     }
@@ -266,40 +272,6 @@ public class Submission<e extends Task> {
     }
 
 
-    /**
-     * Creates zip-file for submitting to olat.
-     * Do not modify after creating.
-     *
-     * @param path path to where Submission should be saved
-     * @throws IOException IO
-     */
-    public boolean olatReady(Path path) throws IOException {
-        if (this.authors.size() < 1) return false;
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-
-        final String fileName = this.name + "_" + this.authors.get(0).getMatriculationNumber();
-
-        Path subPath = path.resolve(fileName + ".txt");
-        this.storeInPath(subPath);
-        Path outPath = path.resolve(fileName + ".zip");
-        String path1 = outPath.toUri().getPath();
-        URI uri = URI.create("jar:file:"+ path1);
-
-
-
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env, null)){
-            Files.move(subPath,
-                    zipfs.getPath("/", fileName));
-
-        }catch (IOException e){
-            e.printStackTrace();
-
-        }
-        return true;
-    }
-
-
     public static Submission<TaskSQL> fromOlat(Path path) throws IOException, SubmissionParseException {
         FileSystem system = FileSystems.newFileSystem(path, null);
         List<Path> rootDirs = new ArrayList<>();
@@ -343,4 +315,11 @@ public class Submission<e extends Task> {
     }
 
 
+    public void setPath(Path path) {
+        this.path = path;
+    }
+
+    public Path getPath(){
+        return path;
+    }
 }

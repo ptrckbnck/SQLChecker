@@ -25,6 +25,7 @@ import java.util.stream.Stream;
  * Executes the submissions which are stored in the given directory
  * and prints the result/status
  */
+@Deprecated
 public class NewSubmissionExecutor {
 
     private final XConfig XConfig;

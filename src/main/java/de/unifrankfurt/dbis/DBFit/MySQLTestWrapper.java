@@ -9,7 +9,7 @@ import fit.exception.FitParseException;
 
 import java.io.PrintStream;
 import java.sql.SQLException;
-
+@Deprecated
 public class MySQLTestWrapper {
 
     //private static Logger logger = LogManager.getLogger(MySQLTestWrapper.class.getName());

@@ -111,4 +111,8 @@ public class Tag {
     public int hashCode() {
         return Objects.hash(name, plugin);
     }
+
+    public boolean isStatic() {
+        return this.name.equals(STATIC);
+    }
 }

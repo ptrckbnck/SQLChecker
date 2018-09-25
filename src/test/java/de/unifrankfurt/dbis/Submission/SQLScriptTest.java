@@ -1,12 +1,13 @@
 package de.unifrankfurt.dbis.Submission;
 
 import de.unifrankfurt.dbis.TestResources;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class SQLScriptTest {

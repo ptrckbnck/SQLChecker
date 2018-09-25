@@ -1,12 +1,12 @@
 package de.unifrankfurt.dbis;
 
-import de.unifrankfurt.dbis.config.XConfig;
+import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import javafx.application.Application;
 import org.apache.commons.cli.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Runner is the main executable class for this project.
@@ -14,11 +14,8 @@ import java.io.IOException;
  * does not work atm.
  */
 public class Runner {
-
-    private static String defaultConfigPath = "config/main.ini";
     private static final String version = "1.0.1";
     private static final String name = "SQL Checker";
-    private static Logger logger = LogManager.getLogger(Runner.class.getName());
 
 
     public static String getVersion() {
@@ -29,10 +26,6 @@ public class Runner {
         return name;
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
-
     /**
      * creates cli Options for this program
      *
@@ -40,49 +33,36 @@ public class Runner {
      */
     private Options createOptions() {
         Options options = new Options();
-        Option config = Option.builder("c")
+
+        OptionGroup optStart = new OptionGroup();
+        optStart.addOption(Option.builder("s")
+                .longOpt("start")
+                .desc("runs SQLChecker. this argument can be omitted.")
+                .build());
+        optStart.addOption(Option.builder("e")
+                .longOpt("evaluate")
+                .desc("evaluate Submission")
+                .build());
+        optStart.setRequired(true);
+        options.addOptionGroup(optStart);
+
+        options.addOption(Option.builder("c")
                 .longOpt("config")
-                .desc("config path. default is " + defaultConfigPath)
+                .desc("config path")
                 .hasArg()
                 .argName("FILE")
+                .build());
+
+        Option verbose = Option.builder("v")
+                .longOpt("verbose")
+                .desc("verbode mode")
                 .build();
-        options.addOption(config);
+        options.addOption(verbose);
 
-        OptionGroup optgrp = new OptionGroup();
-
-        Option exec = Option.builder("e")
-                .longOpt("exec")
-                .desc("SubmissionExecutor")
-                .build();
-        optgrp.addOption(exec);
-
-        Option gen = Option.builder("s")
-                .longOpt("solutionGen")
-                .desc("SolutionGenerator")
-                .build();
-        optgrp.addOption(gen);
-
-        Option gui = Option.builder("g")
-                .longOpt("gui")
-                .desc("start gui")
-                .build();
-        options.addOption(gui);
-
-
-        options.addOptionGroup(optgrp);
-
-
-        Option configBuild = Option.builder("b")
-                .longOpt("buildConfig")
-                .hasArg()
-                .argName("<config path>")
-                .desc("build new config")
-                .build();
-        options.addOption(configBuild);
 
         Option help = Option.builder("h")
                 .longOpt("help")
-                .desc("print help")
+                .desc("prints this help")
                 .build();
         options.addOption(help);
 
@@ -113,66 +93,81 @@ public class Runner {
      *
      * @param options defined via createOptions()
      */
-    private void printHelp(Options options) {
+    private static void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
         String ls = System.lineSeparator();
-        String header = ls + "TODO" + ls + ls;
-        String footer = ls + "TODO" + ls;
+        String header = ls + "SQLChecker" + ls + ls;
+        String footer = ls + "" + ls;
         formatter.printHelp("sqlchecker", header, options, footer, true);
     }
 
 
-    public static int main(String[] args) {
-        final long startTime = System.currentTimeMillis();
+    public static int main(String ... args) {
         Runner runner = new Runner();
-        Logger logger = runner.getLogger();
-        logger.info("Application started");
-        logger.info("SQLChecker, version " + Runner.getVersion());
-        boolean success = true;
 
         Options options = runner.createOptions();
         CommandLine commandLine = runner.argumentParse(options, args);
         if (commandLine == null) return 1;
 
 
-        String configPath;
-        if (commandLine.hasOption("c")) {
-            configPath = commandLine.getOptionValue("c");
-        } else {
-            configPath = defaultConfigPath;
-        }
-
-        if (commandLine.hasOption("h")) {
-            runner.printHelp(options);
-
-        } else if (commandLine.hasOption("g")) {
-            logger.info("starting gui");
-            //TODO start gui
+        if (commandLine.hasOption("h")){
+            printHelp(options);
             return 0;
-        } else if (commandLine.hasOption("e") | commandLine.hasOption("s") | commandLine.hasOption("t")) {
-            logger.info("Using XConfig: " + configPath);
-            XConfig XConfig = null;
-            try {
-                XConfig = XConfig.fromFile(new File(configPath));
-            } catch (IOException e) {
-                logger.info(e.getMessage());
-            }
-            if (XConfig != null) {
-                if (commandLine.hasOption("e")) {
-                    //TODO
-                }
-
-            } else if (commandLine.hasOption("b")) {
-                //TODO
-            } else runner.printHelp(options);
-
-
-            logger.info("Application finished");
-            final long endTime = System.currentTimeMillis();
-
-            System.out.println("Total execution time: " + (endTime - startTime));
-            return (success ? 0 : 1);
         }
-        return 1;
+
+        if (commandLine.getOptions().length == 0 || commandLine.hasOption("s")){
+            Application.launch(GUIApp.class, args);
+            return 0;
+        }
+
+
+        if (commandLine.hasOption("e")){
+            String configPath;
+            if (commandLine.hasOption("c")) {
+                configPath = commandLine.getOptionValue("c");
+            } else {
+                System.out.println("no config defined.");
+                return 0;
+            }
+
+            try {
+                Evaluator evaluator = new Evaluator(configPath);
+                if (commandLine.hasOption("v")){
+                    System.out.println("Loading Ressources:");
+                    evaluator.loadRessourcesVerbose();
+                    if (!evaluator.configOK()) {
+                        System.err.println("Config faulty");
+                        return 0;
+                    }
+                    System.out.println("create Solution");
+                    evaluator.createSolutionVerbose();
+                    System.out.println("run Evaluation");
+                    evaluator.runEvaluationVerbose();
+                }else {
+
+                    evaluator.loadRessources();
+                    if (!evaluator.configOK()) {
+                        System.err.println("Config faulty");
+                        return 0;
+                    }
+                    evaluator.createSolution();
+                    evaluator.runEvaluation();
+                }
+            } catch (IOException | SQLException e) {
+                System.err.println(e.getMessage());
+                if (commandLine.hasOption("v"))e.printStackTrace();
+            } catch (SubmissionParseException e) {
+                System.err.println(e.getMessage()+":"+e.getErrorCode());
+                if (commandLine.hasOption("v"))e.printStackTrace();
+            }
+
+        }
+        // MysSQLDatasource creates abandoned connection. do not know why. this helps exit program.
+        try {
+            AbandonedConnectionCleanupThread.shutdown();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

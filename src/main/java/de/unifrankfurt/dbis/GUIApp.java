@@ -14,19 +14,16 @@ import java.io.IOException;
 import java.net.URL;
 
 
-public class Main extends Application {
+public class GUIApp extends Application {
     private static Stage primaryStage;
     private static HostServices hostServices;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Main.primaryStage = primaryStage;
-        Main.hostServices = getHostServices();
-        Thread.currentThread().setUncaughtExceptionHandler(Main::showError);
+        GUIApp.primaryStage = primaryStage;
+        GUIApp.hostServices = getHostServices();
+        Thread.currentThread().setUncaughtExceptionHandler(GUIApp::showError);
 
 
         URL fxml = getClass().getResource("/mainPane.fxml");
@@ -53,7 +50,7 @@ public class Main extends Application {
     }
 
     public static Stage getPrimaryStage() {
-        return Main.primaryStage;
+        return GUIApp.primaryStage;
     }
 
     public static HostServices getHostServicesStatic() {

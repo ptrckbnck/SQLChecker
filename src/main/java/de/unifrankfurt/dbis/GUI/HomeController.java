@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
-import de.unifrankfurt.dbis.Main;
+import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -355,9 +355,9 @@ public class HomeController implements Initializable {
         this.exportMenuItem.setDisable(assignmentNotExists);
 
         if (!assignmentNotExists)
-            Main.getPrimaryStage().setTitle(this.assignment.getName());
+            GUIApp.getPrimaryStage().setTitle(this.assignment.getName());
         else
-            Main.getPrimaryStage().setTitle("");
+            GUIApp.getPrimaryStage().setTitle("");
 
     }
 

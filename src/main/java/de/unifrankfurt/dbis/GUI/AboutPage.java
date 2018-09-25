@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis.GUI;
 
-import de.unifrankfurt.dbis.Main;
+import de.unifrankfurt.dbis.GUIApp;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -24,14 +24,14 @@ public class AboutPage {
     public static void setText(VBox vbox) {
 
         String text = "Dieses Programm wurde zur Unterstützung von Datenbanken-Vorlesungen an der Goethe Universität " +
-                "Frankfurt am Main entwickelt. Es soll das Einreichen von SQL-bezogenen Aufgaben erleichtern.";
+                "Frankfurt am GUIApp entwickelt. Es soll das Einreichen von SQL-bezogenen Aufgaben erleichtern.";
         String text2 = "Sollten Sie Fragen oder Anregungen haben, wenden sie sich bitte an die Betreuer Ihrer Übung.";
         String text31 = "Alternativ können Sie Bug-Reporte direkt auf";
         String text33 = "einreichen.";
         String text5 = "Viel Erfolg beim Nutzen der Software.";
         Hyperlink hyperlink = new Hyperlink("SQLChecker");
         hyperlink.setOnAction(event -> {
-            Main.getHostServicesStatic().showDocument("https://github.com/ptrckbnck/SQLChecker");
+            GUIApp.getHostServicesStatic().showDocument("https://github.com/ptrckbnck/SQLChecker");
         });
 
         List<Node> nodes1 = List.of(text.split(" ")).stream().map(Label::new).collect(Collectors.toList());

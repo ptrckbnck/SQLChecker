@@ -32,7 +32,7 @@ public class PrintStreamCapturer extends PrintStream {
     }
 
     /**
-     * tells Main process to print text to Textarea.
+     * tells GUIApp process to print text to Textarea.
      *
      * @param str
      */
