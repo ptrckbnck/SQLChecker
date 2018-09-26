@@ -106,6 +106,18 @@ public class Solution {
         return new NewResultStorage(submission, getParseResult(p), new Count(test.counts));
     }
 
+    public String generateCSVHeader(){
+        ArrayList<String> fullList = new ArrayList<>();
+        fullList.add("Path");
+        fullList.add("Authors");
+        fullList.addAll(this.workSubmission.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
+        fullList.add("DBFITSummary");
+        return fullList.stream()
+                .collect(Collectors.joining("\", \"",
+                        "\"",
+                        "\""));
+    }
+
 
 
 

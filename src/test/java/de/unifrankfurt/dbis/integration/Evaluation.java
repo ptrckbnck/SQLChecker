@@ -23,7 +23,7 @@ public class Evaluation {
 
     @Test
     public void test2() {
-        Runner.main("-e", "-c", "/home/xyntek/TestAufgaben/Blatt1/config.txt");
+        Runner.main("-e", "-v", "-c", "/home/xyntek/TestAufgaben/Blatt1/config.txt");
         assertTrue(true);
     }
 

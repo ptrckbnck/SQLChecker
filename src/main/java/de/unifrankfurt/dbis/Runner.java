@@ -7,6 +7,7 @@ import org.apache.commons.cli.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Runner is the main executable class for this project.
@@ -132,17 +133,18 @@ public class Runner {
 
             try {
                 Evaluator evaluator = new Evaluator(configPath);
+                List<String> csv;
                 if (commandLine.hasOption("v")){
-                    System.out.println("Loading Ressources:");
+                    System.out.println("Loading Ressources:----------------------------\"");
                     evaluator.loadRessourcesVerbose();
                     if (!evaluator.configOK()) {
                         System.err.println("Config faulty");
                         return 0;
                     }
-                    System.out.println("create Solution");
+                    System.out.println("create Solution----------------------------\"");
                     evaluator.createSolutionVerbose();
-                    System.out.println("run Evaluation");
-                    evaluator.runEvaluationVerbose();
+                    System.out.println("run Evaluation----------------------------");
+                    csv = evaluator.runEvaluationVerbose();
                 }else {
 
                     evaluator.loadRessources();
@@ -151,8 +153,10 @@ public class Runner {
                         return 0;
                     }
                     evaluator.createSolution();
-                    evaluator.runEvaluation();
+                    csv = evaluator.runEvaluation();
                 }
+                //csv.forEach(System.out::println);
+
             } catch (IOException | SQLException e) {
                 System.err.println(e.getMessage());
                 if (commandLine.hasOption("v"))e.printStackTrace();

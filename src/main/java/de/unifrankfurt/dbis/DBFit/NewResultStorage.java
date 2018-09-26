@@ -5,11 +5,17 @@ package de.unifrankfurt.dbis.DBFit;
  */
 
 
-import de.unifrankfurt.dbis.Submission.Count;
-import de.unifrankfurt.dbis.Submission.Report;
-import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Evaluator;
+import de.unifrankfurt.dbis.Submission.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Stores results as raw text and as csv
@@ -82,99 +88,7 @@ public class NewResultStorage {
         return count;
     }
 
-    /*TODO
-    private String appendix() {
-        return submission.getFilePath() + CSV.delimiter
-                + submission.getTagMissing() + CSV.delimiter + count.toCSV() + staticCount.toCSV()
-                + staticAmount + CSV.delimiter;
-    }*/
 
-
-    /*
-    public ArrayList<String> toCSV() {
-        ArrayList<String> csvLines = new ArrayList<>();
-
-        if (submission.getStudents() != null) {
-            for (Student student : submission.getStudents()) {
-                String csvLine = student.getName() + CSV.delimiter + student.getMatriculationNumber() + CSV.delimiter
-                        + student.getEmailAddress() + CSV.delimiter + appendix();
-                csvLines.add(csvLine);
-            }
-        } else {
-            String csvLine = CSV.delimiter + CSV.delimiter + CSV.delimiter + appendix();
-            csvLines.add(csvLine);
-        }
-
-        return csvLines;
-    }
-
-    public void evaluate() {
-        String[] statements = raw.split("</table>");
-
-        // skip the connection and driver definition if exists
-        int start = (statements.length > 2) ? 2 : 0;
-
-
-        boolean expectsError;
-
-        for (int i = start; i < statements.length; i++) {
-            String statusLine = "";
-            String statement = statements[i];
-
-            expectsError = statement.contains("<!--error-->");
-
-            if (statement.contains("class=\"pass\"")) {
-                statusLine += "p";
-                if (expectsError) {
-                    count.right = count.right > 0 ? count.right - 1 : 0;
-                    count.exceptions++;
-                }
-            }
-            if (statement.contains("class=\"ignore\"")) {
-                statusLine += "i";
-            }
-            if (statement.contains("class=\"fail\"")) {
-                statusLine += "f";
-            }
-            if (statement.contains("class=\"error\"")) {
-                statusLine += "e";
-                if (expectsError) {
-                    count.right++;
-                    count.exceptions = count.exceptions > 0 ? count.exceptions : 0;
-                }
-            }
-
-            // errorExpected, but query has no status annotation
-            if (expectsError) {
-                if (!((statement.contains("class=\"pass\""))
-                        || (statement.contains("class=\"ignore\""))
-                        || (statement.contains("class=\"fail\""))
-                        || (statement.contains("class=\"error\"")))) {
-                    count.exceptions++;
-                } else {
-                }
-            }
-            status.add(statusLine);
-        }
-    }
-
-
-    /**
-     * For storing information about executing static queries of a Student
-     * submission
-     *
-     * @param staticRs The result set which was created from executing
-     *                 the static queries of a Student submission
-     * @param qamount  Amount of static queries executed
-     */
-    public void setStaticResults(NewResultStorage staticRs, int qamount) {
-        // store count & amount
-        /*
-      Amount of static queries executed
-     */
-        int staticAmount = qamount;
-        staticCount = staticRs.count;
-    }
 
     @Override
     public String toString() {
@@ -186,4 +100,105 @@ public class NewResultStorage {
                 '}';
     }
 
+    public Submission getSubmission() {
+        return this.submission;
+    }
+
+
+    public String createCSV(){
+        List<String> status = getStatusList();
+        Submission sub = this.submission;
+        String path = (sub.getPath()==null)?"no path found":sub.getPath().toString();
+        return csv(path, sub.getAuthors().toString(), status, getCount());
+    }
+
+    private List<String> getStatusList() {
+        Document soup = Jsoup.parse(getRawText());
+        Elements elements = soup.getElementsByTag("table");
+        List<Element> tasks = filterTasks(elements);
+        return getStatus(tasks);
+    }
+
+    private String csv(String path, String authors, List<String> status, Count count) {
+        List<String> fullList= new ArrayList<>();
+        fullList.add(path);
+        fullList.add(authors);
+        fullList.addAll(status);
+        fullList.add(count.toString());
+        return fullList.stream()
+                .collect(Collectors.joining("\", \"",
+                        "\"",
+                        "\""));
+
+    }
+
+    public String createReport(Submission<TaskSQL> sample){
+        List<String> status = getStatusList();
+        List<String> tags = sample.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+        Submission sub = this.submission;
+        String path = (sub.getPath()==null)?"no path found":sub.getPath().toString();
+        return report(path, sub.getAuthors().toString(), tags, status, getCount());
+    }
+
+    private String report(String path, String authors, List<String> tags, List<String> status, Count count) {
+        if (tags.size()!=status.size()){
+            return path+ ": tags-status mismatch!\"" +
+                    "tags: "+tags+
+                    "status"+status;
+        }
+        return IntStream.range(0,tags.size())
+                .mapToObj((i)->tags.get(i)+":"+status.get(i))
+                .collect(Collectors.joining(", ",
+                        path + " "+authors+"[",
+                        "]"+count.toString()));
+    }
+
+
+    private List<String> getStatus(List<Element> tasks) {
+        List<String> statusList = new ArrayList<>();
+        for (Element e : tasks){
+            Elements elements = e.getElementsByAttribute("class");
+            String curStatus = "pass";
+            for(Element element: elements) {
+                String c = element.attr("class");
+                if (c.equals("error")) {
+                    curStatus="error";
+                    break;
+                }
+                if (c.equals(("fail"))){
+                    curStatus="fail";
+                    break;
+                }
+                if (c.equals("ignore")){
+                    curStatus="ignore";
+                    break;
+                }
+            }
+            statusList.add(curStatus);
+
+        }
+        return statusList;
+    }
+
+    /**
+     * filsters alls Nodes who do not contain tasks.
+     * @param elements
+     * @return
+     */
+    private List<Element> filterTasks(List<Element> elements) {
+        List<Element> tasks = new ArrayList<>();
+        for( Element e : elements){
+            Elements tds = e.getElementsByTag("td");
+            boolean b = true;
+            for(Element td : tds) {
+                if (td.hasText() &&
+                        (td.text().equals("dbfit.MySqlTest") || td.text().equals("Connect"))) {
+                    b = false;
+                    break;
+                }
+            }
+            if (b) tasks.add(e);
+        }
+        return tasks;
+    }
 }

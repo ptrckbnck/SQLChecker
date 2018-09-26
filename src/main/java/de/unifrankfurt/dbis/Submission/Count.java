@@ -20,10 +20,10 @@ public class Count {
     }
 
     public Count(Counts counts) {
-        this.exceptions=counts.exceptions;
-        this.right= counts.right;
+        this.exceptions = counts.exceptions;
+        this.right = counts.right;
         this.ignored = counts.ignores;
-        this.wrong = counts.ignores;
+        this.wrong = counts.wrong;
     }
 
     public void add(Count count) {
