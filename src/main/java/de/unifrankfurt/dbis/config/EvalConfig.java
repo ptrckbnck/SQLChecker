@@ -3,7 +3,9 @@ package de.unifrankfurt.dbis.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.Submission.*;
+import org.ini4j.Ini;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -13,10 +15,8 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -24,8 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class EvalConfig {
 
-
-    public final String version = "1.0";
     //DB
     protected String database;
     protected String username;
@@ -35,13 +33,9 @@ public class EvalConfig {
 
     //Reset
     protected String resetPath;
-    protected String solutionPath;
-    protected String submissionPaths;
+    protected String solutionPaths;
+    protected String submissionPath;
 
-
-    public String getVersion() {
-        return version;
-    }
 
     public String getDatabase() {
         return database;
@@ -67,12 +61,12 @@ public class EvalConfig {
         return resetPath;
     }
 
-    public String getSolutionPath() {
-        return solutionPath;
+    public String getSolutionPaths() {
+        return solutionPaths;
     }
 
-    public String getSubmissionPaths() {
-        return submissionPaths;
+    public String getSubmissionPath() {
+        return submissionPath;
     }
 
     public EvalConfig(String database,
@@ -81,28 +75,41 @@ public class EvalConfig {
                       String hostname,
                       String port,
                       String resetPath,
-                      String solutionPath,
-                      String submissionPaths) {
+                      String solutionPaths,
+                      String submissionPath) {
         this.database = database;
         this.username = username;
         this.password = password;
         this.hostname = hostname;
         this.port = port;
         this.resetPath = resetPath;
-        this.solutionPath = solutionPath;
-        this.submissionPaths = submissionPaths;
+        this.solutionPaths = solutionPaths;
+        this.submissionPath = submissionPath;
     }
 
-    public void storeInPath(Path configPath) throws IOException {
-        Files.write(configPath,
-                new GsonBuilder().setPrettyPrinting()
-                        .create()
-                        .toJson(this)
-                        .getBytes(StandardCharsets.UTF_8));
-    }
 
     public static EvalConfig fromPath(Path path) throws IOException {
-        return new Gson().fromJson(new String(Files.readAllBytes(path)), EvalConfig.class);
+        String conf = new String(Files.readAllBytes(path));
+        try{
+            return new Gson().fromJson(conf, EvalConfig.class);
+
+        }catch(JsonSyntaxException e){
+            return EvalConfig.parseINI(conf);
+        }
+
+    }
+
+    private static EvalConfig parseINI(String conf) throws IOException {
+        Ini ini = new Ini();
+        ini.load(new StringReader(conf));
+        return new EvalConfig(ini.get("db","database"),
+                ini.get("db","username"),
+                ini.get("db","password"),
+                ini.get("db","hostname"),
+                ini.get("db","port"),
+                ini.get("files","resetPath"),
+                ini.get("files","solutionPaths"),
+                ini.get("files","submissionPath"));
     }
 
 
@@ -131,7 +138,7 @@ public class EvalConfig {
 
 
     public List<Submission<TaskSQL>> getSolutions() throws IOException, SubmissionParseException {
-        String[] pathes = this.solutionPath.split(";");
+        String[] pathes = this.solutionPaths.split(",");
         List<Submission<TaskSQL>> submissions = new ArrayList<>();
         for (String path : pathes){
             submissions.add(Submission.fromPath(Paths.get(path)).onlyTaskSQLSubmission());
@@ -146,7 +153,55 @@ public class EvalConfig {
             Objects.nonNull(this.password)&&
             Objects.nonNull(this.username)&&
             Objects.nonNull(this.resetPath)&&
-            Objects.nonNull(this.solutionPath)&&
-            Objects.nonNull(this.submissionPaths);
+            Objects.nonNull(this.solutionPaths)&&
+            Objects.nonNull(this.submissionPath);
+    }
+
+    public void storeInPath(Path configPath,boolean json) throws IOException {
+        if (json) {
+            Files.write(configPath,
+                    new GsonBuilder().setPrettyPrinting()
+                            .create()
+                            .toJson(this)
+                            .getBytes(StandardCharsets.UTF_8));}
+        else {
+            StringWriter writer = new StringWriter();
+            this.toINI().store(writer);
+            Files.write(configPath,writer.toString().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    public Ini toINI() {
+        Ini ini = new Ini();
+
+        ini.put("db","database",Objects.requireNonNullElse(this.database,""));
+        ini.put("db","username",Objects.requireNonNullElse(this.username,""));
+        ini.put("db","password",Objects.requireNonNullElse(this.password,""));
+        ini.put("db","hostname",Objects.requireNonNullElse(this.hostname,""));
+        ini.put("db","port",Objects.requireNonNullElse(this.port,""));
+        ini.putComment("db","settings for database connection");
+        ini.put("files","resetPath",Objects.requireNonNullElse(this.resetPath,""));
+        ini.put("files","solutionPaths",Objects.requireNonNullElse(this.solutionPaths,""));
+        ini.put("files","submissionPath",Objects.requireNonNullElse(this.submissionPath,""));
+        ini.putComment("files","pathes to files");
+        return ini;
+    }
+
+    public void storeInPath(Path configPath) throws IOException {
+        storeInPath(configPath, false);
+    }
+
+    @Override
+    public String toString() {
+        return "EvalConfig{" +
+                "database='" + database + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", hostname='" + hostname + '\'' +
+                ", port='" + port + '\'' +
+                ", resetPath='" + resetPath + '\'' +
+                ", solutionPaths='" + solutionPaths + '\'' +
+                ", submissionPath='" + submissionPath + '\'' +
+                '}';
     }
 }

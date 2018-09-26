@@ -30,7 +30,7 @@ public class Evaluator {
     public void loadRessources(Boolean verbose) throws IOException, SubmissionParseException {
         if (verbose) System.out.println("Loading Config");
         config = EvalConfig.fromPath(Paths.get(configPath));
-        submissions = Paths.get(config.getSubmissionPaths());
+        submissions = Paths.get(config.getSubmissionPath());
         if (verbose) System.out.println("Loading Reset");
         resetScript = config.getResetScript();
         if (verbose) System.out.println("create Datasource");
