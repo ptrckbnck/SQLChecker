@@ -5,7 +5,6 @@ package de.unifrankfurt.dbis.DBFit;
  */
 
 
-import de.unifrankfurt.dbis.Evaluator;
 import de.unifrankfurt.dbis.Submission.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,6 +12,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,38 +23,29 @@ import java.util.stream.IntStream;
  *
  * @author Max Hofmann
  */
-public class NewResultStorage {
+public class ResultStorage {
 
     /**
      * Raw result text (html with annotations)
      */
-    private String raw;
+    private final String raw;
 
-    /**
-     * Path of the submission file corresponding to the results
-     * stored in this class
-     */
-    private Submission submission;
+    private final Submission submission;
 
+    private final Count count;
 
-    private Count count;
+    private final Solution sol;
 
-    /**
-     * Log entry corresponding to the raw results
-     */
-    private String logEntry = "";
-
-    private ArrayList<String> status;
-
-    private Count staticCount;
+    private List<String> statusList = null;
 
     /**
      * Creates a ResultStorage object
      *
+     * @param sol
      * @param resultRaw The raw annotated html results for this submission
      */
-    public NewResultStorage(Submission submission, String resultRaw, Count count) {
-        this.status = new ArrayList<>();
+    public ResultStorage(Solution sol, Submission submission, String resultRaw, Count count) {
+        this.sol = sol;
         this.raw = resultRaw;
         this.submission = submission;
         this.count = count;
@@ -68,20 +60,6 @@ public class NewResultStorage {
 
 
     /**
-     * Checks if the results indicate, that this submission is
-     * completely correct
-     *
-     * @return True if (WRONG + IGNORED + ERRORS == 0)
-     */
-    public boolean isPassed() {
-        return (count.getWrong() + count.getIgnored() + count.getExceptions() == 0);
-    }
-
-    public void setCount(Count count) {
-        this.count = count;
-    }
-
-    /**
      * @return
      */
     public Count getCount() {
@@ -89,14 +67,13 @@ public class NewResultStorage {
     }
 
 
-
     @Override
     public String toString() {
-        return "NewResultStorage{" +
+        return "ResultStorage{" +
                 "raw='" + raw + '\'' +
-                ", submission=" + submission.getName() +
+                ", submission=" + submission +
                 ", count=" + count +
-                ", logEntry='" + logEntry + '\'' +
+                ", sol=" + sol +
                 '}';
     }
 
@@ -109,22 +86,28 @@ public class NewResultStorage {
         List<String> status = getStatusList();
         Submission sub = this.submission;
         String path = (sub.getPath()==null)?"no path found":sub.getPath().toString();
-        return csv(path, sub.getAuthors().toString(), status, getCount());
+        return csv(path, sub.getAuthors().toString(), this.sol.getName(),status, getCountPass());
     }
 
-    private List<String> getStatusList() {
+    public List<String> getStatusList() {
+        if(this.statusList!=null) return this.statusList;
         Document soup = Jsoup.parse(getRawText());
         Elements elements = soup.getElementsByTag("table");
         List<Element> tasks = filterTasks(elements);
-        return getStatus(tasks);
+        return this.statusList = getStatus(tasks);
     }
 
-    private String csv(String path, String authors, List<String> status, Count count) {
+    public int getCountPass(){
+        return Collections.frequency(this.getStatusList(),"pass");
+    }
+
+    private String csv(String path, String authors, String solutionName, List<String> status, int countPass) {
         List<String> fullList= new ArrayList<>();
         fullList.add(path);
         fullList.add(authors);
+        fullList.add(solutionName);
         fullList.addAll(status);
-        fullList.add(count.toString());
+        fullList.add(String.valueOf(countPass));
         return fullList.stream()
                 .collect(Collectors.joining("\", \"",
                         "\"",
@@ -132,9 +115,13 @@ public class NewResultStorage {
 
     }
 
-    public String createReport(Submission<TaskSQL> sample){
+    public String createReport(){
         List<String> status = getStatusList();
-        List<String> tags = sample.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+        List<String> tags = sol.getSubmission()
+                .getTags()
+                .stream()
+                .map(Tag::getName)
+                .collect(Collectors.toList());
         Submission sub = this.submission;
         String path = (sub.getPath()==null)?"no path found":sub.getPath().toString();
         return report(path, sub.getAuthors().toString(), tags, status, getCount());
@@ -146,11 +133,12 @@ public class NewResultStorage {
                     "tags: "+tags+
                     "status"+status;
         }
+        String prefix = "Path:" + path + " Authors:"+authors+" Solution:"+sol.getSubmission().getName()+" Evaluation:[";
         return IntStream.range(0,tags.size())
                 .mapToObj((i)->tags.get(i)+":"+status.get(i))
                 .collect(Collectors.joining(", ",
-                        path + " "+authors+"[",
-                        "]"+count.toString()));
+                        prefix,
+                        "] DBFITCount:["+count.toString()))+"]";
     }
 
 
@@ -201,4 +189,5 @@ public class NewResultStorage {
         }
         return tasks;
     }
+
 }

@@ -15,6 +15,8 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
+import static java.lang.System.exit;
+
 /**
  * Runner is the main executable class for this project.
  * It parses command line arguments and executes accordingly.
@@ -63,7 +65,7 @@ public class Runner {
 
         Option verbose = Option.builder("v")
                 .longOpt("verbose")
-                .desc("verbode mode")
+                .desc("verbose mode")
                 .build();
         options.addOption(verbose);
 
@@ -75,11 +77,21 @@ public class Runner {
                 .argName("FILE")
                 .build());
 
+        Option onlyBest = Option.builder("onlyBest")
+                .longOpt("onlyBest")
+                .desc("in csv mode do not print all evaluations. only best of student")
+                .build();
+        options.addOption(onlyBest);
+                                                           
+
         Option help = Option.builder("h")
                 .longOpt("help")
                 .desc("prints this help")
                 .build();
         options.addOption(help);
+
+
+
 
         return options;
     }
@@ -152,17 +164,26 @@ public class Runner {
                 if (commandLine.hasOption("v")) {
                     verbose = true;
                 }
-                if (verbose) System.out.println("Loading Ressources:----------------------------\"");
+                if (verbose) System.out.println("Loading Ressources:----------------------------");
                 evaluator.loadRessources(verbose);
                 if (!evaluator.configOK()) {
                     System.err.println("Config faulty");
                     return 0;
                 }
-                if (verbose) System.out.println("create Solution----------------------------\"");
-                Solution sol = evaluator.createSolution();
-                if (verbose) System.out.println(sol.getDBFitHtml());
+                if (verbose) System.out.println("create Solution----------------------------");
+                List<Solution> sol = evaluator.createSolutions();
+                if (sol.isEmpty()){
+                    System.err.println("No solution created");
+                    exit(0);
+                }
+                if (verbose){
+                    for(Solution s :sol){
+                        System.out.println("DBFitHtml of "+ sol.toString());
+                        System.out.println(s.getDBFitHtml());
+                    }
+                }
                 if (verbose) System.out.println("run Evaluation----------------------------");
-                List<String> csv = evaluator.runEvaluation(verbose);
+                List<String> csv = evaluator.runEvaluation(verbose,commandLine.hasOption("onlyBest"));
 
                 boolean doCsv = commandLine.hasOption("csv");
                 String saveCSV = commandLine.getOptionValue("csv");
@@ -183,10 +204,10 @@ public class Runner {
 
 
             } catch (IOException | SQLException e) {
-                System.err.println(e.getMessage());
+                System.err.println(e.toString());
                 if (commandLine.hasOption("v"))e.printStackTrace();
             } catch (SubmissionParseException e) {
-                System.err.println(e.getMessage()+":"+e.getErrorCode());
+                System.err.println(e.toString()+" "+e.getErrorCode());
                 if (commandLine.hasOption("v"))e.printStackTrace();
             }
 

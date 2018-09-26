@@ -8,15 +8,15 @@ import de.unifrankfurt.dbis.Submission.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -130,8 +130,13 @@ public class EvalConfig {
     }
 
 
-    public Submission<TaskSQL> getSolution() throws IOException, SubmissionParseException {
-        return Submission.fromPath(Paths.get(this.solutionPath)).onlyTaskSQLSubmission();
+    public List<Submission<TaskSQL>> getSolutions() throws IOException, SubmissionParseException {
+        String[] pathes = this.solutionPath.split(";");
+        List<Submission<TaskSQL>> submissions = new ArrayList<>();
+        for (String path : pathes){
+            submissions.add(Submission.fromPath(Paths.get(path)).onlyTaskSQLSubmission());
+        }
+        return submissions;
     }
 
 

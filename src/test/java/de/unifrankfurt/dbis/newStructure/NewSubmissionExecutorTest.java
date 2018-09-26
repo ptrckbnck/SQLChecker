@@ -1,18 +1,5 @@
 package de.unifrankfurt.dbis.newStructure;
 
-import de.unifrankfurt.dbis.DBFit.NewResultStorage;
-import de.unifrankfurt.dbis.Submission.NewSubmissionExecutor;
-import de.unifrankfurt.dbis.Submission.SQLScript;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
-import de.unifrankfurt.dbis.TestResources;
-import de.unifrankfurt.dbis.config.EvalConfig;
-import fit.exception.FitParseException;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
 public class NewSubmissionExecutorTest {
@@ -34,8 +21,8 @@ public class NewSubmissionExecutorTest {
 //                simple.getSubmission().generateSolution(EvalConfig), simple.getReset());
 //        exe.connectDBFit();
 //        exe.resetDB();
-//        NewResultStorage result = exe.runCheck(simple.getSubmission());
-//        String expected = "NewResultStorage{raw='<table>\n" +
+//        ResultStorage result = exe.runCheck(simple.getSubmission());
+//        String expected = "ResultStorage{raw='<table>\n" +
 //                "\t<tr>\n" +
 //                "\t\t<td>dbfit.MySqlTest</td>\n" +
 //                "\t</tr>\n" +

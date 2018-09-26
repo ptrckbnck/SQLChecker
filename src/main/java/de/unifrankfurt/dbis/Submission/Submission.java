@@ -322,4 +322,12 @@ public class Submission<e extends Task> {
     public Path getPath(){
         return path;
     }
+
+    public boolean sameSchema(List<Submission<TaskSQL>> others) {
+        return others.stream().allMatch(this::sameSchema);
+    }
+
+    public boolean sameSchema(Submission<TaskSQL> other) {
+        return this.getTags().equals(other.getTags());
+    }
 }

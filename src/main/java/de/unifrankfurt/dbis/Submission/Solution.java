@@ -2,20 +2,15 @@ package de.unifrankfurt.dbis.Submission;
 
 
 import de.unifrankfurt.dbis.DBFit.CustomMySQLTest;
-import de.unifrankfurt.dbis.DBFit.NewResultStorage;
+import de.unifrankfurt.dbis.DBFit.ResultStorage;
+import de.unifrankfurt.dbis.DBFit.ResultStorageBuilder;
 import de.unifrankfurt.dbis.config.DataSource;
 import fit.Parse;
 import fit.exception.FitParseException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +43,7 @@ public class Solution {
         this.dbFitHtml = dbFitHtml;
     }
 
-    public Submission<? extends Task> getSubmission() {
+    public Submission<TaskSQL> getSubmission() {
         return workSubmission;
     }
 
@@ -95,7 +90,8 @@ public class Solution {
         return this.workSubmission.getName();
     }
 
-    public NewResultStorage evaluate(DataSource source, SQLScript resetScript, Submission<TaskSQL> submission) throws SQLException, FitParseException{
+    public ResultStorage evaluate(Solution sol, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission)
+            throws SQLException, FitParseException{
         String html = this.generateSurveyHTML(submission);
         CustomMySQLTest test = new CustomMySQLTest();
         test.connect(source);
@@ -103,7 +99,12 @@ public class Solution {
         resetScript.execute(source);
         test.doTables(p);
         test.close();
-        return new NewResultStorage(submission, getParseResult(p), new Count(test.counts));
+        return new ResultStorageBuilder()
+                .setSol(sol)
+                .setSubmission(submission)
+                .setResultRaw(getParseResult(p))
+                .setCount(new Count(test.counts))
+                .createResultStorage();
     }
 
     public String generateCSVHeader(){
@@ -111,7 +112,7 @@ public class Solution {
         fullList.add("Path");
         fullList.add("Authors");
         fullList.addAll(this.workSubmission.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
-        fullList.add("DBFITSummary");
+        fullList.add("#Success");
         return fullList.stream()
                 .collect(Collectors.joining("\", \"",
                         "\"",

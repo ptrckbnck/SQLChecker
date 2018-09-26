@@ -1,6 +1,5 @@
 package de.unifrankfurt.dbis.newStructure.DBFit;
 
-import de.unifrankfurt.dbis.DBFit.MySQLTestWrapper;
 import de.unifrankfurt.dbis.TestResources;
 import org.junit.Test;
 
