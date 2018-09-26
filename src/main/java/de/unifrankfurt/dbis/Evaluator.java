@@ -28,39 +28,25 @@ public class Evaluator {
         this.configPath = configPath;
     }
 
-    public void loadRessources() throws IOException, SubmissionParseException {
+    public void loadRessources(Boolean verbose) throws IOException, SubmissionParseException {
+        if (verbose) System.out.println("Loading Config");
         config = EvalConfig.fromPath(Paths.get(configPath));
         submissions = Paths.get(config.getSubmissionPaths());
+        if (verbose) System.out.println("Loading Reset");
         resetScript = config.getResetScript();
+        if (verbose) System.out.println("create Datasource");
         source = config.getDataSource();
+        if (verbose) System.out.println("Loading Sample");
         sample = config.getSolution().onlyTaskSQLSubmission();
     }
-    public void loadRessourcesVerbose() throws IOException, SubmissionParseException {
-        System.out.println("Loading Config");
-        config = EvalConfig.fromPath(Paths.get(configPath));
-        submissions = Paths.get(config.getSubmissionPaths());
-        System.out.println("Loading Reset");
-        resetScript = config.getResetScript();
-        System.out.println("create Datasource");
-        source = config.getDataSource();
-        System.out.println("Loading Sample");
-        sample = config.getSolution();
-    }
 
-    private Solution solution() throws SQLException {
+    public Solution createSolution() throws SQLException {
         resetScript.execute(source);
-        return sample.generateSolution(config.getDataSource());
+        return sol=sample.generateSolution(config.getDataSource());
     }
 
-    public void createSolution() throws SQLException {
-        this.sol = solution();
-    }
-    public void createSolutionVerbose() throws SQLException {
-        this.sol = solution();
-        System.out.println("DBFITHTML of Solution:\n"+sol.getDBFitHtml());
-    }
 
-    public List<String> runEvaluationVerbose() {
+    public List<String> runEvaluation(boolean verbose) {
         List<Submission<TaskSQL>> subs = loadSubmissions(submissions);
 
         List<String> csv = new ArrayList<>();
@@ -68,10 +54,10 @@ public class Evaluator {
 
         subs.forEach((sub)-> {
             try {
-                System.out.println("EVALUATION: "+sub.getAuthors());
+                if(verbose)System.out.println("EVALUATION: "+sub.getAuthors() +" "+sub.getPath().toString());
                 NewResultStorage evaluate = sol.evaluate(source, resetScript, sub);
-                System.out.println(evaluate.getRawText());
-                System.out.println(evaluate.getCount());
+                if(verbose)System.out.println(evaluate.getRawText());
+                if(verbose)System.out.println(evaluate.getCount());
                 System.out.println(evaluate.createReport(this.sample));
                 csv.add(evaluate.createCSV());
             } catch (SQLException | FitParseException e) {
@@ -82,22 +68,6 @@ public class Evaluator {
     }
 
 
-    public List<String> runEvaluation(){
-        List<Submission<TaskSQL>> subs = loadSubmissions(submissions);
-
-        List<String> csv = new ArrayList<>();
-        csv.add(this.sol.generateCSVHeader());
-        subs.forEach((sub)-> {
-            try {
-                NewResultStorage newResultStorage = sol.evaluate(source, resetScript, sub);
-                System.out.println(newResultStorage.createReport(this.sample));
-                csv.add(newResultStorage.createCSV());
-            } catch (SQLException | FitParseException e) {
-                System.out.println(sub.getAuthors()+"[Failed:"+e.getMessage()+"]");
-            }
-        });
-        return csv;
-    }
 
     private List<Submission<TaskSQL>> loadSubmissions(Path submissions)  {
         ArrayList<Submission<TaskSQL>> submissionList = new ArrayList<>();

@@ -1,11 +1,17 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.Submission.Report;
+import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -51,6 +57,7 @@ public class Runner {
                 .longOpt("config")
                 .desc("config path")
                 .hasArg()
+                .optionalArg(true)
                 .argName("FILE")
                 .build());
 
@@ -60,6 +67,13 @@ public class Runner {
                 .build();
         options.addOption(verbose);
 
+        options.addOption(Option.builder("csv")
+                .longOpt("csv")
+                .desc("puts csv report to file path or System.out if omitted")
+                .hasArg()
+                .optionalArg(true)
+                .argName("FILE")
+                .build());
 
         Option help = Option.builder("h")
                 .longOpt("help")
@@ -133,29 +147,40 @@ public class Runner {
 
             try {
                 Evaluator evaluator = new Evaluator(configPath);
-                List<String> csv;
-                if (commandLine.hasOption("v")){
-                    System.out.println("Loading Ressources:----------------------------\"");
-                    evaluator.loadRessourcesVerbose();
-                    if (!evaluator.configOK()) {
-                        System.err.println("Config faulty");
-                        return 0;
-                    }
-                    System.out.println("create Solution----------------------------\"");
-                    evaluator.createSolutionVerbose();
-                    System.out.println("run Evaluation----------------------------");
-                    csv = evaluator.runEvaluationVerbose();
-                }else {
 
-                    evaluator.loadRessources();
-                    if (!evaluator.configOK()) {
-                        System.err.println("Config faulty");
-                        return 0;
-                    }
-                    evaluator.createSolution();
-                    csv = evaluator.runEvaluation();
+                boolean verbose = false;
+                if (commandLine.hasOption("v")) {
+                    verbose = true;
                 }
-                //csv.forEach(System.out::println);
+                if (verbose) System.out.println("Loading Ressources:----------------------------\"");
+                evaluator.loadRessources(verbose);
+                if (!evaluator.configOK()) {
+                    System.err.println("Config faulty");
+                    return 0;
+                }
+                if (verbose) System.out.println("create Solution----------------------------\"");
+                Solution sol = evaluator.createSolution();
+                if (verbose) System.out.println(sol.getDBFitHtml());
+                if (verbose) System.out.println("run Evaluation----------------------------");
+                List<String> csv = evaluator.runEvaluation(verbose);
+
+                boolean doCsv = commandLine.hasOption("csv");
+                String saveCSV = commandLine.getOptionValue("csv");
+                if (doCsv){
+                    if (saveCSV==null){
+                        csv.forEach(System.out::println);
+                    }
+                    else {
+                        Path path = Paths.get(saveCSV);
+                        try {
+                            Files.write(path,csv, StandardCharsets.UTF_8);
+                        } catch(IOException e){
+                            System.out.println("could not write CSV at "+saveCSV+": "+e.getMessage());
+                        }
+                    }
+                }
+
+
 
             } catch (IOException | SQLException e) {
                 System.err.println(e.getMessage());
