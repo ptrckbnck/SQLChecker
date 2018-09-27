@@ -63,8 +63,6 @@
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="runAllMenuItem" disable="true" mnemonicParsing="false"
                                                   onAction="#handleRunAll" text="Vollständg ausführen"/>
-                                        <MenuItem disable="true" mnemonicParsing="false" onAction="#handleDBFitTest"
-                                                  text="DBFit Test" visible="false"/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Olat">

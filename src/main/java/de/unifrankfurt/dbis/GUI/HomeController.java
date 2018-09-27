@@ -491,7 +491,7 @@ public class HomeController implements Initializable {
      * @return Path to Config
      */
     private Path defaultConfigPath(Path projectPath) {
-        return projectPath.getParent().resolve(projectPath.getFileName().toString() + ".conf");
+        return projectPath.getParent().resolve(projectPath.getFileName().toString() + ".ini");
     }
 
 
@@ -499,6 +499,7 @@ public class HomeController implements Initializable {
      * Load Config from default Path if present.
      */
     private void loadConfigImplicit() {
+        if (this.GUIConfig != null) return;
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
             initConfig(c);
@@ -509,7 +510,7 @@ public class HomeController implements Initializable {
         try {
             Optional<Path> conf = Files.walk(this.projectPath.getParent(), 1)
                     .filter(Files::isReadable)
-                    .filter((x) -> x.getFileName().toString().endsWith(".conf"))
+                    .filter((x) -> x.getFileName().toString().endsWith(".ini"))
                     .findFirst();
             if (conf.isPresent()) {
                 GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
@@ -715,7 +716,6 @@ public class HomeController implements Initializable {
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
             setProjectPath(file.toPath());
-            loadConfigImplicit();
             loadResetImplicit();
         } catch (JsonSyntaxException e) {
             alertNoValidSQLCFile(file);
@@ -740,7 +740,7 @@ public class HomeController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Speichere aktuelle Konfiguration als Datei.");
         fileChooser.getExtensionFilters()
-                .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
+                .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.ini)", "*.ini"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
         }
@@ -890,12 +890,6 @@ public class HomeController implements Initializable {
         }).start();
     }
 
-    /**
-     * tests if Code is DBFit usable. TODO
-     * @param actionEvent
-     */
-    public void handleDBFitTest(ActionEvent actionEvent) {
-    }
 
     /**
      * creates zip File with Submission for loading to Olat.
