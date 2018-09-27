@@ -76,7 +76,11 @@ public class Assignment {
      * @param code
      */
     public void putCodeMap(String task, String code) {
+        //hack to make sure code does no start with /*{alphanum}
+        if (code.startsWith("/*") && !code.startsWith("/* "))
+            code = "/* " + code.substring(2);
         this.codeMap.put(task, code);
+
     }
 
 }

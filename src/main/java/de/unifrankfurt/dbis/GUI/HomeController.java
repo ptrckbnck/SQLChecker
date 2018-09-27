@@ -7,9 +7,9 @@ package de.unifrankfurt.dbis.GUI;/*
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
-import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static de.unifrankfurt.dbis.GUI.SQLHighlighter.computeHighlighting;
 
@@ -197,6 +198,7 @@ public class HomeController implements Initializable {
         List<String> paras = GUIApp.getRunnerParameters();
         if (!GUIApp.getRunnerParameters().isEmpty()
                 && paras.get(0).equals("s")
+                && paras.size() > 1
                 && Objects.nonNull(paras.get(1))){
             this.loadProject(Paths.get(paras.get(1)));
         }
@@ -478,8 +480,9 @@ public class HomeController implements Initializable {
      * @throws IOException
      */
     public void saveProject(Path path) throws IOException {
-        if (getSelectedTask() != null)
-            this.assignment.putCodeMap(getSelectedTask(), this.activeCodeArea.getText());
+        IntStream.range(0, this.assignment.getTasks().size()).forEach((i) -> {
+            this.assignment.putCodeMap(this.assignment.getTasks().get(i), this.codeAreas.get(i).getContent().getText());
+        });
         Files.write(path,
                 new Gson().toJson(
                         new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
@@ -583,6 +586,7 @@ public class HomeController implements Initializable {
      * @param actionEvent
      */
     public void newProject(ActionEvent actionEvent) {
+        closeProject();
         //select template first
         FileChooser templateChooser = new FileChooser();
         templateChooser.setTitle("Öffne Aufgaben-Template Datei");
@@ -713,6 +717,7 @@ public class HomeController implements Initializable {
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
+        closeProject();
         Path path = file.toPath();
         loadProject(path);
 
@@ -725,6 +730,7 @@ public class HomeController implements Initializable {
                 alertNoValidSQLCFile(path);
                 return;
             }
+            closeProject();
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
             setProjectPath(path);
@@ -796,6 +802,10 @@ public class HomeController implements Initializable {
      * @param actionEvent
      */
     public void closeProject(ActionEvent actionEvent) {
+        closeProject();
+    }
+
+    private void closeProject() {
         initAssignment((Assignment) null);
         updateMenu();
     }
