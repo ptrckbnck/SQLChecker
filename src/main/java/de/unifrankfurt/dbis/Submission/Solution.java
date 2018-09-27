@@ -10,6 +10,7 @@ import fit.exception.FitParseException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,6 +115,7 @@ public class Solution {
         fullList.add("Solution");
         fullList.addAll(this.workSubmission.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         fullList.add("#Success");
+        fullList.add("ErrorMsg");
         return fullList.stream()
                 .collect(Collectors.joining("\", \"",
                         "\"",

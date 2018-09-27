@@ -78,16 +78,23 @@ public class Evaluator {
             System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
         }
         List<ResultStorage> storages = new ArrayList<>();
+
+
         for (Solution sol : this.sols){
-              try {
-                ResultStorage evaluate = sol.evaluate(sol, source, resetScript, sub);
-                storages.add(evaluate);
-                if(verbose)System.out.println(evaluate.getRawText());
-                if(verbose)System.out.println(evaluate.getCount());
-                System.out.println(evaluate.createReport());
-            } catch (SQLException | FitParseException e) {
-                System.out.println(sub.getAuthors()+"[Failed:"+e.getMessage()+"]");
-            }
+            ResultStorage evaluate;
+            if (!sub.isSubmissionFor(sol)){
+                evaluate = new ResultStorage(sol,sub,"Tags do not match");
+            }else{
+                try {
+                    evaluate = sol.evaluate(sol, source, resetScript, sub);
+                    if(verbose)System.out.println(evaluate.getRawText());
+                    if(verbose)System.out.println(evaluate.getCount());
+                    System.out.println(evaluate.createReport());
+                 } catch (SQLException | FitParseException e) {
+                    evaluate = new ResultStorage(sol,sub,"DBFIT parsing failed");
+                    System.out.println(sub.getAuthors()+"[Failed:"+e.getMessage()+"]");
+                }
+            }storages.add(evaluate);
         }
         if (csvOnlyBest){
             csv.add(onlyBest(storages));

@@ -330,4 +330,15 @@ public class Submission<e extends Task> {
     public boolean sameSchema(Submission<TaskSQL> other) {
         return this.getTags().equals(other.getTags());
     }
+
+    public boolean isSubmissionFor(Solution solution) {
+        return this.getTags().equals(solution.getSubmission().getNonStaticTags());
+    }
+
+    public List<Tag> getNonStaticTags() {
+        return this.getTags()
+                .stream()
+                .filter((tag)->!tag.isStatic())
+                .collect(Collectors.toList());
+    }
 }

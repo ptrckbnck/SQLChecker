@@ -4,17 +4,13 @@ package de.unifrankfurt.dbis.DBFit;
  *
  */
 
-
 import de.unifrankfurt.dbis.Submission.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,6 +32,8 @@ public class ResultStorage {
 
     private final Solution sol;
 
+    private final String errorMsg;
+
     private List<String> statusList = null;
 
     /**
@@ -49,6 +47,15 @@ public class ResultStorage {
         this.raw = resultRaw;
         this.submission = submission;
         this.count = count;
+        this.errorMsg = null;
+    }
+
+    public ResultStorage(Solution sol, Submission submission, String errorMsg) {
+        this.sol = sol;
+        this.errorMsg = errorMsg;
+        this.raw = null;
+        this.submission = submission;
+        this.count = null;
     }
 
     /**
@@ -83,10 +90,24 @@ public class ResultStorage {
 
 
     public String createCSV(){
-        List<String> status = getStatusList();
         Submission sub = this.submission;
-        String path = (sub.getPath()==null)?"no path found":sub.getPath().toString();
-        return csv(path, sub.getAuthors().toString(), this.sol.getName(),status, getCountPass());
+        String path = (sub.getPath() == null) ? "no path found" : sub.getPath().toString();
+        if (ok()) {
+            List<String> status = getStatusList();
+            return csv(path, sub.getAuthors().toString(), this.sol.getName(), status, getCountPass(), "");
+        }else{
+            List<String> status = IntStream.range(0, sol.getSubmission().getNonStaticTags().size())
+                    .mapToObj((x) -> "").collect(Collectors.toList());
+            return csv(path, sub.getAuthors().toString(), this.sol.getName(), status, 0, errorMsg);
+        }
+    }
+
+    private boolean ok() {
+        return Objects.nonNull(sol)
+                &&Objects.nonNull(submission)
+                &&Objects.nonNull(raw)
+                &&Objects.nonNull(count)
+                &&Objects.isNull(errorMsg);
     }
 
     public List<String> getStatusList() {
@@ -101,13 +122,14 @@ public class ResultStorage {
         return Collections.frequency(this.getStatusList(),"pass");
     }
 
-    private String csv(String path, String authors, String solutionName, List<String> status, int countPass) {
+    private String csv(String path, String authors, String solutionName, List<String> status, int countPass, String errorMsg) {
         List<String> fullList= new ArrayList<>();
         fullList.add(path);
         fullList.add(authors);
         fullList.add(solutionName);
         fullList.addAll(status);
         fullList.add(String.valueOf(countPass));
+        fullList.add(errorMsg);
         return fullList.stream()
                 .collect(Collectors.joining("\", \"",
                         "\"",
