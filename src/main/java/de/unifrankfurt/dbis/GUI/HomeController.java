@@ -751,7 +751,7 @@ public class HomeController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Speichere aktuelle Konfiguration als Datei.");
         fileChooser.getExtensionFilters()
-                .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.ini)", "*.ini"));
+                .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
         }
