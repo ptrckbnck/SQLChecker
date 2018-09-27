@@ -193,6 +193,13 @@ public class HomeController implements Initializable {
 
         console.setContextMenu(cm);
 
+        //try to load project
+        List<String> paras = GUIApp.getRunnerParameters();
+        if (!GUIApp.getRunnerParameters().isEmpty()
+                && paras.get(0).equals("s")
+                && Objects.nonNull(paras.get(1))){
+            this.loadProject(Paths.get(paras.get(1)));
+        }
     }
 
     /**
@@ -548,12 +555,12 @@ public class HomeController implements Initializable {
     /**
      * Creates Alert that File file is not a valid .sqlc file.
      *
-     * @param file
+     * @param path
      */
-    private void alertNoValidSQLCFile(File file) {
+    private void alertNoValidSQLCFile(Path path) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Not a vaLid SQLChecker File");
-        alert.setContentText("Parsing of " + file.toString() + " failed.\nIt seems not to be a valid SQLChecker File.");
+        alert.setContentText("Parsing of " + path.toString() + " failed.\nIt seems not to be a valid SQLChecker File.");
         alert.showAndWait();
     }
 
@@ -706,23 +713,27 @@ public class HomeController implements Initializable {
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
-        SQLCheckerProject project;
+        Path path = file.toPath();
+        loadProject(path);
+
+    }
+
+    private void loadProject(Path path) {
         try {
-            project = FileIO.load(file.toPath(), SQLCheckerProject.class);
+            SQLCheckerProject project = FileIO.load(path, SQLCheckerProject.class);
             if (!projectOK(project)) {
-                alertNoValidSQLCFile(file);
+                alertNoValidSQLCFile(path);
                 return;
             }
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
-            setProjectPath(file.toPath());
+            setProjectPath(path);
             loadResetImplicit();
         } catch (JsonSyntaxException e) {
-            alertNoValidSQLCFile(file);
+            alertNoValidSQLCFile(path);
         } catch (IOException e) {
             System.err.println("Fehler beim Laden der Projekt-Datei: " + e.getMessage());
         }
-
     }
 
     private boolean projectOK(SQLCheckerProject project) {
@@ -768,12 +779,13 @@ public class HomeController implements Initializable {
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
+        Path path = file.toPath();
         try {
-            GUIConfig c = FileIO.load(file.toPath(), GUIConfig.class);
+            GUIConfig c = FileIO.load(path, GUIConfig.class);
             initConfig(c);
             updateMenu();
         } catch (JsonSyntaxException e) {
-            alertNoValidSQLCFile(file);
+            alertNoValidSQLCFile(path);
         } catch (IOException e) {
             e.printStackTrace();
         }

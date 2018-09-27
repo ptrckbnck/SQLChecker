@@ -12,16 +12,19 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 
 public class GUIApp extends Application {
     private static Stage primaryStage;
     private static HostServices hostServices;
+    private static List<String> parameters;
 
 
     @Override
     public void start(Stage primaryStage) throws IOException {
         GUIApp.primaryStage = primaryStage;
+        GUIApp.parameters = getParameters().getRaw();
         GUIApp.hostServices = getHostServices();
         Thread.currentThread().setUncaughtExceptionHandler(GUIApp::showError);
 
@@ -55,5 +58,9 @@ public class GUIApp extends Application {
 
     public static HostServices getHostServicesStatic() {
         return hostServices;
+    }
+
+    public static List<String> getRunnerParameters() {
+        return parameters;
     }
 }

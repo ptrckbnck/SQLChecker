@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -45,11 +46,15 @@ public class Runner {
         OptionGroup optStart = new OptionGroup();
         optStart.addOption(Option.builder("s")
                 .longOpt("start")
-                .desc("runs SQLChecker. this argument can be omitted.")
+                .desc("runs SQLChecker-GUI. this argument can be omitted, takes a project path as argument.\n" +
+                        "Use this if you want to solve an exercise.")
+                .hasArg(true)
+                .optionalArg(true)
+                .argName("Path (*.sqlc)")
                 .build());
         optStart.addOption(Option.builder("e")
                 .longOpt("evaluate")
-                .desc("evaluate Submission")
+                .desc("start the Evaluation process of submissions. You need to set up a correct config-file.")
                 .build());
         options.addOptionGroup(optStart);
 
@@ -58,18 +63,18 @@ public class Runner {
                 .desc("config path")
                 .hasArg()
                 .optionalArg(true)
-                .argName("FILE")
+                .argName("Path (*.ini)")
                 .build());
 
         Option verbose = Option.builder("v")
                 .longOpt("verbose")
-                .desc("verbose mode")
+                .desc("verbose mode\n Prints a lot of information, mainly for debugging.")
                 .build();
         options.addOption(verbose);
 
         options.addOption(Option.builder("csv")
                 .longOpt("csv")
-                .desc("puts csv report to file path or System.out if omitted")
+                .desc("puts csv-report of evaluation to file path or System.out if omitted")
                 .hasArg()
                 .optionalArg(true)
                 .argName("FILE")
@@ -77,7 +82,7 @@ public class Runner {
 
         Option onlyBest = Option.builder("onlyBest")
                 .longOpt("onlyBest")
-                .desc("in csv mode do not print all evaluations. only best of student")
+                .desc("in csv mode do not print all evaluations, only best of each student")
                 .build();
         options.addOption(onlyBest);
                                                            
@@ -121,8 +126,9 @@ public class Runner {
     private static void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
         String ls = System.lineSeparator();
-        String header = ls + "SQLChecker" + ls + ls;
-        String footer = ls + "" + ls;
+        String header = ls + "SQLChecker" + ls
+                + "A tool a create and evaluate exercises for SQL.";
+        String footer = ls + "visit our Github: " + ls+"https://github.com/ptrckbnck/SQLChecker";
         formatter.printHelp("sqlchecker", header, options, footer, true);
     }
 
@@ -141,7 +147,7 @@ public class Runner {
         }
 
         if (commandLine.getOptions().length == 0 || commandLine.hasOption("s")){
-            Application.launch(GUIApp.class, args);
+            Application.launch(GUIApp.class, "s", commandLine.getOptionValue("s"));
             return;
         }
 
