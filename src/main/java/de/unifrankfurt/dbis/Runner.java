@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -46,21 +45,22 @@ public class Runner {
         OptionGroup optStart = new OptionGroup();
         optStart.addOption(Option.builder("s")
                 .longOpt("start")
-                .desc("runs SQLChecker-GUI. this argument can be omitted, takes a project path as argument.\n" +
-                        "Use this if you want to solve an exercise.")
+                .desc("runs SQLChecker-GUI. This parameter can be omitted. " +
+                        "Use this if you want to solve an exercise.\n" +
+                        "You can directly load a project file via argument Path.")
                 .hasArg(true)
                 .optionalArg(true)
                 .argName("Path (*.sqlc)")
                 .build());
         optStart.addOption(Option.builder("e")
                 .longOpt("evaluate")
-                .desc("start the Evaluation process of submissions. You need to set up a correct config-file.")
+                .desc("starts the evaluation process of submissions. You need to set up a correct config-file.")
                 .build());
         options.addOptionGroup(optStart);
 
         options.addOption(Option.builder("c")
                 .longOpt("config")
-                .desc("config path")
+                .desc("path to config file")
                 .hasArg()
                 .optionalArg(true)
                 .argName("Path (*.ini)")
@@ -68,24 +68,24 @@ public class Runner {
 
         Option verbose = Option.builder("v")
                 .longOpt("verbose")
-                .desc("verbose mode\n Prints a lot of information, mainly for debugging.")
+                .desc("verbose mode. Prints a lot of information, mainly for debugging.")
                 .build();
         options.addOption(verbose);
 
         options.addOption(Option.builder("csv")
                 .longOpt("csv")
-                .desc("puts csv-report of evaluation to file path or System.out if omitted")
+                .desc("puts csv-report of evaluations to file at Path or System.out by default.")
                 .hasArg()
                 .optionalArg(true)
-                .argName("FILE")
+                .argName("Path")
                 .build());
 
         Option onlyBest = Option.builder("onlyBest")
                 .longOpt("onlyBest")
-                .desc("in csv mode do not print all evaluations, only best of each student")
+                .desc("in csv mode, do not print all evaluations, only the best of each student.")
                 .build();
         options.addOption(onlyBest);
-                                                           
+
 
         Option help = Option.builder("h")
                 .longOpt("help")
