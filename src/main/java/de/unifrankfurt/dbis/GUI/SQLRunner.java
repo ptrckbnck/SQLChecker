@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * This class executes SQL statements.
  */
-public class SQLRunner extends Task {
+public class SQLRunner extends Task<Integer> {
     private final GUIConfig guiConfig;
     private final String sql;
 
@@ -27,7 +27,7 @@ public class SQLRunner extends Task {
         this.setOnFailed(getDefaultEventHandler(this, guiConfig, "Ausführen des Codes fehlgeschlagen."));
     }
 
-    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task task, GUIConfig config, String errorMessage) {
+    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task<Integer> task, GUIConfig config, String errorMessage) {
         return (x) -> {
             System.err.println(errorMessage);
             if (SQLException.class.isAssignableFrom(task.getException().getClass())) {
@@ -71,14 +71,14 @@ public class SQLRunner extends Task {
     }
 
     @Override
-    protected Object call() throws SQLException {
+    protected Integer call() throws SQLException {
 
         checkSQL(sql);
         try (Connection con = guiConfig.newConnection()) {
             Statement stmt = con.createStatement();
             SQLResultWrapper result = SQLResultWrapper.executeStatement(stmt, sql);
             System.out.println(result);
+            return 0;
         }
-        return null;
     }
 }

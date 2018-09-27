@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Evaluator {
@@ -30,6 +31,8 @@ public class Evaluator {
     public void loadRessources(Boolean verbose) throws IOException, SubmissionParseException {
         if (verbose) System.out.println("Loading Config");
         config = EvalConfig.fromPath(Paths.get(configPath));
+
+        config.configOK(); //throws IOException if not;
         submissions = Paths.get(config.getSubmissionPath());
         if (verbose) System.out.println("Loading Reset");
         resetScript = config.getResetScript();
@@ -140,14 +143,6 @@ public class Evaluator {
             System.err.println("Submission path is no valid File nor Directory.");
         }
         return submissionList;
-    }
-
-
-
-
-
-    public Boolean configOK() {
-        return this.config.configOK();
     }
 
 

@@ -23,10 +23,9 @@ public class Evaluation {
         assertTrue(true);
     }
 
-    @Disabled
     @Test
     public void test2() {
-        Runner.main("-e","-csv","/home/xyntek/TestAufgaben/Blatt1/a.csv", "-c", "/home/xyntek/TestAufgaben/Blatt1/config.txt");
+        Runner.main("-e","-csv", "-c", "/home/xyntek/TestAufgaben/Blatt1/config.txt");
         assertTrue(true);
     }
 
@@ -38,6 +37,8 @@ public class Evaluation {
         assertTrue(true);
     }
 
+
+    @Disabled
     @Test
     public void test4() throws IOException {
         EvalConfig config = EvalConfig.fromPath(Paths.get("/home/xyntek/simple/config.txt"));

@@ -1,7 +1,6 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.jdbc.AbandonedConnectionCleanupThread;
-import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import javafx.application.Application;
@@ -23,7 +22,7 @@ import static java.lang.System.exit;
  * does not work atm.
  */
 public class Runner {
-    private static final String version = "1.0.1";
+    private static final String version = "1.0.2";
     private static final String name = "SQL Checker";
 
 
@@ -52,7 +51,6 @@ public class Runner {
                 .longOpt("evaluate")
                 .desc("evaluate Submission")
                 .build());
-        optStart.setRequired(true);
         options.addOptionGroup(optStart);
 
         options.addOption(Option.builder("c")
@@ -129,22 +127,22 @@ public class Runner {
     }
 
 
-    public static int main(String ... args) {
+    public static void main(String ... args) {
         Runner runner = new Runner();
 
         Options options = runner.createOptions();
         CommandLine commandLine = runner.argumentParse(options, args);
-        if (commandLine == null) return 1;
+        if (commandLine == null) return;
 
 
         if (commandLine.hasOption("h")){
             printHelp(options);
-            return 0;
+            return;
         }
 
         if (commandLine.getOptions().length == 0 || commandLine.hasOption("s")){
             Application.launch(GUIApp.class, args);
-            return 0;
+            return;
         }
 
 
@@ -154,7 +152,7 @@ public class Runner {
                 configPath = commandLine.getOptionValue("c");
             } else {
                 System.out.println("no config defined.");
-                return 0;
+                return;
             }
 
             try {
@@ -166,10 +164,6 @@ public class Runner {
                 }
                 if (verbose) System.out.println("Loading Ressources:----------------------------");
                 evaluator.loadRessources(verbose);
-                if (!evaluator.configOK()) {
-                    System.err.println("Config faulty");
-                    return 0;
-                }
                 if (verbose) System.out.println("create Solution----------------------------");
                 List<Solution> sol = evaluator.createSolutions();
                 if (sol.isEmpty()){
@@ -204,11 +198,16 @@ public class Runner {
 
 
             } catch (IOException | SQLException e) {
-                System.err.println(e.toString());
-                if (commandLine.hasOption("v"))e.printStackTrace();
+
+                if (commandLine.hasOption("v")){
+                    e.printStackTrace();
+                }else System.err.println(e.getMessage());
+
             } catch (SubmissionParseException e) {
-                System.err.println(e.toString()+" "+e.getErrorCode());
-                if (commandLine.hasOption("v"))e.printStackTrace();
+                if (commandLine.hasOption("v")){
+                    e.printStackTrace();
+                }else System.err.println(e.getMessage()+" "+e.getErrorCode());
+
             }
 
         }
@@ -218,6 +217,6 @@ public class Runner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return 0;
+        return;
     }
 }

@@ -28,7 +28,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>de.unifrankfurt.dbis.GUIApp</mainClass>
+                            <mainClass>de.unifrankfurt.dbis.Runner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -47,14 +47,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>8.8.3</version>
-                <configuration>
-                    <mainClass>de.unifrankfurt.dbis.GUIApp</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
@@ -64,6 +56,22 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <!--<configuration>-->
+                            <!--<minimizeJar>true</minimizeJar>-->
+                        <!--</configuration>-->
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <!-- Additional configuration. -->
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

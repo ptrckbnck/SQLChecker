@@ -87,14 +87,15 @@ public class EvalConfig {
         this.submissionPath = submissionPath;
     }
 
-
     public static EvalConfig fromPath(Path path) throws IOException {
         String conf = new String(Files.readAllBytes(path));
+        if (path.getFileName().toString().toLowerCase().endsWith(".ini")){
+            return EvalConfig.parseINI(conf);
+        }
         try{
             return new Gson().fromJson(conf, EvalConfig.class);
-
         }catch(JsonSyntaxException e){
-            return EvalConfig.parseINI(conf);
+            throw new IOException("Could not parse Config ("+path+"): "+e.getMessage(),e);
         }
 
     }
@@ -147,15 +148,27 @@ public class EvalConfig {
     }
 
 
-    public Boolean configOK() {
-    return Objects.nonNull(this.database)&&
-            Objects.nonNull(this.hostname)&&
-            Objects.nonNull(this.password)&&
-            Objects.nonNull(this.username)&&
-            Objects.nonNull(this.resetPath)&&
-            Objects.nonNull(this.solutionPaths)&&
-            Objects.nonNull(this.submissionPath);
+    public boolean configOK() throws IOException{
+        List<String> msg = new ArrayList<>();
+        boolean ok = nonNull("database", this.database, msg)&&
+            nonNull("hostname", this.hostname, msg)&&
+            nonNull("password", this.password, msg)&&
+            nonNull("username", this.username, msg)&&
+            nonNull("resetPath", this.resetPath, msg)&&
+            nonNull("solutionPaths", this.solutionPaths, msg)&&
+            nonNull("submissionPath", this.submissionPath, msg);
+        if (!ok) {
+            throw new IOException("Loading of config Failed: "+String.join("\n, ",msg));
+        }
+        return ok;
     }
+
+    private boolean nonNull(String attribute, String value,List<String>  msg) {
+        if (Objects.nonNull(value)) return true;
+        msg.add("Attribute "+attribute+" missing.");
+        return false;
+    }
+
 
     public void storeInPath(Path configPath,boolean json) throws IOException {
         if (json) {
