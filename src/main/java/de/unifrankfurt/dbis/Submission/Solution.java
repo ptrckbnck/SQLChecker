@@ -111,6 +111,7 @@ public class Solution {
         ArrayList<String> fullList = new ArrayList<>();
         fullList.add("Path");
         fullList.add("Authors");
+        fullList.add("Solution");
         fullList.addAll(this.workSubmission.getTags().stream().map(Tag::getName).collect(Collectors.toList()));
         fullList.add("#Success");
         return fullList.stream()
