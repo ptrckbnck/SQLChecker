@@ -4,10 +4,15 @@ package de.unifrankfurt.dbis.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Submission.SQLScript;
+import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Submission.TaskSQL;
 import org.ini4j.Ini;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -170,7 +175,7 @@ public class EvalConfig {
     }
 
 
-    public void storeInPath(Path configPath,boolean json) throws IOException {
+    public void storeInPath(Path configPath, boolean json) throws IOException {
         if (json) {
             Files.write(configPath,
                     new GsonBuilder().setPrettyPrinting()
