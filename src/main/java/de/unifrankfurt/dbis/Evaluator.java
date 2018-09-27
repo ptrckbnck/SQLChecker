@@ -11,8 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 
 public class Evaluator {
@@ -68,7 +70,7 @@ public class Evaluator {
         List<String> csv = new ArrayList<>();
         csv.add(this.sols.get(0).generateCSVHeader());
         for (Submission<TaskSQL> sub : subs) {
-            runSubmissionEvaluation(sub, csv, verbose, csvOnlyBest); //currently Only Best Mode
+            runSubmissionEvaluation(sub, csv, verbose, csvOnlyBest);
         }
         return csv;
     }
@@ -84,6 +86,7 @@ public class Evaluator {
             ResultStorage evaluate;
             if (!sub.isSubmissionFor(sol)){
                 evaluate = new ResultStorage(sol,sub,"Tags do not match");
+                System.out.println(errorMsg(sol, sub, "Submissions tags do not match with solution"));
             }else{
                 try {
                     evaluate = sol.evaluate(sol, source, resetScript, sub);
@@ -92,7 +95,7 @@ public class Evaluator {
                     System.out.println(evaluate.createReport());
                  } catch (SQLException | FitParseException e) {
                     evaluate = new ResultStorage(sol,sub,"DBFIT parsing failed");
-                    System.out.println(sub.getAuthors()+"[Failed:"+e.getMessage()+"]");
+                    System.out.println(errorMsg(sol, sub, e.getMessage()));
                 }
             }storages.add(evaluate);
         }
@@ -101,6 +104,11 @@ public class Evaluator {
         }else{
             for(ResultStorage storage: storages)csv.add(storage.createCSV());
         }
+    }
+
+    private String errorMsg(Solution sol, Submission<TaskSQL> sub, String message) {
+        return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors()
+                + " Solution:" + sol.getSubmission().getName() + " ErrorMsg:" + message;
     }
 
     private String onlyBest(List<ResultStorage> storages) {

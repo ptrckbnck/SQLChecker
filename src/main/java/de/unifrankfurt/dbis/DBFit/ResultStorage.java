@@ -4,13 +4,19 @@ package de.unifrankfurt.dbis.DBFit;
  *
  */
 
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Submission.Count;
+import de.unifrankfurt.dbis.Submission.Solution;
+import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Submission.Tag;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -150,12 +156,7 @@ public class ResultStorage {
     }
 
     private String report(String path, String authors, List<String> tags, List<String> status, Count count) {
-        if (tags.size()!=status.size()){
-            return path+ ": tags-status mismatch!\"" +
-                    "tags: "+tags+
-                    "status"+status;
-        }
-        String prefix = "Path:" + path + " Authors:"+authors+" Solution:"+sol.getSubmission().getName()+" Evaluation:[";
+        String prefix = "SUCCESS Path:" + path + " Authors:" + authors + " Solution:" + sol.getSubmission().getName() + " Evaluation:[";
         return IntStream.range(0,tags.size())
                 .mapToObj((i)->tags.get(i)+":"+status.get(i))
                 .collect(Collectors.joining(", ",
