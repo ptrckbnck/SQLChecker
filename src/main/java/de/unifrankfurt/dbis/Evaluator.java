@@ -129,14 +129,15 @@ public class Evaluator {
         try {
             Files.walk(submissions, depth).forEach((x)-> {
                 try {
+                    if (x.equals(submissions)) return;
                     Submission<TaskSQL> s = Submission.fromPath(x).onlyTaskSQLSubmission();
                     s.setPath(x);
                     submissionList.add(s);
-                    System.out.println(x+" loaded.");
+                    System.out.println("Submission loaded: "+x);
                 } catch (SubmissionParseException e) {
-                    System.out.println("SubmissionParseException: "+e.getMessage()+": "+x+" could not be loaded.");
+                    System.out.println("SubmissionParseException, "+e.getMessage()+": "+x);
                 } catch (IOException e) {
-                    System.out.println(e.getMessage()+": "+x+" could not be loaded.");
+                    System.out.println("IOException, " + e.getMessage()+": "+x);
                 }
             });
         } catch (IOException e) {
