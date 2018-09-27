@@ -122,8 +122,6 @@ public class Solution {
 
 
 
-
-
     private String getParseResult(Parse parse) {
         StringBuilder storage = new StringBuilder();
         this.printParseStr(storage, parse, 0);
