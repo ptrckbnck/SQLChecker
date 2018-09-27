@@ -267,13 +267,14 @@ public class HomeController implements Initializable {
                         }
                 );
 
+        //autosave backup every 10 seconds
         Subscription cleanupWhenNoLongerNeedIt3 = codeArea
                 .multiPlainChanges()
-                .successionEnds(Duration.ofMillis(5000))
+                .successionEnds(Duration.ofMillis(10000))
                 .subscribe(ignore -> {
                     if (this.projectPath != null && this.getSelectedTask() != null) {
                         try {
-                            this.saveProject(projectPath);
+                            this.saveProject(backupPath());
                         } catch (IOException e) {
                             //;
                         }
@@ -283,6 +284,9 @@ public class HomeController implements Initializable {
         return codeArea;
     }
 
+    public Path backupPath() {
+        return this.projectPath.getParent().resolve(this.projectPath.getFileName() + ".backup");
+    }
 
     /**
      * creates new Config Object everytime settings get modified.
@@ -592,6 +596,8 @@ public class HomeController implements Initializable {
         templateChooser.setTitle("Öffne Aufgaben-Template Datei");
         templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
         templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
+        if (Objects.nonNull(this.projectPath))
+            templateChooser.setInitialDirectory(this.projectPath.getParent().toFile());
         Stage stageTemplate = new Stage();
         File template = templateChooser.showOpenDialog(stageTemplate);
         if (template == null) return;
@@ -714,6 +720,8 @@ public class HomeController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("öffne Checker Datei");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        if (Objects.nonNull(this.projectPath))
+            fileChooser.setInitialDirectory(this.projectPath.getParent().toFile());
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
