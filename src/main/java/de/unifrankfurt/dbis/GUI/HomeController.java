@@ -491,11 +491,6 @@ public class HomeController implements Initializable {
                 new Gson().toJson(
                         new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
         );
-        try {
-            saveConfig(defaultConfigPath(path));
-        } catch (IOException e) {
-            System.err.println("Speichern der Config-Datei fehlgeschlagen: " + e.getMessage());
-        }
     }
 
     /**
