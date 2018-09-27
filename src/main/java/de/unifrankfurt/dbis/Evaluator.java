@@ -49,7 +49,12 @@ public class Evaluator {
     public List<Solution> createSolutions() throws SQLException {
         sols = new ArrayList<>();
         for ( Submission<TaskSQL> s : samples) {
-            resetScript.execute(source);
+            try {
+                resetScript.execute(source);
+            } catch (SQLException e) {
+                throw new SQLException("ResetScript: " + e.getMessage(), e);
+            }
+
             sols.add(s.generateSolution(config.getDataSource()));
         }
         return sols;
@@ -139,12 +144,12 @@ public class Evaluator {
         ArrayList<Submission<TaskSQL>> submissionList = new ArrayList<>();
         int depth = 0;
         if (Files.isDirectory(submissions)){
-            depth = 1;
+            depth = 2;
         }
         try {
             Files.walk(submissions, depth).forEach((x)-> {
                 try {
-                    if (x.equals(submissions)) return;
+                    if (Files.isDirectory(x)) return;
                     Submission<TaskSQL> s = Submission.fromPath(x).onlyTaskSQLSubmission();
                     s.setPath(x);
                     submissionList.add(s);

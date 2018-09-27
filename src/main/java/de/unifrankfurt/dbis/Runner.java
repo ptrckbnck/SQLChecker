@@ -207,12 +207,12 @@ public class Runner {
 
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
-                }else System.err.println(e.getMessage());
+                } else System.err.println(e.toString());
 
             } catch (SubmissionParseException e) {
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
-                }else System.err.println(e.getMessage()+" "+e.getErrorCode());
+                } else System.err.println(e.toString() + " " + e.getErrorCode());
 
             }
 
