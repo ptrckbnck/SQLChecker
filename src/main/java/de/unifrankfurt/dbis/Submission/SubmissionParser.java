@@ -10,29 +10,31 @@ public class SubmissionParser {
 
     public static List<SubmissionToken> tokenizer(List<String> lines) {
 
-        String raw = String.join("\n", lines);
+        String raw = String.join("\n", lines).trim();
         String[] splited = raw.split("(?=/\\*)");
         List<SubmissionTokenBuilder> tasks = new ArrayList<>();
         for (String s : splited) {
             String[] task = s.trim().split("\n", 2);
-            String possibleTag = task[0];
+            String possibleTag = task[0].trim();
             if (possibleTag.startsWith("/* ")
                     || !possibleTag.startsWith("/*")
                     || possibleTag.endsWith(" */")
                     || !possibleTag.endsWith("*/")
-                    || possibleTag.contains(" ")) {
+                    || possibleTag.matches(".*\\s+.*"))//contains whitespace
+            {
                 //no tag
                 if (tasks.isEmpty()) {
-                    //ignore
-                    System.out.println("Ignored Token:" + possibleTag + "\n");
+                    if (!possibleTag.isEmpty()) {
+                        System.out.println("Ignored Token:" + possibleTag + "\n");
+                    }
                 } else {
                     tasks.get(tasks.size() - 1).addToBody(s);
                 }
             } else {
                 //tag
-                SubmissionTokenBuilder builder = new SubmissionTokenBuilder().setTag(Tag.parse(task[0]));
+                SubmissionTokenBuilder builder = new SubmissionTokenBuilder().setTag(Tag.parse(possibleTag));
                 if (task.length == 2) {
-                    builder.addToBody(task[1]);
+                    builder.addToBody(task[1].trim());
                 }
                 tasks.add(builder);
             }

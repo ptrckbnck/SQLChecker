@@ -218,7 +218,7 @@ public class ResultStorage {
     }
 
     private String report(Path path, String authors, List<String> tags, List<String> status) {
-        String prefix = "SUCCESS Path:" + path.getFileName() + " Authors:" + authors + " Solution:" + solutionName + " Evaluation:[";
+        String prefix = "SUCCESS Path:" + path + " Authors:" + authors + " Solution:" + solutionName + " Evaluation:[";
         return IntStream.range(0, tags.size())
                 .mapToObj((i) -> tags.get(i) + ":" + status.get(i))
                 .collect(Collectors.joining(", ",
