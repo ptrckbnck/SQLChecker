@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import javafx.application.Application;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.System.exit;
 
@@ -183,18 +185,18 @@ public class Runner {
                     }
                 }
                 if (verbose) System.out.println("run Evaluation----------------------------");
-                List<String> csv = evaluator.runEvaluation(verbose,commandLine.hasOption("onlyBest"));
+                Report report = evaluator.runEvaluation(verbose, commandLine.hasOption("onlyBest"));
 
                 boolean doCsv = commandLine.hasOption("csv");
                 String saveCSV = commandLine.getOptionValue("csv");
                 if (doCsv){
-                    if (saveCSV==null){
-                        csv.forEach(System.out::println);
+                    if (Objects.isNull(saveCSV)) {
+                        report.getCSV().forEach(System.out::println);
                     }
                     else {
                         Path path = Paths.get(saveCSV);
                         try {
-                            Files.write(path,csv, StandardCharsets.UTF_8);
+                            Files.write(path, report.getCSV(), StandardCharsets.UTF_8);
                         } catch(IOException e){
                             System.out.println("could not write CSV at "+saveCSV+": "+e.getMessage());
                         }
@@ -212,7 +214,7 @@ public class Runner {
             } catch (SubmissionParseException e) {
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
-                } else System.err.println(e.toString() + " " + e.getErrorCode());
+                } else System.err.println(e.toString());
 
             }
 
@@ -223,6 +225,5 @@ public class Runner {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return;
     }
 }

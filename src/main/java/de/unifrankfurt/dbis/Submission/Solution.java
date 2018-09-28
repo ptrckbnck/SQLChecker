@@ -3,14 +3,14 @@ package de.unifrankfurt.dbis.Submission;
 
 import de.unifrankfurt.dbis.DBFit.CustomMySQLTest;
 import de.unifrankfurt.dbis.DBFit.ResultStorage;
-import de.unifrankfurt.dbis.DBFit.ResultStorageBuilder;
 import de.unifrankfurt.dbis.config.DataSource;
 import fit.Parse;
 import fit.exception.FitParseException;
 
+import java.io.PrintStream;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,21 +91,22 @@ public class Solution {
         return this.workSubmission.getName();
     }
 
-    public ResultStorage evaluate(Solution sol, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission)
+    public ResultStorage evaluate(Path root, Solution sol, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission, boolean verbose)
             throws SQLException, FitParseException{
         String html = this.generateSurveyHTML(submission);
         CustomMySQLTest test = new CustomMySQLTest();
         test.connect(source);
         Parse p = new Parse(html);
         resetScript.execute(source);
+        PrintStream err = System.err; // catch dbfit output
+        System.setErr(null);
         test.doTables(p);
         test.close();
-        return new ResultStorageBuilder()
-                .setSol(sol)
-                .setSubmission(submission)
-                .setResultRaw(getParseResult(p))
-                .setCount(new Count(test.counts))
-                .createResultStorage();
+        System.setErr(err);
+        String parseResult = getParseResult(p);
+        if (verbose) System.out.println(parseResult);
+        if (verbose) System.out.println(new Count(test.counts));
+        return new ResultStorage(root, sol, submission, parseResult);
     }
 
     public String generateCSVHeader(){

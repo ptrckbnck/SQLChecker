@@ -118,22 +118,29 @@ public abstract class TaskSQL implements Task {
         TaskBody body = SubmissionParser.splitBody(token.getBody());
         List<String> statements = splitStatements(body.getSql());
         if (statements.size() < 1)
-            throw new SubmissionParseException(SubmissionParseException.EMPTY_TASK);
+            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nNO BODY", "select('NO BODY');");
         String sql = statements.get(0);
-        if (!isCallable(sql)) {
-            if (statements.size() != 1)
-                throw new SubmissionParseException(
-                        "too many Statements: " + token.toString(),
-                        SubmissionParseException.TOO_MANY_STATEMENTS);
-            return new TaskSQLNonCallable(token.getTag(), body.getComment(), body.getSql());
+        //if (!isCallable(sql)) {
+        if (statements.size() != 1) {
+            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nTOO MANY STATEMENTS", "select('TOO MANY STATEMENTS');");
+
+            /*
+            throw new SubmissionParseException(
+                    "too many Statements in " + token.getTag().getName(),
+                    SubmissionParseException.TOO_MANY_STATEMENTS);*/
         }
+        return new TaskSQLNonCallable(token.getTag(), body.getComment(), body.getSql());
+
+
+        // does not currently support procedures or functions
+        /*
         if (isProcedure(sql)) {
             return new TaskSQLProcedure(token.getTag(), body.getComment(), statements);
         }
         if (isFunction(sql)) {
             return new TaskSQLFunction(token.getTag(), body.getComment(), statements);
-        }
-        throw new SubmissionParseException("Unkown Task: " + token.toString(), SubmissionParseException.UNKNOWN_TASKSQL);
+        }*/
+        //throw new SubmissionParseException("Unkown Task: " + token.toString(), SubmissionParseException.UNKNOWN_TASKSQL);
     }
 
     /**

@@ -1,11 +1,8 @@
 package de.unifrankfurt.dbis.Submission;
 
-import de.unifrankfurt.dbis.config.EvalConfig;
-import de.unifrankfurt.dbis.config.XConfig;
-
 import de.unifrankfurt.dbis.config.DataSource;
+
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.sql.Connection;
@@ -339,6 +336,18 @@ public class Submission<e extends Task> {
         return this.getTags()
                 .stream()
                 .filter((tag)->!tag.isStatic())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getTagStrings() {
+        return this.getTags().stream().map(Tag::getName).collect(Collectors.toList());
+    }
+
+    public List<String> getNonStaticTagStrings() {
+        return this.getTags()
+                .stream()
+                .filter((tag) -> !tag.isStatic())
+                .map(Tag::getName)
                 .collect(Collectors.toList());
     }
 }

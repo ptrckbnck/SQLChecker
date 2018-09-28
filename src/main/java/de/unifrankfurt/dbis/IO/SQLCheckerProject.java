@@ -69,10 +69,7 @@ public class SQLCheckerProject {
                 .map((key) -> {
                     try {
                         return TaskSQL.parseToken(
-                                new SubmissionToken(
-                                        new Tag(key),
-                                        map.get(key)
-                                ));
+                                new SubmissionTokenBuilder().setTag(new Tag(key)).setBody(map.get(key)).createSubmissionToken());
                     } catch (SubmissionParseException e) {
                         System.err.println("Erzeugen der Abgabe Fehlgeschlagen: " + e.getMessage());
                         return null;

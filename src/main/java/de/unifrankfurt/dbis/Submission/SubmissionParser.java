@@ -4,53 +4,51 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SubmissionParser {
 
-    public static List<SubmissionToken> tokenizer(List<String> lines)
-            throws SubmissionParseException {
-        ArrayList<SubmissionToken> token = new ArrayList<>();
-        Tag currentTag = null;
-        StringBuilder currentBody = null;
+    public static List<SubmissionToken> tokenizer(List<String> lines) {
 
-        for (String line : lines) {
-            line = line.trim();
-            if (line.isEmpty()) continue;
-            //if line is Tag -> tag is Tag else tag is null
-            Tag tag = Tag.parse(line);
-            //check initial Tag
-            if (currentTag == null && tag == null)
-                throw new SubmissionParseException(SubmissionParseException.TAG_MISSING);
-            //Tag is not null -> line is Tag
-            if (tag != null) {
-                // currentTag can only be null if not tags were found so far.
-                if (currentTag == null) {
-                    currentTag = tag;
-                    currentBody = new StringBuilder();
+        String raw = String.join("\n", lines);
+        String[] splited = raw.split("(?=/\\*)");
+        List<SubmissionTokenBuilder> tasks = new ArrayList<>();
+        for (String s : splited) {
+            String[] task = s.trim().split("\n", 2);
+            String possibleTag = task[0];
+            if (possibleTag.startsWith("/* ")
+                    || !possibleTag.startsWith("/*")
+                    || possibleTag.endsWith(" */")
+                    || !possibleTag.endsWith("*/")
+                    || possibleTag.contains(" ")) {
+                //no tag
+                if (tasks.isEmpty()) {
+                    //ignore
+                    System.out.println("Ignored Token:" + possibleTag + "\n");
                 } else {
-                    token.add(new SubmissionToken(currentTag, currentBody.toString().trim()));
-                    currentTag = tag;
-                    currentBody = new StringBuilder();
+                    tasks.get(tasks.size() - 1).addToBody(s);
                 }
-                //No Tag was found
             } else {
-                currentBody.append(line).append("\n");
+                //tag
+                SubmissionTokenBuilder builder = new SubmissionTokenBuilder().setTag(Tag.parse(task[0]));
+                if (task.length == 2) {
+                    builder.addToBody(task[1]);
+                }
+                tasks.add(builder);
             }
         }
-        //add last Token
-        if (currentTag != null)
-            token.add(new SubmissionToken(currentTag, currentBody.toString()));
-        return token;
+        return tasks.stream().map(SubmissionTokenBuilder::createSubmissionToken).collect(Collectors.toList());
     }
+
+
 
     /**
      * Parses an author header of serialized Submission.
      *
      * @param string author header of Submission
      * @return List of Student found in author header.
-     * @throws SubmissionParseException if a Student could not be parsed
      */
-    public static List<Student> parseAuthor(String string) throws SubmissionParseException {
+    public static List<Student> parseAuthor(String string) {
         String[] authors = string.split("\n");
         ArrayList<Student> authorList = new ArrayList<>();
         for (String author : authors) {
@@ -116,7 +114,7 @@ public class SubmissionParser {
         if (token.getTag().getPlugin() == null) {
             return TaskSQL.parseToken(token);
         }
-        throw new SubmissionParseException(SubmissionParseException.UNKNOWN_PLUGIN);
+        throw new SubmissionParseException(SubmissionParseException.ErrorType.UNKNOWN_PLUGIN);
     }
 
     public static TaskBody splitBody(String body) {

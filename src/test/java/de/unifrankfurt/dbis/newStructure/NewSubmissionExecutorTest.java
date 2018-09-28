@@ -1,7 +1,5 @@
 package de.unifrankfurt.dbis.newStructure;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
 public class NewSubmissionExecutorTest {
 //
 //    @Test
@@ -21,8 +19,8 @@ public class NewSubmissionExecutorTest {
 //                simple.getSubmission().generateSolution(EvalConfig), simple.getReset());
 //        exe.connectDBFit();
 //        exe.resetDB();
-//        ResultStorage result = exe.runCheck(simple.getSubmission());
-//        String expected = "ResultStorage{raw='<table>\n" +
+//        ResultStorageSuccess result = exe.runCheck(simple.getSubmission());
+//        String expected = "ResultStorageSuccess{raw='<table>\n" +
 //                "\t<tr>\n" +
 //                "\t\t<td>dbfit.MySqlTest</td>\n" +
 //                "\t</tr>\n" +

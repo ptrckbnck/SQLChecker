@@ -4,12 +4,12 @@ import de.unifrankfurt.dbis.Runner;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import de.unifrankfurt.dbis.Submission.Task;
+import de.unifrankfurt.dbis.Submission.TaskSQL;
 import de.unifrankfurt.dbis.config.EvalConfig;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,6 +23,7 @@ public class Evaluation {
         assertTrue(true);
     }
 
+    @Disabled
     @Test
     public void test2() {
         Runner.main("-e","-csv", "-c", "/home/xyntek/TestAufgaben/Blatt1/config.txt");
@@ -46,5 +47,12 @@ public class Evaluation {
         config = EvalConfig.fromPath(Paths.get("/home/xyntek/simple/config.ini"));
         System.out.println(config.toString());
 
+    }
+
+    @Test
+    public void test5() throws IOException, SubmissionParseException {
+        Submission<TaskSQL> a = Submission.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/raw_ub2.sql")).onlyTaskSQLSubmission();
+        a.getTasks().forEach((x) -> System.out.println(x.getTag()));
+        System.out.println(a);
     }
 }
