@@ -20,6 +20,8 @@ public class SubmissionTokenBuilder {
     }
 
     public SubmissionToken createSubmissionToken() {
+        if (body.trim().isEmpty())
+            System.out.println(tag + " has empty body");
         return new SubmissionToken(tag, body);
     }
 }

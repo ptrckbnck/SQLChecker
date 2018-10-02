@@ -39,4 +39,5 @@ public class TaskBody {
 
         return Objects.hash(comment, sql);
     }
+
 }
