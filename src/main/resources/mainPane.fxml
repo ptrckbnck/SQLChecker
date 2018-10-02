@@ -287,7 +287,7 @@
                                                                                                 onAction="#handleGemeinschaftsabgabenCheckBox"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="3"/>
-                                                                                        <Label text="Gemeinschaftsabgabgaben erlaubt"
+                                                                                        <Label text="Gemeinschaftsabgaben erlaubt"
                                                                                                GridPane.rowIndex="3"/>
                                                                                         <Label/>
                                                                                         <Label text="Matrikelnummer"
