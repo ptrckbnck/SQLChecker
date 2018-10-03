@@ -37,6 +37,7 @@ import org.reactfx.Subscription;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -143,10 +144,10 @@ public class HomeController implements Initializable {
     private Path projectPath;
     private Path resetScript;
 
+    private PrintStream sysOut = System.out;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
 
         System.setOut(new PrintStreamCapturer(console, System.out, "> "));
         System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
@@ -484,15 +485,21 @@ public class HomeController implements Initializable {
      * @throws IOException
      */
     public void saveProject(Path path) throws IOException {
-        IntStream.range(0, this.assignment.getTasks().size()).forEach((i) -> {
-            this.assignment.putCodeMap(this.assignment.getTasks().get(i), this.codeAreas.get(i).getContent().getText());
-        });
+        if (Objects.nonNull(this.assignment)) {
+            IntStream.range(0, this.assignment.getTasks().size()).forEach((i) -> {
+                this.assignment.putCodeMap(this.assignment.getTasks().get(i), this.codeAreas.get(i).getContent().getText());
+            });
+        }
         Files.write(path,
                 new Gson().toJson(
                         new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
         );
     }
 
+
+    public void createEmptyFile(Path path) throws IOException {
+        Files.write(path, ("").getBytes(StandardCharsets.UTF_8));
+    }
     /**
      * creates the default path to config for given path to project.
      *
@@ -618,13 +625,14 @@ public class HomeController implements Initializable {
         File project = projectChooser.showSaveDialog(stageProject);
         if (project == null) return;
         try {
-            saveProject(project.toPath());
+            createEmptyFile(project.toPath());
             setProjectPath(project.toPath());
             this.initAssignment(submission);
             loadConfigImplicit();
             loadResetImplicit();
+            saveProject(project.toPath());
         } catch (IOException e) {
-            System.err.println("Fehler beim Anlegen der Projekt-Datei.");
+            System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
             setProjectPath(null);
         }
 

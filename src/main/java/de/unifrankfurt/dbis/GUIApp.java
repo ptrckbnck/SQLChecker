@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.List;
 
@@ -19,10 +20,22 @@ public class GUIApp extends Application {
     private static Stage primaryStage;
     private static HostServices hostServices;
     private static List<String> parameters;
+    private static PrintStream sysOut;
 
+    private static void showError(Thread t, Throwable e) {
+        if (Platform.isFxApplicationThread()) {
+            ExceptionAlert alert = new ExceptionAlert(e);
+            e.printStackTrace(sysOut);
+            alert.showAndWait();
+        } else {
+            e.printStackTrace();
+
+        }
+    }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        GUIApp.sysOut = System.out;
         GUIApp.primaryStage = primaryStage;
         GUIApp.parameters = getParameters().getRaw();
         GUIApp.hostServices = getHostServices();
@@ -40,16 +53,6 @@ public class GUIApp extends Application {
                         getClass().getResourceAsStream("/images/sql-icon.png")));
 
         primaryStage.show();
-    }
-
-    private static void showError(Thread t, Throwable e) {
-        if (Platform.isFxApplicationThread()) {
-            ExceptionAlert alert = new ExceptionAlert(e);
-            alert.showAndWait();
-        } else {
-            e.printStackTrace();
-
-        }
     }
 
     public static Stage getPrimaryStage() {

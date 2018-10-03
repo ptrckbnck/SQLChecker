@@ -60,7 +60,6 @@ public class Assignment {
         Assignment assignment = new Assignment(
                 submission.getName(),
                 submission.getTasks().stream().map((x) -> x.getTag().getName()).collect(Collectors.toList()));
-        System.out.println(submission);
         for (TaskSQL t : submission.getTasks()) {
             assignment.putCodeMap(
                     t.getTag().getName(),
