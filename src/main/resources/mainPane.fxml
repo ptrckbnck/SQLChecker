@@ -208,7 +208,7 @@
                                                                                                 fx:id="usernameTextField"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="1"/>
-                                                                                        <TextField
+                                                                                        <PasswordField
                                                                                                 fx:id="passwordTextField"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="2"/>

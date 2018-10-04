@@ -84,7 +84,7 @@ public class HomeController implements Initializable {
     @FXML
     private TextField usernameTextField;
     @FXML
-    private TextField passwordTextField;
+    private PasswordField passwordTextField;
     @FXML
     private TextField hostTextField;
     @FXML
