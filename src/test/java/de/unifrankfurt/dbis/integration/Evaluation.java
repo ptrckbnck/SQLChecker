@@ -30,25 +30,25 @@ public class Evaluation {
         assertTrue(true);
     }
 
+
     @Disabled
     @Test
     public void test3() throws IOException, SubmissionParseException {
-        Submission<Task> e = Submission.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt1/ub1/raw.sql"));
-        //System.err.println(e);
+        Submission<Task> e = Submission.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/Abgabe2/task_Aufgabe_2_2017-06-06T09_45_55_134/dropboxes/Patrick_Seidel_s3011227_rz.uni-frankfurt.de/5184835.txt"));
+        e.onlyTaskSQLSubmission().getTasks().forEach((x) -> System.out.println("command: " + x.getCommands()));
         assertTrue(true);
     }
 
-
-    @Disabled
     @Test
     public void test4() throws IOException {
-        EvalConfig config = EvalConfig.fromPath(Paths.get("/home/xyntek/simple/config.txt"));
-        config.storeInPath(Paths.get("/home/xyntek/simple/config.ini"));
-        config = EvalConfig.fromPath(Paths.get("/home/xyntek/simple/config.ini"));
+        EvalConfig config = EvalConfig.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/config.txt"));
+        config.storeInPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/config.ini"));
+        config = EvalConfig.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/config.ini"));
         System.out.println(config.toString());
 
     }
 
+    @Disabled
     @Test
     public void test5() throws IOException, SubmissionParseException {
         Submission<TaskSQL> a = Submission.fromPath(Paths.get("/home/xyntek/TestAufgaben/Blatt2/raw_ub2.sql")).onlyTaskSQLSubmission();
