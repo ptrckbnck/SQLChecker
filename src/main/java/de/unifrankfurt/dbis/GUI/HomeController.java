@@ -518,7 +518,6 @@ public class HomeController implements Initializable {
      * Load Config from default Path if present.
      */
     private void loadConfigImplicit() {
-        if (this.GUIConfig != null) return;
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
             initConfig(c);
@@ -526,10 +525,28 @@ public class HomeController implements Initializable {
         } catch (IOException e) {
             //nothing;
         }
+
+        //check folder
         try {
             Optional<Path> conf = Files.walk(this.projectPath.getParent(), 1)
                     .filter(Files::isReadable)
-                    .filter((x) -> x.getFileName().toString().endsWith(".ini"))
+                    .filter((x) -> x.getFileName().toString().endsWith(".conf"))
+                    .findFirst();
+            if (conf.isPresent()) {
+                GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
+                initConfig(c);
+                return;
+            }
+
+        } catch (IOException e) {
+            //nothing;
+        }
+
+        //check parent folder
+        try {
+            Optional<Path> conf = Files.walk(this.projectPath.getParent().getParent(), 1)
+                    .filter(Files::isReadable)
+                    .filter((x) -> x.getFileName().toString().endsWith(".conf"))
                     .findFirst();
             if (conf.isPresent()) {
                 GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
@@ -537,9 +554,8 @@ public class HomeController implements Initializable {
             }
 
         } catch (IOException e) {
-            //nothing;
+            //nothing;}
         }
-
     }
 
     /**
