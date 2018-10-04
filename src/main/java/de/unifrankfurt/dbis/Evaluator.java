@@ -101,7 +101,7 @@ public class Evaluator {
         for (Solution sol : this.sols){
             ResultStorage evaluate;
             try {
-                evaluate = sol.evaluate(submissionsPath, sol, source, resetScript, sub, verbose);
+                evaluate = sol.evaluate(submissionsPath, source, resetScript, sub, verbose);
                 System.out.println(evaluate.createReport(this.solutionScheme));
             } catch (SQLException | FitParseException e) {
                 evaluate = new ResultStorage(submissionsPath, sol, sub, e);

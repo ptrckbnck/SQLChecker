@@ -91,7 +91,7 @@ public class Solution {
         return this.workSubmission.getName();
     }
 
-    public ResultStorage evaluate(Path root, Solution sol, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission, boolean verbose)
+    public ResultStorage evaluate(Path root, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission, boolean verbose)
             throws SQLException, FitParseException{
         String html = this.generateSurveyHTML(submission);
         CustomMySQLTest test = new CustomMySQLTest();
@@ -106,7 +106,7 @@ public class Solution {
         String parseResult = getParseResult(p);
         if (verbose) System.out.println(parseResult);
         if (verbose) System.out.println(new Count(test.counts));
-        return new ResultStorage(root, sol, submission, parseResult);
+        return new ResultStorage(root, this, submission, parseResult);
     }
 
     public String generateCSVHeader(){
