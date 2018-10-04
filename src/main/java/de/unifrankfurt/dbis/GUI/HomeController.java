@@ -868,7 +868,12 @@ public class HomeController implements Initializable {
 
         Path resetPath = Paths.get(this.GUIConfig.getResetScript());
         if (!isOkResetPath(resetPath)) {
-            System.err.println("Pfad des Reset Skripts nicht ok: " + resetPath);
+            if (resetPath.toString().trim().isEmpty()) {
+                System.err.println("Bitte tragen Sie ein Reset-Skript in den Einstellungen ein.");
+            } else {
+                System.err.println("Pfad des Reset-Skripts nicht ok: " + resetPath);
+            }
+
             return;
         }
 
