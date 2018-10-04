@@ -28,6 +28,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
@@ -151,6 +152,8 @@ public class HomeController implements Initializable {
 
         System.setOut(new PrintStreamCapturer(console, System.out, "> "));
         System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
+        console.setFont(Font.font("monospaced"));
+
 
         CODEPANE.getStylesheets().add("/sql.css");
 
