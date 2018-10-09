@@ -4,11 +4,16 @@ import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -163,8 +168,6 @@ public class Submission<e extends Task> {
                 }
             }
             return new Solution(this, builder.toString());
-        } catch (SQLException e) {
-            throw e;
         }
     }
 
@@ -269,35 +272,6 @@ public class Submission<e extends Task> {
     }
 
 
-    public static Submission<TaskSQL> fromOlat(Path path) throws IOException, SubmissionParseException {
-        FileSystem system = FileSystems.newFileSystem(path, null);
-        List<Path> rootDirs = new ArrayList<>();
-        system.getRootDirectories().forEach(rootDirs::add);
-        if (rootDirs.isEmpty()) throw new IOException("File contains no Submission");
-        Path dir = rootDirs.get(0); // olat zip should not have more than one root dir.
-        Optional<Path> result = Files.walk(dir)
-                .filter(x -> !Files.isDirectory(x))
-                .findFirst();
-        if (result.isPresent()) return Submission.fromPath(result.get()).onlyTaskSQLSubmission();
-        throw new IOException("File contains no Submission");
-    }
-
-    /**
-     * creates a Template for Student Submission.
-     * Tasks do not contain the solution, but commentary and hints.
-     * For example, TaskSQLNonCallable hints the first word of the sql command.
-     *
-     * @return Submission
-     */
-    private Submission<e> createStudentTemplate() {
-        List<e> list = new ArrayList<>();
-        for (e task : this.tasks) {
-            task.getStudentTemplate();
-        }
-        return new Submission<>(list, this.name);
-    }
-
-
     /**
      * Creates a Submission from a serialized Submission stored in file.
      *
@@ -321,7 +295,9 @@ public class Submission<e extends Task> {
     }
 
     public boolean sameSchema(List<Submission<TaskSQL>> others) {
-        return others.stream().allMatch(this::sameSchema);
+        return others
+                .stream()
+                .allMatch(this::sameSchema);
     }
 
     public boolean sameSchema(Submission<TaskSQL> other) {

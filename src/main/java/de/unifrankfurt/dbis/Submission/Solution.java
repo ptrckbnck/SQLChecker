@@ -35,11 +35,9 @@ public class Solution {
     /**
      * submission from which this Solution File where generated from.
      */
-    private final Submission<? extends Task> fullSubmission;
 
 
     public Solution(Submission<? extends Task> submission, String dbFitHtml) {
-        this.fullSubmission = submission;
         this.workSubmission = submission.onlyTaskSQLSubmission();
         this.dbFitHtml = dbFitHtml;
     }
@@ -59,10 +57,7 @@ public class Solution {
      * @return List<String> of tag name
      */
     public List<String> getDBFitTags() {
-        List<String> tags = new ArrayList<>();
-        for (Tag tag : this.workSubmission.getTags())
-            tags.add(tag.getName());
-        return tags;
+        return this.workSubmission.getTagStrings();
     }
 
     /**
@@ -91,22 +86,35 @@ public class Solution {
         return this.workSubmission.getName();
     }
 
-    public ResultStorage evaluate(Path root, DataSource source, SQLScript resetScript, Submission<TaskSQL> submission, boolean verbose)
+    public ResultStorage evaluate(Path root,
+                                  DataSource source,
+                                  SQLScript resetScript,
+                                  Submission<TaskSQL> submission,
+                                  boolean verbose)
             throws SQLException, FitParseException{
         String html = this.generateSurveyHTML(submission);
+        Parse p = new Parse(html);
+        Count count = runDBFitTest(source, resetScript, p);
+        String parseResult = getParseResult(p);
+
+        if (verbose) {
+            System.out.println(parseResult);
+            System.out.println(count);
+        }
+        return new ResultStorage(root, this, submission, parseResult);
+    }
+
+    protected Count runDBFitTest(DataSource source, SQLScript resetScript, Parse p) throws SQLException {
         CustomMySQLTest test = new CustomMySQLTest();
         test.connect(source);
-        Parse p = new Parse(html);
         resetScript.execute(source);
+
         PrintStream err = System.err; // catch dbfit output
         System.setErr(null);
         test.doTables(p);
         test.close();
         System.setErr(err);
-        String parseResult = getParseResult(p);
-        if (verbose) System.out.println(parseResult);
-        if (verbose) System.out.println(new Count(test.counts));
-        return new ResultStorage(root, this, submission, parseResult);
+        return new Count(test.counts);
     }
 
     public String generateCSVHeader(){
@@ -124,10 +132,9 @@ public class Solution {
     }
 
 
-
-    private String getParseResult(Parse parse) {
+    protected String getParseResult(Parse parse) {
         StringBuilder storage = new StringBuilder();
-        this.printParseStr(storage, parse, 0);
+        this.evaluateDBFitParse(storage, parse, 0);
         return storage.toString();
     }
 
@@ -139,7 +146,7 @@ public class Solution {
      * @param parse Parse object which should be stored
      * @param iter  a counter which limits the recursion level and the result
      */
-    private void printParseStr(StringBuilder storage, Parse parse, int iter) {
+    private void evaluateDBFitParse(StringBuilder storage, Parse parse, int iter) {
         if (iter > 100) {
             storage.append("\n reached threshold");
             return;
@@ -148,7 +155,7 @@ public class Solution {
         storage.append(parse.tag);
 
         if (parse.parts != null) {
-            printParseStr(storage, parse.parts, ++iter);
+            evaluateDBFitParse(storage, parse.parts, ++iter);
         } else {
             storage.append(parse.body);
         }
@@ -156,7 +163,7 @@ public class Solution {
         storage.append(parse.end);
 
         if (parse.more != null) {
-            printParseStr(storage, parse.more, ++iter);
+            evaluateDBFitParse(storage, parse.more, ++iter);
         } else {
             storage.append(parse.trailer);
         }
