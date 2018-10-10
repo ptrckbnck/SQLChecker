@@ -198,13 +198,12 @@ public class HomeController implements Initializable {
 
         console.setContextMenu(cm);
 
-        //try to load project
         List<String> paras = GUIApp.getRunnerParameters();
-        if (!GUIApp.getRunnerParameters().isEmpty()
-                && paras.get(0).equals("s")
-                && paras.size() > 1
-                && Objects.nonNull(paras.get(1))){
-            this.loadProject(Paths.get(paras.get(1)));
+        if (paras.contains("s")) {
+            this.loadProject(Paths.get(paras.get(paras.indexOf("s") + 1)));
+        }
+        if (paras.contains("c")) {
+            this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
         }
     }
 
@@ -814,8 +813,11 @@ public class HomeController implements Initializable {
         }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
-        if (file == null) return;
-        Path path = file.toPath();
+        loadConfig(file.toPath());
+    }
+
+    private void loadConfig(Path path) {
+        if (path == null) return;
         try {
             GUIConfig c = FileIO.load(path, GUIConfig.class);
             initConfig(c);
@@ -823,7 +825,7 @@ public class HomeController implements Initializable {
         } catch (JsonSyntaxException e) {
             alertNoValidSQLCFile(path);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Fehler beim Laden der Config-Datei: " + e.getMessage());
         }
     }
 
