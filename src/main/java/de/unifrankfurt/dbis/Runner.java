@@ -51,10 +51,13 @@ public class Runner {
         }
 
 
-        if (commandLine.hasOption("s") && Objects.nonNull(commandLine.getOptionValue("s"))) {
+        if (!commandLine.hasOption("e")) {
             List<String> newargs = new ArrayList<>();
-            newargs.add("s");
-            newargs.add(commandLine.getOptionValue("s"));
+            String valueS = commandLine.getOptionValue("s");
+            if (Objects.nonNull(valueS)) {
+                newargs.add("s");
+                newargs.add(valueS);
+            }
             if (commandLine.hasOption("c") && Objects.nonNull(commandLine.getOptionValue("c"))) {
                 newargs.add("c");
                 newargs.add(commandLine.getOptionValue("c"));
@@ -113,14 +116,8 @@ public class Runner {
                 }
 
 
+            } catch (IOException | SQLException | SubmissionParseException e) {
 
-            } catch (IOException | SQLException e) {
-
-                if (commandLine.hasOption("v")){
-                    e.printStackTrace();
-                } else System.err.println(e.toString());
-
-            } catch (SubmissionParseException e) {
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
                 } else System.err.println(e.toString());
@@ -195,10 +192,10 @@ public class Runner {
 
         options.addOption(Option.builder("c")
                 .longOpt("config")
-                .desc("path to config file")
+                .desc("Path to config file. (*.ini) or (*.conf), depends if you run Evaluation or GUI.")
                 .hasArg()
                 .optionalArg(true)
-                .argName("Path (*.ini) or (*.conf), depends if you run Evaluation or GUI.")
+                .argName("Path")
                 .build());
 
         Option verbose = Option.builder("v")
