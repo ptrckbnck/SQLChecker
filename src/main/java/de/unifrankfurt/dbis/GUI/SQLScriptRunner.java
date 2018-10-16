@@ -12,7 +12,7 @@ import java.sql.Statement;
 /**
  * this class executes SQLScripts
  */
-public class SQLScriptRunner extends Task {
+public class SQLScriptRunner extends Task<Integer> {
 
     private final GUIConfig guiConfig;
     private final SQLScript script;
@@ -26,7 +26,7 @@ public class SQLScriptRunner extends Task {
 
 
     @Override
-    protected Object call() throws SQLException {
+    protected Integer call() throws SQLException {
         Statement statement = null;
         ResultSet rs = null;
         try (Connection connection = guiConfig.newConnection()) {
@@ -39,6 +39,9 @@ public class SQLScriptRunner extends Task {
             while (rs.next()) {
                 System.out.println(rs.getString(1));
             }
+        } catch (SQLException e) {
+            System.err.println(e);
+            throw e;
         } finally {
             if (statement != null) {
                 try {

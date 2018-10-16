@@ -47,7 +47,10 @@ public class SQLScript {
             if (!line.isEmpty()) {
                 if (line.equals(delimiter)) {
                     if (sb != null) {
-                        queryList.add(sb.toString());
+                        String query = sb.toString().trim();
+                        if (!query.isEmpty()) {
+                            queryList.add(query);
+                        }
                     }
                     sb = new StringBuilder();
                 } else {
@@ -60,7 +63,10 @@ public class SQLScript {
             }
         }
         if (sb != null) {
-            queryList.add(sb.toString());
+            String query = sb.toString().trim();
+            if (!query.isEmpty()) {
+                queryList.add(query);
+            }
         }
 
         return new SQLScript(queryList);
@@ -70,9 +76,9 @@ public class SQLScript {
         for (String line : lines) {
             sb.append(line).append("\n");
         }
-        String script = sb.toString();
-
-        return new SQLScript(Arrays.asList(script.split("(?<=;)")));
+        String script = sb.toString().trim();
+        List<String> list = Arrays.asList(script.split("(?<=;)"));
+        return new SQLScript(list);
     }
 
 
@@ -88,7 +94,11 @@ public class SQLScript {
     public void execute(Statement statement) throws SQLException {
         for (String sql : this.queryList) {
             //System.out.println("run sql: "+sql);
-            statement.executeUpdate(sql);
+            try {
+                statement.executeUpdate(sql);
+            } catch (SQLException e) {
+                throw new SQLException(e.getMessage() + " in :" + sql, e.getSQLState(), e);
+            }
         }
     }
 
