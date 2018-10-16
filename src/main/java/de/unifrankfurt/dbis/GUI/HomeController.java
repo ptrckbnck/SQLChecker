@@ -561,6 +561,9 @@ public class HomeController implements Initializable {
      * Load ResetScript from default path if present.
      */
     private void loadResetImplicit() {
+        if (!this.GUIConfig.getResetScript().isEmpty()) {
+            return;
+        }
         Path path = defaultResetPath(this.projectPath);
         if (Files.isReadable(path))
             initResetScript(defaultResetPath(this.projectPath));
