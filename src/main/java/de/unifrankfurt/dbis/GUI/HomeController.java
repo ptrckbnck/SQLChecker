@@ -502,6 +502,12 @@ public class HomeController implements Initializable {
     public void createEmptyFile(Path path) throws IOException {
         Files.write(path, ("").getBytes(StandardCharsets.UTF_8));
     }
+
+
+    public Path currentTerminalPath() {
+        return Paths.get("").toAbsolutePath();
+    }
+
     /**
      * creates the default path to config for given path to project.
      *
@@ -621,6 +627,9 @@ public class HomeController implements Initializable {
         templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
         if (Objects.nonNull(this.projectPath))
             templateChooser.setInitialDirectory(this.projectPath.getParent().toFile());
+        else {
+            templateChooser.setInitialDirectory(currentTerminalPath().toFile());
+        }
         Stage stageTemplate = new Stage();
         File template = templateChooser.showOpenDialog(stageTemplate);
         if (template == null) return;
@@ -746,6 +755,9 @@ public class HomeController implements Initializable {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
         if (Objects.nonNull(this.projectPath))
             fileChooser.setInitialDirectory(this.projectPath.getParent().toFile());
+        else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
+        }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
         if (file == null) return;
@@ -792,6 +804,8 @@ public class HomeController implements Initializable {
                 .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+        } else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
         Stage stage = new Stage();
         File file = fileChooser.showSaveDialog(stage);
@@ -813,6 +827,8 @@ public class HomeController implements Initializable {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+        } else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
@@ -876,6 +892,8 @@ public class HomeController implements Initializable {
             fileChooser.setInitialDirectory(this.resetScript.getParent().toFile());
         } else if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+        } else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
@@ -964,6 +982,8 @@ public class HomeController implements Initializable {
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
             fileChooser.setInitialFileName(this.assignment.getName() + "_" + this.GUIConfig.getMatNr() + ".txt");
+        } else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
         Stage stage = new Stage();
         File file = fileChooser.showSaveDialog(stage);
