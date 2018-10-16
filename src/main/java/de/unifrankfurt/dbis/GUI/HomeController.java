@@ -809,7 +809,9 @@ public class HomeController implements Initializable {
         }
         Stage stage = new Stage();
         File file = fileChooser.showSaveDialog(stage);
-        if (file == null) return;
+        if (Objects.isNull(file)) {
+            return;
+        }
         try {
             saveConfig(file.toPath());
         } catch (IOException e) {
@@ -832,6 +834,9 @@ public class HomeController implements Initializable {
         }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
+        if (Objects.isNull(file)) {
+            return;
+        }
         loadConfig(file.toPath());
     }
 
@@ -897,7 +902,9 @@ public class HomeController implements Initializable {
         }
         Stage stage = new Stage();
         File file = fileChooser.showOpenDialog(stage);
-        if (file == null) return;
+        if (Objects.isNull(file)) {
+            return;
+        }
         initResetScript(file.toPath());
 
     }
