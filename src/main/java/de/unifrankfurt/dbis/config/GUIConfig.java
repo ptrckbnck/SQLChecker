@@ -1,9 +1,7 @@
 package de.unifrankfurt.dbis.config;
 
 import com.google.gson.Gson;
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -131,13 +129,11 @@ public class GUIConfig {
      * @return DataSource Object for connecting to Database defined in this Config.
      */
     public DataSource getDataSource() {
-        MysqlDataSource source = new MysqlDataSource();
-        source.setServerName(this.getHost());
-        source.setPortNumber(this.getPort());
-        source.setDatabaseName(this.getDatabaseName());
-        source.setUser(this.getUsername());
-        source.setPassword(this.getPassword());
-        return source;
+        return new DataSource(this.getHost(),
+                String.valueOf(this.getPort()),
+                this.getUsername(),
+                this.getPassword(),
+                this.getDatabaseName());
     }
 
 

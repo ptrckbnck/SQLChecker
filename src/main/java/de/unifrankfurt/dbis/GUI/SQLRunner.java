@@ -5,14 +5,10 @@ import de.unifrankfurt.dbis.config.GUIConfig;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.layout.Region;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Optional;
 
 /**
  * This class executes SQL statements.
@@ -32,17 +28,18 @@ public class SQLRunner extends Task<Integer> {
             System.err.println(errorMessage);
             if (SQLException.class.isAssignableFrom(task.getException().getClass())) {
                 System.err.println("SQLException (" + ((SQLException) task.getException()).getErrorCode() + "): " + task.getException().getMessage());
-                if (((SQLException) task.getException()).getErrorCode() == 1049) {//unknown database
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Database existiert nicht");
-                    alert.setHeaderText("Database existiert nicht");
-                    alert.setContentText("Die ausgewählte Database existiert nicht, wollen sie die Database nun anlegen?");
-                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.isPresent() && result.get() == ButtonType.OK) {
-                        createDatabase(config);
-                    }
-                }
+//                if (((SQLException) task.getException()).getErrorCode() == 1049) {//unknown database
+//                    if (config.getDatabaseName().isEmpty()) return;
+//                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//                    alert.setTitle("Database existiert nicht");
+//                    alert.setHeaderText("Database existiert nicht");
+//                    alert.setContentText("Die ausgewählte Database existiert nicht, haben sie das Rese?");
+//                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+//                    Optional<ButtonType> result = alert.showAndWait();
+//                    if (result.isPresent() && result.get() == ButtonType.OK) {
+//                        createDatabase(config);
+//                    }
+//                }
             } else {
                 System.err.println(task.getException().getClass() + " " + task.getException().getMessage());
             }
