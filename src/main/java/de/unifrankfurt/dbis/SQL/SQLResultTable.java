@@ -77,6 +77,7 @@ public class SQLResultTable {
 
     @Override
     public String toString() {
+        if (data.isEmpty()) return "leere Menge";
         AsciiTable at = new AsciiTable();
         at.addRule();
         at.addRow(this.header);
