@@ -6,8 +6,13 @@
 
     <groupId>de.unifrankfurt.dbis</groupId>
     <artifactId>SQLChecker</artifactId>
-    <version>0.1</version>
-
+    <version>1.0</version>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -112,10 +117,11 @@
             <artifactId>commons-collections4</artifactId>
             <version>4.2</version>
         </dependency>
+
         <dependency>
-            <groupId>org.fxmisc.richtext</groupId>
-            <artifactId>richtextfx</artifactId>
-            <version>0.9.1</version>
+            <groupId>com.github.MrChebik</groupId>
+            <artifactId>RichTextFX</artifactId>
+            <version>cabee30961</version>
         </dependency>
 
         <dependency>
