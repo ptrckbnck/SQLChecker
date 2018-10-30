@@ -86,6 +86,19 @@ public class Solution {
         return this.workSubmission.getName();
     }
 
+
+    /**
+     * runs DBFitTest to evaluate submission.
+     *
+     * @param root        path of submission
+     * @param source      Datasource
+     * @param resetScript ResetScript
+     * @param submission  Submission
+     * @param verbose     verbose Mode
+     * @return ResultStorage
+     * @throws SQLException
+     * @throws FitParseException
+     */
     public ResultStorage evaluate(Path root,
                                   DataSource source,
                                   SQLScript resetScript,

@@ -72,11 +72,7 @@ public class SQLScript {
         return new SQLScript(queryList);
     }
     private static SQLScript fromListWithoutStatic(List<String> lines) {
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines) {
-            sb.append(line).append("\n");
-        }
-        String script = sb.toString().trim();
+        String script = String.join("\n", lines).trim();
         List<String> list = Arrays.asList(script.split("(?<=;)"));
         return new SQLScript(list);
     }
