@@ -1,9 +1,6 @@
 package de.unifrankfurt.dbis;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dbfit.MySqlTest;
-import fit.Fixture;
 import fit.Parse;
 import fit.exception.FitParseException;
 import org.junit.jupiter.api.Test;
@@ -17,7 +14,7 @@ public class DBFITTEST {
 
     @Test
     public void test() throws SQLException, FitParseException {
-        System.out.println("test");
+        //System.out.println("test");
         assertTrue(true);
 
 
@@ -69,9 +66,9 @@ public class DBFITTEST {
 
         Parse p = new Parse(html);
         test.doTables(p);
-        System.out.println(new Gson().toJson(test.counts));
+        //System.out.println(new Gson().toJson(test.counts));
         //System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(p));
-        System.out.println(getParseResult(p));
+        //System.out.println(getParseResult(p));
     }
         private String getParseResult(Parse parse) {
             StringBuilder storage = new StringBuilder();

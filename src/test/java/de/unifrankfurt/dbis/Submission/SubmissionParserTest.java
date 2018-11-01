@@ -22,7 +22,7 @@ public class SubmissionParserTest {
         TestResources.DBFitSubmissionData s = TestResources.getSubmissionWAuthor();
         List<String> a = Files.readAllLines(s.getPath());
         Submission<Task> b = SubmissionParser.parse(a);
-        System.out.println(b);
+        //System.out.println(b);
     }
 
     @Test
