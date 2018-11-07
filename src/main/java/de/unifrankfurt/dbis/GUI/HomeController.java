@@ -10,6 +10,7 @@ import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
+import de.unifrankfurt.dbis.Runner;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -79,6 +80,7 @@ public class HomeController implements Initializable {
     public MenuItem runMenuItem;
     public MenuItem runAllMenuItem;
     public MenuItem exportMenuItem;
+    public Label version;
 
 
     //database
@@ -163,6 +165,7 @@ public class HomeController implements Initializable {
         taskListView.setEditable(false);
         taskListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+        version.setText("Version " + Runner.getVersion());
 
         initConfig(null);
         updateMenu();
