@@ -6,7 +6,7 @@
 
     <groupId>de.unifrankfurt.dbis</groupId>
     <artifactId>SQLChecker</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -181,7 +181,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.37</version>
+            <version>8.0.12</version>
         </dependency>
         <dependency>
             <groupId>de.vandermeer</groupId>
