@@ -1,7 +1,6 @@
 package de.unifrankfurt.dbis.config;
 
-
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 
 import javax.sql.DataSource;

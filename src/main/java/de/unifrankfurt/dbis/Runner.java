@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis;
 
-import com.mysql.jdbc.AbandonedConnectionCleanupThread;
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -126,11 +126,7 @@ public class Runner {
 
         }
         // MysSQLDatasource creates abandoned connection. do not know why. this helps exit program.
-        try {
-            AbandonedConnectionCleanupThread.shutdown();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        AbandonedConnectionCleanupThread.shutdown();
     }
 
     /**

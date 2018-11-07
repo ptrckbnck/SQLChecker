@@ -1,6 +1,4 @@
 package de.unifrankfurt.dbis.DBFit;
-
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import dbfit.MySqlTest;
 import dbfit.api.DBEnvironment;
 import de.unifrankfurt.dbis.Submission.Count;
