@@ -25,7 +25,7 @@ import static java.lang.System.exit;
  * does not work atm.
  */
 public class Runner {
-    private static final String version = "1.0.2";
+    private static final String version = "1.0.3-alpha";
     private static final String name = "SQL Checker";
 
 

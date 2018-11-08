@@ -83,6 +83,7 @@ public class HomeController implements Initializable {
     public Label version;
 
 
+
     //database
     @FXML
     private TextField usernameTextField;
@@ -96,7 +97,8 @@ public class HomeController implements Initializable {
     private TextField databaseTextField;
     @FXML
     private TextField resetScriptPathTextField;
-
+    @FXML
+    public TextField timezoneTextField;
 
 
     @FXML
@@ -191,6 +193,7 @@ public class HomeController implements Initializable {
         namePartnerTextField.focusedProperty().addListener(configChangeListener);
         matNrPartnerTextField.focusedProperty().addListener(configChangeListener);
         emailPartnerTextField.focusedProperty().addListener(configChangeListener);
+        timezoneTextField.focusedProperty().addListener(configChangeListener);
 
 
         ContextMenu cm = new ContextMenu();
@@ -304,6 +307,7 @@ public class HomeController implements Initializable {
                 .setPort(Integer.valueOf(portTextField.getText()))
                 .setDatabaseName(databaseTextField.getText())
                 .setResetScript(resetScriptPathTextField.getText())
+                .setTimezone(timezoneTextField.getText())
                 .setStudentName(nameStudentTextField.getText())
                 .setMatNr(matNrTextField.getText())
                 .setEmail(emailTextField.getText())
@@ -332,6 +336,7 @@ public class HomeController implements Initializable {
         portTextField.setText(this.GUIConfig.getPort().toString());
         databaseTextField.setText(this.GUIConfig.getDatabaseName());
         resetScriptPathTextField.setText(this.GUIConfig.getResetScript());
+        timezoneTextField.setText(this.GUIConfig.getTimezone());
         nameStudentTextField.setText(this.GUIConfig.getNameStudent());
         matNrTextField.setText(this.GUIConfig.getMatNr());
         emailTextField.setText(this.GUIConfig.getEmail());

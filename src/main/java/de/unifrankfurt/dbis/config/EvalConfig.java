@@ -124,7 +124,9 @@ public class EvalConfig {
                 port,
                 username,
                 password,
-                database);
+                database,
+                false,
+                null);
     }
 
 

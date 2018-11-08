@@ -17,6 +17,7 @@ public class GUIConfigBuilder {
     private String partnerName = "";
     private String partnerMatNr = "";
     private String partnerEmail = "";
+    private String timezone = "+01:00";
 
     public GUIConfigBuilder setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
@@ -83,7 +84,13 @@ public class GUIConfigBuilder {
         return this;
     }
 
-    public GUIConfig createConfig() {
-        return new GUIConfig(databaseName, username, password, host, port, resetScript, studentName, matNr, email, partnerOk, partnerName, partnerMatNr, partnerEmail);
+    public GUIConfigBuilder setTimezone(String timezone) {
+        this.timezone = timezone;
+        return this;
     }
+    public GUIConfig createConfig() {
+        return new GUIConfig(databaseName, username, password, host, port, resetScript, timezone, studentName, matNr, email, partnerOk, partnerName, partnerMatNr, partnerEmail);
+    }
+
+
 }

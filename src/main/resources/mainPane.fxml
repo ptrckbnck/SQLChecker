@@ -191,20 +191,34 @@
                                                                                         <RowConstraints minHeight="10.0"
                                                                                                         prefHeight="30.0"
                                                                                                         vgrow="SOMETIMES"/>
+                                                                                        <RowConstraints minHeight="10.0"
+                                                                                                        prefHeight="30.0"
+                                                                                                        vgrow="SOMETIMES"/>
+                                                                                        <RowConstraints minHeight="10.0"
+                                                                                                        prefHeight="30.0"
+                                                                                                        vgrow="SOMETIMES"/>
                                                                                     </rowConstraints>
                                                                                     <children>
                                                                                         <Label text="Name der SQL-Datenbank"/>
-                                                                                        <TextField
-                                                                                                fx:id="databaseTextField"
-                                                                                                prefHeight="26.0"
-                                                                                                prefWidth="185.0"
-                                                                                                GridPane.columnIndex="1"/>
                                                                                         <Label text="Name des Nutzers"
                                                                                                GridPane.rowIndex="1"/>
                                                                                         <Label text="Passwort"
                                                                                                GridPane.rowIndex="2"/>
                                                                                         <Label text="Host"
                                                                                                GridPane.rowIndex="3"/>
+                                                                                        <Label text="Port"
+                                                                                               GridPane.rowIndex="4"/>
+                                                                                        <Label text="Reset Skript"
+                                                                                               GridPane.rowIndex="5"/>
+                                                                                        <Label text="Zeitzone"
+                                                                                               GridPane.rowIndex="6"/>
+                                                                                        <Label text="Benutze SSL"
+                                                                                               GridPane.rowIndex="7"/>
+                                                                                        <TextField
+                                                                                                fx:id="databaseTextField"
+                                                                                                prefHeight="26.0"
+                                                                                                prefWidth="185.0"
+                                                                                                GridPane.columnIndex="1"/>
                                                                                         <TextField
                                                                                                 fx:id="usernameTextField"
                                                                                                 GridPane.columnIndex="1"
@@ -223,15 +237,20 @@
                                                                                                 fx:id="resetScriptPathTextField"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="5"/>
+                                                                                        <TextField
+                                                                                                fx:id="timezoneTextField"
+                                                                                                GridPane.columnIndex="1"
+                                                                                                GridPane.rowIndex="6"/>
+                                                                                        <CheckBox disable="true"
+                                                                                                  mnemonicParsing="false"
+                                                                                                  text=" (derzeitig nicht möglich)"
+                                                                                                  GridPane.columnIndex="1"
+                                                                                                  GridPane.rowIndex="7"/>
                                                                                         <Button mnemonicParsing="false"
                                                                                                 onAction="#loadResetScript"
                                                                                                 text="Öffnen ..."
                                                                                                 GridPane.columnIndex="2"
                                                                                                 GridPane.rowIndex="5"/>
-                                                                                        <Label text="Reset Skript"
-                                                                                               GridPane.rowIndex="5"/>
-                                                                                        <Label text="Port"
-                                                                                               GridPane.rowIndex="4"/>
                                                                                     </children>
                                                                                 </GridPane>
                                                                             </children>

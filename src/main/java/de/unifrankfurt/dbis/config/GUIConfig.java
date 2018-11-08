@@ -16,6 +16,7 @@ public class GUIConfig {
     private final String host;
     private final Integer port;
     private final String resetScript;
+    private final String timezone;
 
     //studentdata
     private final String studentName;
@@ -26,13 +27,14 @@ public class GUIConfig {
     private final String partnerMatNr;
     private final String partnerEmail;
 
-    public GUIConfig(String databaseName, String username, String password, String host, Integer port, String resetScript, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
+    public GUIConfig(String databaseName, String username, String password, String host, Integer port, String resetScript, String timezone, String studentName, String matNr, String email, boolean partnerOk, String partnerName, String partnerMatNr, String partnerEmail) {
         this.databaseName = databaseName;
         this.username = username;
         this.password = password;
         this.host = host;
         this.port = port;
         this.resetScript = resetScript;
+        this.timezone = timezone;
         this.studentName = studentName;
         this.matNr = matNr;
         this.email = email;
@@ -64,6 +66,10 @@ public class GUIConfig {
 
     public String getResetScript() {
         return resetScript;
+    }
+
+    public String getTimezone() {
+        return timezone;
     }
 
     public String getNameStudent() {
@@ -133,7 +139,9 @@ public class GUIConfig {
                 String.valueOf(this.getPort()),
                 this.getUsername(),
                 this.getPassword(),
-                this.getDatabaseName());
+                this.getDatabaseName(),
+                false,
+                this.getTimezone());
     }
 
 

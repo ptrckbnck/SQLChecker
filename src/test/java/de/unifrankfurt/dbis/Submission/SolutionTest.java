@@ -73,7 +73,7 @@ class SolutionTest {
                 "\t</tr>\n" +
                 "</table>";
 
-        source = new DataSource("localhost", "3306", "test", "test", "test");
+        source = new DataSource("localhost", "3306", "test", "test", "test", false, "+01:00");
 
         resetScript = new SQLScript(List.of("CREATE DATABASE IF NOT EXISTS test;"));
 

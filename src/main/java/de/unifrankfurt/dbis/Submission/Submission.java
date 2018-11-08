@@ -1,12 +1,12 @@
 package de.unifrankfurt.dbis.Submission;
 
+import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -92,8 +92,9 @@ public class Submission<e extends Task> {
      * @throws IOException IO
      */
     public void storeInPath(Path submissionPath) throws IOException {
-        Files.write(submissionPath, serializeAuthor());
-        Files.write(submissionPath, serializeTasks(), StandardOpenOption.APPEND, StandardOpenOption.WRITE);
+        //Files.write(submissionPath, serializeAuthor(), StandardCharsets.UTF_8);
+        //Files.write(submissionPath, serializeTasks(), StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
+        FileIO.saveText(submissionPath, serialize());
     }
 
 
