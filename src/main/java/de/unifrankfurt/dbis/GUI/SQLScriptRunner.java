@@ -20,10 +20,10 @@ public class SQLScriptRunner extends Task<Integer> {
     private final SQLScript script;
 
 
-    public SQLScriptRunner(GUIConfig guiConfig, SQLScript script) {
+    public SQLScriptRunner(GUIConfig guiConfig, SQLScript script, Boolean verbose) {
         this.guiConfig = guiConfig;
         this.script = script;
-        this.setOnFailed(SQLRunner.getDefaultEventHandler(this, guiConfig, "Resetten der Datenbank fehlgeschlagen"));
+        this.setOnFailed(SQLRunner.getDefaultEventHandler(this, guiConfig, "Resetten der Datenbank fehlgeschlagen", verbose));
     }
 
 

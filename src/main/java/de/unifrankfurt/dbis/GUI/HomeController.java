@@ -150,6 +150,7 @@ public class HomeController implements Initializable {
     private Path resetScript;
 
     private PrintStream sysOut = System.out;
+    private boolean verbose;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -211,6 +212,8 @@ public class HomeController implements Initializable {
         if (paras.contains("c")) {
             this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
         }
+        this.verbose = paras.contains("v");
+
     }
 
     /**
@@ -708,7 +711,7 @@ public class HomeController implements Initializable {
      */
     private Thread runCode(String task, String sql) {
 
-        SQLRunner runner = new SQLRunner(this.GUIConfig, sql);
+        SQLRunner runner = new SQLRunner(this.GUIConfig, sql, verbose);
         Thread t = new Thread(runner);
         System.out.println(task + ": SQL Code wird ausgeführt.");
         t.start();
@@ -945,7 +948,7 @@ public class HomeController implements Initializable {
             return;
         }
 
-        SQLScriptRunner sr = new SQLScriptRunner(this.GUIConfig, script);
+        SQLScriptRunner sr = new SQLScriptRunner(this.GUIConfig, script, verbose);
         Thread t = new Thread(sr);
         System.out.println("Resette Datenbank.");
         t.start();

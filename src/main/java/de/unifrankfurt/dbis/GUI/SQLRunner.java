@@ -17,31 +17,22 @@ public class SQLRunner extends Task<Integer> {
     private final GUIConfig guiConfig;
     private final String sql;
 
-    public SQLRunner(GUIConfig guiConfig, String sql) {
+    public SQLRunner(GUIConfig guiConfig, String sql, boolean verbose) {
         this.guiConfig = guiConfig;
         this.sql = sql;
-        this.setOnFailed(getDefaultEventHandler(this, guiConfig, "Ausführen des Codes fehlgeschlagen."));
+        this.setOnFailed(getDefaultEventHandler(this, guiConfig, "Ausführen des Codes fehlgeschlagen.", verbose));
     }
 
-    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task<Integer> task, GUIConfig config, String errorMessage) {
+    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task<Integer> task, GUIConfig config, String errorMessage, Boolean verbose) {
         return (x) -> {
             System.err.println(errorMessage);
             if (SQLException.class.isAssignableFrom(task.getException().getClass())) {
                 System.err.println("SQLException (" + ((SQLException) task.getException()).getErrorCode() + "): " + task.getException().getMessage());
-//                if (((SQLException) task.getException()).getErrorCode() == 1049) {//unknown database
-//                    if (config.getDatabaseName().isEmpty()) return;
-//                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-//                    alert.setTitle("Database existiert nicht");
-//                    alert.setHeaderText("Database existiert nicht");
-//                    alert.setContentText("Die ausgewählte Database existiert nicht, haben sie das Rese?");
-//                    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
-//                    Optional<ButtonType> result = alert.showAndWait();
-//                    if (result.isPresent() && result.get() == ButtonType.OK) {
-//                        createDatabase(config);
-//                    }
-//                }
             } else {
                 System.err.println(task.getException().getClass() + " " + task.getException().getMessage());
+            }
+            if (verbose) {
+                task.getException().printStackTrace();
             }
         };
     }

@@ -62,6 +62,9 @@ public class Runner {
                 newargs.add("c");
                 newargs.add(commandLine.getOptionValue("c"));
             }
+            if (commandLine.hasOption("v")) {
+                newargs.add("v");
+            }
             Application.launch(GUIApp.class, newargs.toArray(new String[0]));
             return;
         }
