@@ -37,6 +37,8 @@ public class DataSource{
         source.setPassword(password);
         try {
             source.setUseSSL(useSSL);
+            source.setAllowPublicKeyRetrieval(true);
+            source.setCharacterEncoding("UTF-8");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -77,14 +79,15 @@ public class DataSource{
         return serverTimezone;
     }
     public Connection getConnection() throws SQLException {
+        Connection c;
         try {
-            return this.source.getConnection();
+            c = this.source.getConnection();
         } catch (SQLException e) {
             source.setDatabaseName(null);
-            Connection c = this.source.getConnection();
+            c = this.source.getConnection();
             source.setDatabaseName(this.getDatabase());
-            return c;
         }
+        return c;
     }
 
 
