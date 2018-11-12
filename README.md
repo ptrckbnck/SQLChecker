@@ -2,11 +2,13 @@
 SQLChecker hilft Studenten dabei Lösungen für die Aufgaben des Informatik Moduls Datenbanksysteme der Goethe Universität FFM zu erstellen.
 Installiere mit maven.
 Benötigt Java 11.
-
+&nbsp;
 
 Aktuelle Version 1.0.3 https://github.com/ptrckbnck/SQLChecker/releases/download/v1.0.3/SQLChecker-1.0.3.jar
-
-
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
 
 
 Update: 12.11.18
