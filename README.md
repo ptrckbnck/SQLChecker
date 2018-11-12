@@ -17,7 +17,7 @@ Ich suche jemanden, der sich etwas mit Vektorgraphiken auskennt und ein Logo fü
 
 Die neue Version 1.0.3 findet sich jetzt unter Release.
 Die JAR-Datei gibt es hier: https://github.com/ptrckbnck/SQLChecker/releases/download/v1.0.3/SQLChecker-1.0.3.jar
-ACHTUNG! Die diese Version benötigt Java 11.
+ACHTUNG! Diese Version benötigt Java 11.
 
 Die JAR-Datei der Version 1.0 (benötigt Java 10) gibt es weiterhin hier: https://github.com/ptrckbnck/SQLChecker/releases/download/v1.0-alpha/SQLChecker-1.0.jar
 
