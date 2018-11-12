@@ -10,6 +10,7 @@ Aktuelle Version 1.0.3 https://github.com/ptrckbnck/SQLChecker/releases/download
 
 
 Update: 12.11.18
+
 Ich suche jemanden, der sich etwas mit Vektorgraphiken auskennt und ein Logo für den SQLChecker erstellen könnte!
 
 Die neue Version 1.0.3 findet sich jetzt unter Release.
