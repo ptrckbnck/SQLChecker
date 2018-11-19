@@ -29,6 +29,7 @@ import java.util.Objects;
  */
 public class EvalConfig {
 
+    //TODO ADD timezone?
     //DB
     protected String database;
     protected String username;
