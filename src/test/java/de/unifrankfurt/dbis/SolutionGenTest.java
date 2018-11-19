@@ -1,17 +1,16 @@
 package de.unifrankfurt.dbis;
 
-import de.unifrankfurt.dbis.config.XConfig;
-import de.unifrankfurt.dbis.config.XConfigBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
 public class SolutionGenTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();

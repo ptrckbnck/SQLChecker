@@ -2,10 +2,7 @@ package de.unifrankfurt.dbis;
 
 
 import de.unifrankfurt.dbis.Submission.*;
-import de.unifrankfurt.dbis.config.XConfig;
-import de.unifrankfurt.dbis.config.XConfigBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,8 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,7 +20,6 @@ public class TestResources {
 
     public static class Simple{
         private static Simple instance = new Simple();
-        private XConfig config;
         private Path configPath;
         private Submission<TaskSQL> submission;
         private Path submissionPath;
@@ -36,7 +30,6 @@ public class TestResources {
         private String dbFitHtml;
 
         private Simple(){
-            this.config = null;
             this.configPath = null;
             this.submission = null;
             this.submissionPath = resourcePath("/test/simple/raw_simple.txt");
@@ -51,19 +44,7 @@ public class TestResources {
             return instance;
         }
 
-        public XConfig getConfig() throws IOException {
-            if (this.config == null)
-                this.config = createSimpleConfig() ;
-            return config;
-        }
 
-        public Path getConfigPath() throws IOException {
-            if (this.configPath == null) {
-                this.configPath = Files.createTempFile("XConfig", "");
-                this.getConfig().storeInPath(this.configPath);
-            }
-            return configPath;
-        }
 
         public Submission<TaskSQL> getSubmission() throws IOException, SubmissionParseException {
             if (submission == null) {
@@ -109,18 +90,6 @@ public class TestResources {
             return dbFitHtml;
         }
 
-        public void runReset() throws SQLException,IOException {
-            Connection connection = this.getConfig().newConnection();
-            assert connection!=null;
-            try {
-                this.getReset().execute(connection.createStatement());
-            }catch (SQLException e){
-                throw new SQLException("reset database failed",e);
-            } finally{
-                connection.close();
-            }
-
-        }
     }
 
     private static Path resourcePath(String path){
@@ -133,43 +102,6 @@ public class TestResources {
         }
     }
 
-    private static XConfig createSimpleConfig() throws IOException {
-        File simpleConfigExecutorResult = Files.createTempDirectory("result").toFile();
-        return new XConfigBuilder()
-                .setDatabase("simple")
-                .setHostname("localhost")
-                .setPort("3306")
-                .setUsername("test")
-                .setPassword("test")
-                .setSavePassword(true)
-                .setResetPath(resourcePath("/test/simple/reset_simple.txt").toAbsolutePath().toString())
-                .setSolutionInPath(resourcePath("/test/simple/raw_simple.txt").toAbsolutePath().toString())
-                .setExecutorSolutionPath(resourcePath("/test/simple/dbFitHtml.txt").toAbsolutePath().toString())
-                .setExecutorStaticEnabled(false)
-                .setExecutorResultPath(simpleConfigExecutorResult.getAbsolutePath())
-                .createConfig();
-    }
-
-
-    public static XConfig getSampleConfig(){
-        return new XConfigBuilder()
-                .setHostname("192.168.1.1")
-                .setPort("1234")
-                .setUsername("username")
-                .setPassword("password")
-                .setSavePassword(true)
-                .setDatabase("database")
-                .setExecutable("exe")
-                .setResetPath("reset.sql")
-                .setSolutionInPath("raw.sql")
-                .setSolutionOutPath("solution.txt")
-                .setSolutionSamplePath("sample.sql")
-                .setExecutorSubmissionPath("/subs/")
-                .setExecutorSolutionPath("solution.txt")
-                .setExecutorResultPath("/result/")
-                .setExecutorStaticEnabled(true)
-                .createConfig();
-    }
 
     public static Path getSampleConfigPath() {
         return resourcePath("/test/config/sampleConfig.txt");
@@ -218,24 +150,6 @@ public class TestResources {
                 "#These queries do not belong to a specific placeholder in the solution file. They get\n" +
                 "executed independently (default: false)\n" +
                 "chk.allowstatic=true\n";
-    }
-
-    public static class ConfigData {
-        private final Path path;
-        private final XConfig XConfig;
-
-        public ConfigData(Path path, XConfig XConfig){
-            this.path = path;
-            this.XConfig = XConfig;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public XConfig getXConfig() {
-            return XConfig;
-        }
     }
 
     @Deprecated

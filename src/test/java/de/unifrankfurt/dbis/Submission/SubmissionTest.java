@@ -1,23 +1,5 @@
 package de.unifrankfurt.dbis.Submission;
 
-import de.unifrankfurt.dbis.TestResources;
-import de.unifrankfurt.dbis.config.XConfig;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeNoException;
-
-
 
 public class SubmissionTest {
 //
