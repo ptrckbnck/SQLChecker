@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,17 +26,19 @@ public class ResultStorage {
     private final String errorMsg;
     private final int taskCount;
     private final Path root;
+    private final Charset charset;
 
-    private ResultStorage(Path root, Path submissionPath, String authors, String solutionName, int taskCount, List<String> status, String errorMSG) {
+    //TODO replace authors string with authors object
+    private ResultStorage(Path root, Path submissionPath, String authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset) {
         this.root = root;
         this.submissionPath = submissionPath;
         this.authors = Objects.requireNonNullElse(authors, "unknown authors");
         this.solutionName = Objects.requireNonNullElse(solutionName, "unknown solution");
         this.taskCount = taskCount;
+        this.charset = charset;
         this.status = Objects.requireNonNullElse(status, Arrays.asList(new String[taskCount]));
         this.errorMsg = Objects.requireNonNullElse(errorMSG, "");
     }
-
 
     /**
      * normal resultStorage if everything went fine.
@@ -50,7 +53,7 @@ public class ResultStorage {
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 ResultStorage.getStatusList(resultRaw),
-                null);
+                null, submission.getCharset());
     }
 
     /**
@@ -66,7 +69,7 @@ public class ResultStorage {
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 null,
-                exception.toString());
+                exception.toString(), submission.getCharset());
     }
 
     /**
@@ -82,7 +85,8 @@ public class ResultStorage {
                 null,
                 taskCount,
                 null,
-                exception.toString());
+                exception.toString(),
+                submission.getCharset());
     }
 
     /**
@@ -99,7 +103,36 @@ public class ResultStorage {
                 null,
                 taskCount,
                 null,
-                exception.toString());
+                exception.toString(),
+                null);
+    }
+
+    public Path getSubmissionPath() {
+        return submissionPath;
+    }
+
+    public String getAuthors() {
+        return authors;
+    }
+
+    public String getSolutionName() {
+        return solutionName;
+    }
+
+    public List<String> getStatus() {
+        return status;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public int getTaskCount() {
+        return taskCount;
+    }
+
+    public Path getRoot() {
+        return root;
     }
 
     private static List<String> getStatusList(String rawHtml) {
@@ -157,20 +190,25 @@ public class ResultStorage {
         return tasks;
     }
 
-    private String csv(String path, String authors, String solutionName, List<String> status, int countPass, String errorMsg) {
-        List<String> fullList = new ArrayList<>();
-        fullList.add(path);
-        fullList.add(authors);
-        fullList.add(solutionName);
-        fullList.addAll(status);
-        fullList.add(String.valueOf(countPass));
-        fullList.add(errorMsg);
-        return fullList.stream()
-                .collect(Collectors.joining("\", \"",
-                        "\"",
-                        "\""));
-
+    public String csv(CSVCreator csvc) {
+        return csvc.create(this);
     }
+
+//
+//    private String csv(String path, String authors, String solutionName, List<String> status, int countPass, String errorMsg) {
+//        List<String> fullList = new ArrayList<>();
+//        fullList.add(path);
+//        fullList.add(authors);
+//        fullList.add(solutionName);
+//        fullList.addAll(status);
+//        fullList.add(String.valueOf(countPass));
+//        fullList.add(errorMsg);
+//        return fullList.stream()
+//                .collect(Collectors.joining("\", \"",
+//                        "\"",
+//                        "\""));
+//
+//    }
 
     /**
      * method for comparing results of evaluation. prefers results with more passes. Modify if needed.
@@ -192,25 +230,29 @@ public class ResultStorage {
 
     }
 
-    public String createCSV() {
-        List<String> statusTemp;
-        if (this.taskCount != this.status.size()) {
-            statusTemp = Arrays.asList(new String[taskCount]);
-        } else {
-            statusTemp = status;
-        }
-        String path;
-        if (Objects.isNull(submissionPath)) {
-            path = "unknown";
-        } else {
-            path = (root.getParent().relativize(submissionPath).toString());
-        }
-        return csv(path, authors, solutionName, statusTemp, getCountPass(status), errorMsg);
-
-    }
+//    public String createCSV() {
+//        List<String> statusTemp;
+//        if (this.taskCount != this.status.size()) {
+//            statusTemp = Arrays.asList(new String[taskCount]);
+//        } else {
+//            statusTemp = status;
+//        }
+//        String path;
+//        if (Objects.isNull(submissionPath)) {
+//            path = "unknown";
+//        } else {
+//            path = (root.getParent().relativize(submissionPath).toString());
+//        }
+//        return csv(path, authors, solutionName, statusTemp, getCountPass(status), errorMsg);
+//
+//    }
 
     public int getCountPass(List<String> status) {
         return Collections.frequency(status, "pass");
+    }
+
+    public Charset getEncoding() {
+        return this.charset;
     }
 
     public String createReport(List<String> tags) {

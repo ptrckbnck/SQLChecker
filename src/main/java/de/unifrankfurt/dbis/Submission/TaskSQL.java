@@ -262,6 +262,10 @@ public abstract class TaskSQL implements Task {
         return this.tag.serialized() + "\n" + this.getCodeString();
     }
 
+    public String toString() {
+        return "{" + this.tag.serialized() + ", /* " + this.comment + " */, " + commands + "}";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

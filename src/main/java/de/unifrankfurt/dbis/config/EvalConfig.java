@@ -101,7 +101,7 @@ public class EvalConfig {
         try{
             return new Gson().fromJson(conf, EvalConfig.class);
         }catch(JsonSyntaxException e){
-            throw new IOException("Could not parse Config ("+path+"): "+e.getMessage(),e);
+            throw new IOException("Could not parseLines Config (" + path + "): " + e.getMessage(), e);
         }
 
     }

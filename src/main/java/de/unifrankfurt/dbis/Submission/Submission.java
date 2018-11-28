@@ -66,17 +66,20 @@ public class Submission<e extends Task> {
      * @throws SubmissionParseException when parsing goes wrong
      */
     public static Submission<Task> fromPath(Path submissionPath) throws IOException, SubmissionParseException {
+        Submission<Task> sub;
         try {
             //using readAllLines to allow \n & \r\n
             List<String> toParse = readAllLines(submissionPath, StandardCharsets.UTF_8);
-            return SubmissionParser.parseLines(toParse, StandardCharsets.UTF_8);
+            sub = SubmissionParser.parseLines(toParse, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             List<String> toParse = readAllLines(submissionPath, StandardCharsets.ISO_8859_1);
-            return SubmissionParser.parseLines(toParse, StandardCharsets.ISO_8859_1);
+            sub = SubmissionParser.parseLines(toParse, StandardCharsets.ISO_8859_1);
         }
+        return sub;
     }
 
-    public Charset getEncoding() {
+
+    public Charset getCharset() {
         return charset;
     }
 
@@ -267,9 +270,13 @@ public class Submission<e extends Task> {
      * @return Submission<TaskSQL>
      */
     public Submission<TaskSQL> onlyTaskSQLSubmission() {
-        return new Submission<>(
+        Submission<TaskSQL> newSub = new Submission<>(
                 this.authors,
                 this.getTaskSQLList(), name);
+        newSub.setPath(path);
+        newSub.setCharset(charset);
+        return newSub;
+
     }
 
 

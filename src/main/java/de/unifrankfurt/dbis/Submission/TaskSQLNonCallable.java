@@ -39,4 +39,5 @@ public class TaskSQLNonCallable extends TaskSQL {
                 (list.isEmpty() ? "" : list.get(0)) + "...");
     }
 
+
 }

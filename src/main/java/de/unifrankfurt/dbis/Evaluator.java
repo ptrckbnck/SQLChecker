@@ -77,8 +77,9 @@ public class Evaluator {
         for (Submission<TaskSQL> sub : subs) {
             runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
         }
-        return new Report(resultStorages, this.sols.get(0).generateCSVHeader());
+        return new Report(resultStorages, this.sols.get(0).csvCreator());
     }
+
 
 
     public void runSubmissionEvaluation(Submission<TaskSQL> sub, List<ResultStorage> storages, boolean verbose, boolean csvOnlyBest) {
@@ -88,14 +89,18 @@ public class Evaluator {
 
         List<ResultStorage> curStorages = new ArrayList<>();
         if (!sub.isSubmissionFor(sols.get(0))) {
-            storages.add(new ResultStorage(submissionsPath,
-                    this.solutionScheme.size(),
-                    sub,
-                    new Exception("Tags do not match")));
-            System.out.println(errorMsg(null,
-                    sub,
-                    "Submissions tags do not match with solution"));
-            return;
+            Submission<TaskSQL> fixedSub = sols.get(0).tryToFixTagsFor(sub);
+            if (Objects.isNull(fixedSub)) {
+                storages.add(new ResultStorage(submissionsPath,
+                        this.solutionScheme.size(),
+                        sub,
+                        new Exception("Tags do not match")));
+                System.out.println(errorMsg(null,
+                        sub,
+                        "Submissions tags do not match with solution"));
+                return;
+            }
+            sub = fixedSub;
         }
 
         for (Solution sol : this.sols){

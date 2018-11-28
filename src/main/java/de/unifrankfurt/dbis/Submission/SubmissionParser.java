@@ -15,7 +15,6 @@ public class SubmissionParser {
         String[] splited = raw.split("(?=/\\*)");
         List<SubmissionTokenBuilder> tasks = new ArrayList<>();
         for (String s : splited) {
-            System.err.println(s);
             String[] task = s.trim().split("\n", 2);
             String possibleTag = task[0].trim();
             if (!possibleTag.endsWith("*/") || possibleTag.matches(".*\\s+.*"))//contains whitespace

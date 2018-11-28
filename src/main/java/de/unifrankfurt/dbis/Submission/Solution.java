@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.Submission;
 
 
+import de.unifrankfurt.dbis.DBFit.CSVCreator;
 import de.unifrankfurt.dbis.DBFit.CustomMySQLTest;
 import de.unifrankfurt.dbis.DBFit.ResultStorage;
 import de.unifrankfurt.dbis.config.DataSource;
@@ -11,6 +12,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -180,5 +182,65 @@ public class Solution {
         } else {
             storage.append(parse.trailer);
         }
+    }
+
+    /**
+     * checks if sublist is a subList of list, gaps allowed.
+     * [A,B,D] isSublistWithGaps of [A,B,C,D]
+     * conditions: list & sublist have unique items
+     *
+     * @param list
+     * @param sublist
+     * @param <T>
+     * @return
+     */
+    public static <T> Boolean isSublistWithGaps(List<T> list, List<T> sublist) {
+        int cur = 0;
+        for (int i = 0; i < sublist.size(); i++) {
+            T item = sublist.get(i);
+            if (!list.contains(item)) return false;
+            int pos = list.indexOf(item);
+            if (pos < cur) return false;
+            cur = pos;
+        }
+        return true;
+    }
+
+    protected static List<TaskSQL> fixedTaskList(Submission<TaskSQL> sub, List<Tag> tags, List<Tag> faultyTags) {
+        List<TaskSQL> tasks = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+            Tag curTag = tags.get(i);
+            TaskSQL newTask;
+            if (faultyTags.contains(curTag)) {
+                newTask = sub.getTaskByTag(curTag);
+            } else {
+                newTask = new TaskSQLNonCallable(curTag, "tag missing", "tag missing");
+            }
+            tasks.add(newTask);
+        }
+        return tasks;
+    }
+
+    public CSVCreator csvCreator() {
+        return new CSVCreator().useSubmissionPath()
+                .useAuthors()
+                .useSolutionName()
+                .useAllStatus(this.getDBFitTags())
+                .useSuccess()
+                .useEncoding()
+                .useErrorMsg();
+    }
+
+    public Submission<TaskSQL> tryToFixTagsFor(Submission<TaskSQL> sub) {
+        List<Tag> tags = this.workSubmission.getNonStaticTags();
+        List<Tag> faultyTags = sub.getNonStaticTags();
+        if (faultyTags.isEmpty()) return null; //no tags at all
+        if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //dublicate keys
+        if (!isSublistWithGaps(tags, faultyTags)) return null;
+        List<TaskSQL> tasks = fixedTaskList(sub, tags, faultyTags);
+        Submission<TaskSQL> newSub = new Submission<>(sub.getAuthors(), tasks, sub.getName());
+        newSub.setCharset(sub.getCharset());
+        newSub.setPath(sub.getPath());
+        return newSub;
     }
 }

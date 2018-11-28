@@ -5,11 +5,12 @@ import de.unifrankfurt.dbis.config.DataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SolutionTest {
     private static Submission<TaskSQL> testsubmission = null;
@@ -179,11 +180,11 @@ class SolutionTest {
      * @throws fit.exception.FitParseException
      * @throws SQLException
      */
-    @Test
+
     void evaluate() throws fit.exception.FitParseException, SQLException {
         Solution solution = new Solution(testsubmission, DBFitHtml);
         ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, testsubmission, false);
-        String csv = resultStorage.createCSV();
+        String csv = resultStorage.csv(solution.csvCreator());
         String expectedCsv = "\"test/submission.txt\"," +
                 " \"[foo foo@bar.de bar]\"," +
                 " \"test_submission\"," +
@@ -202,7 +203,7 @@ class SolutionTest {
      * @throws fit.exception.FitParseException
      * @throws SQLException
      */
-    @Test
+
     void evaluateFail() throws fit.exception.FitParseException, SQLException {
         Solution solution = new Solution(testsubmission, DBFitHtml);
         Submission<TaskSQL> submissionFail = new Submission<>(List.of(new Student("foo", "bar", "foo@bar.de")),
@@ -213,7 +214,7 @@ class SolutionTest {
         submissionFail.setPath(Paths.get("/home/test/submission.txt"));
 
         ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, submissionFail, false);
-        String csv = resultStorage.createCSV();
+        String csv = resultStorage.csv(solution.csvCreator());
         String expectedCsv = "\"test/submission.txt\"," +
                 " \"[foo foo@bar.de bar]\"," +
                 " \"test_submission\"," +
@@ -311,4 +312,60 @@ class SolutionTest {
         Count count = solution.runDBFitTest(source, resetScript, parse);
         assertEquals(new Count(2, 0, 0, 0),count);
     }
+
+    @Test
+    void isSublistWithGaps() {
+        List<String> l = List.of("A", "B", "C", "D");
+        assertTrue(Solution.isSublistWithGaps(l, List.of()));
+        assertTrue(Solution.isSublistWithGaps(l, List.of("A", "B", "C")));
+        assertTrue(Solution.isSublistWithGaps(l, List.of("A", "B", "D")));
+        assertTrue(Solution.isSublistWithGaps(l, l));
+        assertFalse(Solution.isSublistWithGaps(l, List.of("A", "B", "C", "D", "E")));
+        assertFalse(Solution.isSublistWithGaps(l, List.of("A", "C", "B")));
+    }
+
+    @Test
+    void fixedTaskList() {
+        Submission<TaskSQL> sub = new Submission<>(List.of(new Student("a", "b", "c")),
+                List.of(new TaskSQLNonCallable(new Tag("tag1"), "comment1", "sql1"),
+                        new TaskSQLNonCallable(new Tag("tag3"), "comment3", "sql3")), "name");
+        List<TaskSQL> newList = Solution.fixedTaskList(sub,
+                List.of(new Tag("tag1"), new Tag("tag2"), new Tag("tag3")),
+                List.of(new Tag("tag1"), new Tag("tag3")));
+        List<TaskSQL> expectedList = List.of(new TaskSQLNonCallable(new Tag("tag1"), "comment1", "sql1"),
+                new TaskSQLNonCallable(new Tag("tag2"), "tag missing", "tag missing"),
+                new TaskSQLNonCallable(new Tag("tag3"), "comment3", "sql3"));
+        assertEquals(expectedList, newList);
+    }
+
+    @Test
+    void fixedSubmission() throws SubmissionParseException {
+        String solString = "/*submission_name*/\n" +
+                "name\n" +
+                "\n" +
+                "/*1a*/\n" +
+                "/* Kommentar zu Aufgabe 1a\n" +
+                "ueber mehrere Zeilen */\n" +
+                "sql1;\n" +
+                "/*static*/\n" +
+                "static;\n" +
+                "\n" +
+                "/*1b*/\n" +
+                "/* Kommentar zu Aufgabe 1b */\n" +
+                "sql2\n";
+        String subString = "/*authors*/\n" +
+                "a,b,c\n" +
+                "\n" +
+                "/*1b*/\n" +
+                "/* Kommentar zu Aufgabe 1b */\n" +
+                "sql2\n";
+        Solution sol = new Solution(SubmissionParser.parse(solString, StandardCharsets.UTF_8), "");
+        Submission<TaskSQL> sub = SubmissionParser.parse(subString, StandardCharsets.UTF_8).onlyTaskSQLSubmission();
+        Submission newSub = sol.tryToFixTagsFor(sub);
+        assertEquals(sub.getAuthors(), newSub.getAuthors());
+        assertEquals(sub.getPath(), newSub.getPath());
+        assertEquals(sub.getName(), newSub.getName());
+        assertEquals(sol.getSubmission().getNonStaticTags(), newSub.getTags());
+    }
+
 }
