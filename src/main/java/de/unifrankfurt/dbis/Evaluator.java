@@ -153,6 +153,7 @@ public class Evaluator {
                     storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
                     System.out.println("SubmissionParseException, "+e.getMessage()+": "+x);
                 } catch (IOException e) {
+                    storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
                     System.out.println("IOException, " + e.getMessage()+": "+x);
                 }
             });

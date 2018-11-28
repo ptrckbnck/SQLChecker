@@ -153,7 +153,7 @@ public class Solution {
 
 
     /**
-     * Stores the annotated parse String in a class variable. This makes sure that the output is stored in the correct
+     * Stores the annotated parseLines String in a class variable. This makes sure that the output is stored in the correct
      * order.
      *
      * @param parse Parse object which should be stored

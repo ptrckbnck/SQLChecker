@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis.Submission;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,19 +9,16 @@ import java.util.stream.Collectors;
 
 public class SubmissionParser {
 
-    public static List<SubmissionToken> tokenizer(List<String> lines) {
+    public static List<SubmissionToken> tokenizer(String toParse) {
 
-        String raw = String.join("\n", lines).trim();
+        String raw = toParse.trim();
         String[] splited = raw.split("(?=/\\*)");
         List<SubmissionTokenBuilder> tasks = new ArrayList<>();
         for (String s : splited) {
+            System.err.println(s);
             String[] task = s.trim().split("\n", 2);
             String possibleTag = task[0].trim();
-            if (possibleTag.startsWith("/* ")
-                    || !possibleTag.startsWith("/*")
-                    || possibleTag.endsWith(" */")
-                    || !possibleTag.endsWith("*/")
-                    || possibleTag.matches(".*\\s+.*"))//contains whitespace
+            if (!possibleTag.endsWith("*/") || possibleTag.matches(".*\\s+.*"))//contains whitespace
             {
                 //no tag
                 if (tasks.isEmpty()) {
@@ -39,7 +37,9 @@ public class SubmissionParser {
                 tasks.add(builder);
             }
         }
-        return tasks.stream().map(SubmissionTokenBuilder::createSubmissionToken).collect(Collectors.toList());
+        return tasks.stream()
+                .map(SubmissionTokenBuilder::createSubmissionToken)
+                .collect(Collectors.toList());
     }
 
 
@@ -72,12 +72,16 @@ public class SubmissionParser {
      * @return Submission created
      * @throws SubmissionParseException when something went wring while parsing.
      */
-    public static Submission<Task> parse(List<String> lines)
+    public static Submission<Task> parseLines(List<String> lines, Charset cs)
             throws SubmissionParseException {
+        return parse(String.join("\n", lines), cs);
+    }
+
+    public static Submission<Task> parse(String toParse, Charset cs) throws SubmissionParseException {
         ArrayList<Task> tasks = new ArrayList<>();
         List<Student> authors = null;
         String name = "no_name_found";
-        List<SubmissionToken> tokens = tokenizer(lines);
+        List<SubmissionToken> tokens = tokenizer(toParse);
         Map<String, SubmissionToken> map = new HashMap<>();
         for (SubmissionToken token : tokens) {
             map.put(token.getTag().getName(), token);
@@ -97,15 +101,17 @@ public class SubmissionParser {
         for (SubmissionToken token : tokens) {
             tasks.add(fromToken(token));
         }
+        Submission<Task> sub;
         if (authors == null)
-            return new Submission<>(tasks, name);
+            sub = new Submission<>(tasks, name);
         else
-            return new Submission<>(authors, tasks, name);
+            sub = new Submission<>(authors, tasks, name);
+        sub.setCharset(cs);
+        return sub;
     }
-
     /**
      * creates Task from a SubmissionToken
-     * parse() creates first a List of SubmissionToken when parsing a seralized Submission.
+     * parseLines() creates first a List of SubmissionToken when parsing a seralized Submission.
      * This function turns them into Tasks.
      *
      * @param token SubmissionToken
@@ -202,5 +208,6 @@ public class SubmissionParser {
             return "";
         }
     }
+
 
 }

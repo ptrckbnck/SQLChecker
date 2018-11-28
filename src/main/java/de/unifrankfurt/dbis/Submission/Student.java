@@ -31,10 +31,10 @@ public class Student {
      * Initialize the class for a specific student
      *
      * @param name                of the student
-     * @param matriculationNumber of the student
      * @param emailAddress        of the student
+     * @param matriculationNumber of the student
      */
-    public Student(String name, String matriculationNumber, String emailAddress) {
+    public Student(String name, String emailAddress, String matriculationNumber) {
         this.name = name;
         this.matriculationNumber = matriculationNumber;
         this.emailAddress = emailAddress;
@@ -140,7 +140,7 @@ public class Student {
     }
 
     public String serialize() {
-        return name + ";" + matriculationNumber + ";" + emailAddress;
+        return name + ";" + emailAddress + ";" + matriculationNumber;
     }
 }
 

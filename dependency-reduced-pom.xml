@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.unifrankfurt.dbis</groupId>
   <artifactId>SQLChecker</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.3c</version>
   <build>
     <plugins>
       <plugin>
@@ -27,9 +27,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
         <configuration>
-          <release>10</release>
+            <release>11</release>
           <compilerArgument>-Xlint:unchecked</compilerArgument>
-          <compilerArgument>--add-modules=javafx.base</compilerArgument>
         </configuration>
       </plugin>
       <plugin>

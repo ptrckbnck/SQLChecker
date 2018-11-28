@@ -4,8 +4,8 @@ import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.nio.file.Files.readAllLines;
 
 
 /**
@@ -40,6 +42,7 @@ public class Submission<e extends Task> {
      * The Name of Submission for a given solution should be identical.
      */
     private final String name;
+    private Charset charset;
     private Path path = null;
 
     public Submission(List<? extends e> tasks, String name) {
@@ -54,6 +57,28 @@ public class Submission<e extends Task> {
         this.name = name;
     }
 
+    /**
+     * Creates a Submission from a serialized Submission stored in file.
+     *
+     * @param submissionPath that should be read from.
+     * @return newly created Submission
+     * @throws IOException              from File IO
+     * @throws SubmissionParseException when parsing goes wrong
+     */
+    public static Submission<Task> fromPath(Path submissionPath) throws IOException, SubmissionParseException {
+        try {
+            //using readAllLines to allow \n & \r\n
+            List<String> toParse = readAllLines(submissionPath, StandardCharsets.UTF_8);
+            return SubmissionParser.parseLines(toParse, StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            List<String> toParse = readAllLines(submissionPath, StandardCharsets.ISO_8859_1);
+            return SubmissionParser.parseLines(toParse, StandardCharsets.ISO_8859_1);
+        }
+    }
+
+    public Charset getEncoding() {
+        return charset;
+    }
 
     public List<Student> getAuthors() {
         return authors;
@@ -207,15 +232,6 @@ public class Submission<e extends Task> {
                 + "\t\t<td>" + database+ "</td>\n"
                 + "\t</tr>\n"
                 + "</table>\n\n";
-/*
-
-        //old
-        header += "<table> <tr> <td>Connect</td> "
-                + "<td>" + conf.getHostname() + "</td> "
-                + "<td>" + conf.getUsername() + "</td> "
-                + "<td>" + conf.getPassword() + "</td> "
-                + "<td>" + conf.getDatabase() + "</td> </tr> </table>\n\n";
-*/
 
         return header;
     }
@@ -272,18 +288,8 @@ public class Submission<e extends Task> {
 
     }
 
-
-    /**
-     * Creates a Submission from a serialized Submission stored in file.
-     *
-     * @param submissionPath that should be read from.
-     * @return newly created Submission
-     * @throws IOException              from File IO
-     * @throws SubmissionParseException when parsing goes wrong
-     */
-    public static Submission<Task> fromPath(Path submissionPath) throws IOException, SubmissionParseException {
-        List<String> lines = Files.readAllLines(submissionPath, StandardCharsets.UTF_8);
-        return SubmissionParser.parse(lines);
+    public void setCharset(Charset cs) {
+        this.charset = cs;
     }
 
 
