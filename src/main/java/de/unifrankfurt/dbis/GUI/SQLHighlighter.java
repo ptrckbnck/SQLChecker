@@ -49,7 +49,7 @@ public class SQLHighlighter {
     private static final String SEMICOLON_PATTERN = ";";
     private static final String STRING_PATTERN = "'([^'\\\\]|\\\\.)*'";
     private static final String NUMERIC_LITERAL_PATTERN = "\\b([0-9]+(\\.[0-9])*)\\b";
-    private static final String COMMENT_PATTERN = "(--.*$)|(/\\*.*\\*/)";
+    private static final String COMMENT_PATTERN = "((--|#).*$)|(/\\*(.|\n)*\\*/)";
 
 
     private static final Pattern PATTERN = Pattern.compile(
@@ -59,7 +59,7 @@ public class SQLHighlighter {
                     "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")" +
                     "|(?<NUMERIC>" + NUMERIC_LITERAL_PATTERN + ")"
 
-            , Pattern.DOTALL);
+            , Pattern.MULTILINE);
 
 
     /**
