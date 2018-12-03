@@ -5,7 +5,9 @@ package de.unifrankfurt.dbis.DBFit;
  */
 
 import de.unifrankfurt.dbis.Submission.Solution;
+import de.unifrankfurt.dbis.Submission.Student;
 import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Submission.TaskSQL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,7 +22,7 @@ import java.util.stream.IntStream;
 
 public class ResultStorage {
     private final Path submissionPath;
-    private final String authors;
+    private final List<Student> authors;
     private final String solutionName;
     private final List<String> status;
     private final String errorMsg;
@@ -28,11 +30,11 @@ public class ResultStorage {
     private final Path root;
     private final Charset charset;
 
-    //TODO replace authors string with authors object
-    private ResultStorage(Path root, Path submissionPath, String authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset) {
+
+    private ResultStorage(Path root, Path submissionPath, List<Student> authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset) {
         this.root = root;
         this.submissionPath = submissionPath;
-        this.authors = Objects.requireNonNullElse(authors, "unknown authors");
+        this.authors = Objects.requireNonNullElse(authors, List.of());
         this.solutionName = Objects.requireNonNullElse(solutionName, "unknown solution");
         this.taskCount = taskCount;
         this.charset = charset;
@@ -46,10 +48,10 @@ public class ResultStorage {
      * @param submission
      * @param resultRaw
      */
-    public ResultStorage(Path root, Solution sol, Submission submission, String resultRaw) {
+    public ResultStorage(Path root, Solution sol, Submission<TaskSQL> submission, String resultRaw) {
         this(root,
                 submission.getPath(),
-                String.valueOf(submission.getAuthors()),
+                submission.getAuthors(),
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 ResultStorage.getStatusList(resultRaw),
@@ -62,10 +64,10 @@ public class ResultStorage {
      * @param submission
      * @param exception
      */
-    public ResultStorage(Path root, Solution sol, Submission submission, Exception exception) {
+    public ResultStorage(Path root, Solution sol, Submission<TaskSQL> submission, Exception exception) {
         this(root,
                 submission.getPath(),
-                String.valueOf(submission.getAuthors()),
+                submission.getAuthors(),
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 null,
@@ -78,10 +80,10 @@ public class ResultStorage {
      * @param submission
      * @param exception
      */
-    public ResultStorage(Path root, int taskCount, Submission submission, Exception exception) {
+    public ResultStorage(Path root, int taskCount, Submission<TaskSQL> submission, Exception exception) {
         this(root,
                 submission.getPath(),
-                String.valueOf(submission.getAuthors()),
+                submission.getAuthors(),
                 null,
                 taskCount,
                 null,
@@ -111,7 +113,7 @@ public class ResultStorage {
         return submissionPath;
     }
 
-    public String getAuthors() {
+    public List<Student> getAuthors() {
         return authors;
     }
 
@@ -256,7 +258,7 @@ public class ResultStorage {
     }
 
     public String createReport(List<String> tags) {
-        return report(this.submissionPath, authors, tags, status);
+        return report(this.submissionPath, String.valueOf(authors), tags, status);
     }
 
     private String report(Path path, String authors, List<String> tags, List<String> status) {

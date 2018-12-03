@@ -1,6 +1,8 @@
 package de.unifrankfurt.dbis.DBFit;
 
 
+import de.unifrankfurt.dbis.Submission.Student;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +46,7 @@ public class CSVCreator {
     }
 
     public CSVCreator useAuthors() {
-        Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getAuthors(), "unknown");
+        Function<ResultStorage, String> f = x -> String.valueOf(x.getAuthors());
         this.functions.add(f);
         this.header.add("Authors");
         return this;
@@ -114,6 +116,15 @@ public class CSVCreator {
         Function<ResultStorage, String> f = x -> String.valueOf(x.getEncoding());
         this.functions.add(f);
         this.header.add("Encoding");
+        return this;
+    }
+
+    public CSVCreator useMatrikelNr() {
+        Function<ResultStorage, String> f = x -> x.getAuthors().stream()
+                .map(Student::getMatriculationNumber)
+                .collect(Collectors.joining(";"));
+        this.functions.add(f);
+        this.header.add("MatrikelNr");
         return this;
     }
 

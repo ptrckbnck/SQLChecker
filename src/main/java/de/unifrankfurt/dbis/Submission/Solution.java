@@ -224,6 +224,7 @@ public class Solution {
     public CSVCreator csvCreator() {
         return new CSVCreator().useSubmissionPath()
                 .useAuthors()
+                .useMatrikelNr()
                 .useSolutionName()
                 .useAllStatus(this.getDBFitTags())
                 .useSuccess()
