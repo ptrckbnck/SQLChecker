@@ -236,7 +236,7 @@ public class Solution {
         List<Tag> tags = this.workSubmission.getNonStaticTags();
         List<Tag> faultyTags = sub.getNonStaticTags();
         if (faultyTags.isEmpty()) return null; //no tags at all
-        if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //dublicate keys
+        if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
         if (!isSublistWithGaps(tags, faultyTags)) return null;
         List<TaskSQL> tasks = fixedTaskList(sub, tags, faultyTags);
         Submission<TaskSQL> newSub = new Submission<>(sub.getAuthors(), tasks, sub.getName());
