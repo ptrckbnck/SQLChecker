@@ -78,6 +78,21 @@ public class Runner {
                 return;
             }
 
+            boolean doCsv = commandLine.hasOption("csv");
+            String saveCSV = commandLine.getOptionValue("csv");
+
+            // check out path
+            if (doCsv && !Objects.isNull(saveCSV)) {
+                Path path = Paths.get(saveCSV);
+                try {
+                    Files.write(path, List.of(), StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    System.out.println("Cannot write CSV to " + e.getMessage());
+                    return;
+                }
+            }
+
+
             try {
                 Evaluator evaluator = new Evaluator(configPath);
 
@@ -100,10 +115,11 @@ public class Runner {
                     }
                 }
                 if (verbose) System.out.println("run Evaluation----------------------------");
+
+
                 Report report = evaluator.runEvaluation(verbose, commandLine.hasOption("onlyBest"));
 
-                boolean doCsv = commandLine.hasOption("csv");
-                String saveCSV = commandLine.getOptionValue("csv");
+
                 if (doCsv){
                     if (Objects.isNull(saveCSV)) {
                         report.getCSV().forEach(System.out::println);
