@@ -124,6 +124,7 @@ public class SubmissionParser {
         throw new SubmissionParseException(SubmissionParseException.ErrorType.UNKNOWN_PLUGIN);
     }
 
+    /*TODO neu erstellen. erkennt Kommentare manchmal falsch*/
     public static TaskBody splitBody(String body) {
         StringBuilder comment = new StringBuilder();
         StringBuilder sql = new StringBuilder();

@@ -5,7 +5,6 @@ import de.unifrankfurt.dbis.SQL.SQLResultWrapper;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,8 +95,8 @@ public abstract class TaskSQL implements Task {
      * @param sql commands
      * @return String List of sql statements
      */
-    private static List<String> splitStatements(String sql) {
-        List<String> code = Arrays.asList(sql.split("(?<=;)"));
+    private static List<String> splitStatements(String sql) { //TODO ; in Kommentaren ignorieren
+        String[] code = sql.split("(?<=;)");
         List<String> code_filtered = new ArrayList<>();
         for (String statement : code) {
             String trimmed = statement.trim();
@@ -116,19 +115,24 @@ public abstract class TaskSQL implements Task {
      */
     public static TaskSQL parseToken(SubmissionToken token) throws SubmissionParseException {
         TaskBody body = SubmissionParser.splitBody(token.getBody());
-        List<String> statements = splitStatements(body.getSql());
+        //TODO splitBody fehlerhaft, rest temporärer entfernt um Fehler zu vermeiden.
+
+        //List<String> statements = splitStatements(body.getSql()); //TODO splitStatements auch fehlerhaft, ';' ist in Kommentaren erlaubts
+        List<String> statements = List.of(body.getSql());
+
         if (statements.size() < 1)
-            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nNO BODY", "select('NO BODY');");
+            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nNO BODY", "NO BODY");
         String sql = statements.get(0);
         //if (!isCallable(sql)) {
         if (statements.size() != 1) {
-            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nTOO MANY STATEMENTS", "select('TOO MANY STATEMENTS');");
+            return new TaskSQLNonCallable(token.getTag(), body.getComment() + "\nTOO MANY STATEMENTS", "TOO MANY STATEMENTS");
+        }
 
             /*
             throw new SubmissionParseException(
                     "too many Statements in " + token.getTag().getName(),
                     SubmissionParseException.TOO_MANY_STATEMENTS);*/
-        }
+
         return new TaskSQLNonCallable(token.getTag(), body.getComment(), body.getSql());
 
 
