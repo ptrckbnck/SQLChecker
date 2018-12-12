@@ -1,8 +1,6 @@
 package de.unifrankfurt.dbis.SQL;
 
-import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
-import de.vandermeer.asciithemes.TA_GridThemes;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -82,8 +80,6 @@ public class SQLResultTable {
     @Override
     public String toString() {
         if (data.isEmpty()) return "leere Menge";
-        AT_Context con = new AT_Context();
-        con.setGridTheme(TA_GridThemes.HORIZONTAL.get());
         AsciiTable at = new AsciiTable();
         at.addRule();
         at.addRow(this.header);
