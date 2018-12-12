@@ -6,7 +6,7 @@
 
     <groupId>de.unifrankfurt.dbis</groupId>
     <artifactId>SQLChecker</artifactId>
-    <version>1.0.3d_temp</version>
+    <version>1.0.3d</version>
     <repositories>
         <repository>
             <id>jitpack.io</id>

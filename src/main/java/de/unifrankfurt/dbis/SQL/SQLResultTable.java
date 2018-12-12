@@ -1,12 +1,16 @@
 package de.unifrankfurt.dbis.SQL;
 
+import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciithemes.TA_GridThemes;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -78,15 +82,31 @@ public class SQLResultTable {
     @Override
     public String toString() {
         if (data.isEmpty()) return "leere Menge";
+        AT_Context con = new AT_Context();
+        con.setGridTheme(TA_GridThemes.HORIZONTAL.get());
         AsciiTable at = new AsciiTable();
         at.addRule();
         at.addRow(this.header);
         at.addRule();
         for (List<String> row : this.data) {
+            row = row.stream()
+                    .map(x -> Objects.isNull(x) ? "<null>" : x)
+                    .collect(Collectors.toList());
             at.addRow(row);
         }
         at.addRule();
-        return at.render();
+
+        try {
+            return at.render();
+        } catch (IllegalStateException ex) {
+            System.err.println("Fehler beim Erstellen der Tabelle. Direkte Ausgabe:");
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.join("\t", header)).append("\n");
+            data.forEach(x -> sb.append(String.join("\t", x)).append("\n"));
+            return sb.toString();
+
+        }
+
     }
 
 
