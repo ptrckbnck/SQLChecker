@@ -100,7 +100,6 @@ public class SQLResultTable {
             sb.append(String.join("\t", header)).append("\n");
             data.forEach(x -> sb.append(String.join("\t", x)).append("\n"));
             return sb.toString();
-
         }
 
     }
