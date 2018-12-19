@@ -2,7 +2,6 @@ package de.unifrankfurt.dbis.Submission;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -48,20 +47,6 @@ public abstract class Task {
         return new TaskNonCallable(token.getTag(), body.getSql());
     }
 
-
-    /**
-     * @param sql commands
-     * @return String List of sql statements
-     */
-    private static List<String> splitStatements(String sql) { //TODO ; in Kommentaren ignorieren
-        String[] code = sql.split("(?<=;)");
-        List<String> code_filtered = new ArrayList<>();
-        for (String statement : code) {
-            String trimmed = statement.trim();
-            if (!"".equals(trimmed)) code_filtered.add(trimmed);
-        }
-        return code_filtered;
-    }
 
     /**
      * Concatenation of Commentary and every SQL commands, separatedby "\n".
