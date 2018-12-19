@@ -7,7 +7,6 @@ import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
-import de.unifrankfurt.dbis.Submission.TaskSQL;
 import org.ini4j.Ini;
 
 import java.io.IOException;
@@ -146,11 +145,11 @@ public class EvalConfig {
     }
 
 
-    public List<Submission<TaskSQL>> getSolutions() throws IOException, SubmissionParseException {
+    public List<Submission> getSolutions() throws IOException, SubmissionParseException {
         String[] pathes = this.solutionPaths.split(",");
-        List<Submission<TaskSQL>> submissions = new ArrayList<>();
+        List<Submission> submissions = new ArrayList<>();
         for (String path : pathes){
-            submissions.add(Submission.fromPath(Paths.get(path)).onlyTaskSQLSubmission());
+            submissions.add(Submission.fromPath(Paths.get(path)));
         }
         return submissions;
     }

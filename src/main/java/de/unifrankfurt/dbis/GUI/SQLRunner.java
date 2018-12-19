@@ -49,14 +49,6 @@ public class SQLRunner extends Task<Integer> {
         }
     }
 
-    /**
-     * creates in Config defined Database if not present.
-     */
-    private static void createDatabase(GUIConfig config) {
-        SQLCreateDatabase createDatabase = new SQLCreateDatabase(config);
-        Thread t = new Thread(createDatabase);
-        t.start();
-    }
 
     @Override
     protected Integer call() throws SQLException {

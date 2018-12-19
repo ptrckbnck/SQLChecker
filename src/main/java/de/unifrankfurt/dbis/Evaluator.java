@@ -17,7 +17,7 @@ import java.util.Objects;
 
 
 public class Evaluator {
-    private List<Submission<TaskSQL>> samples;
+    private List<Submission> samples;
     private String configPath;
     private EvalConfig config;
     private List<Solution> sols;
@@ -49,7 +49,7 @@ public class Evaluator {
 
     public List<Solution> createSolutions() throws SQLException {
         sols = new ArrayList<>();
-        for ( Submission<TaskSQL> s : samples) {
+        for (Submission s : samples) {
             try {
                 resetScript.execute(source);
             } catch (SQLException e) {
@@ -61,35 +61,34 @@ public class Evaluator {
         return sols;
     }
 
-    public boolean haveAllSameScheme(List<Submission<TaskSQL>> subs){
+    public boolean haveAllSameScheme(List<Submission> subs) {
         assert Objects.nonNull(samples);
         assert !samples.isEmpty();
         int size = samples.size();
         if (size == 1) return true;
-        Submission<TaskSQL> submission = subs.get(0);
+        Submission submission = subs.get(0);
         return submission.sameSchema(samples.subList(1,size));
     }
 
 
     public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
         List<ResultStorage> resultStorages = new ArrayList<>();
-        List<Submission<TaskSQL>> subs = loadSubmissions(submissionsPath, resultStorages);
-        for (Submission<TaskSQL> sub : subs) {
+        List<Submission> subs = loadSubmissions(submissionsPath, resultStorages);
+        for (Submission sub : subs) {
             runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
         }
         return new Report(resultStorages, this.sols.get(0).csvCreator());
     }
 
 
-
-    public void runSubmissionEvaluation(Submission<TaskSQL> sub, List<ResultStorage> storages, boolean verbose, boolean csvOnlyBest) {
+    public void runSubmissionEvaluation(Submission sub, List<ResultStorage> storages, boolean verbose, boolean csvOnlyBest) {
         if(verbose) {
             System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
         }
 
         List<ResultStorage> curStorages = new ArrayList<>();
         if (!sub.isSubmissionFor(sols.get(0))) {
-            Submission<TaskSQL> fixedSub = sols.get(0).tryToFixTagsFor(sub);
+            Submission fixedSub = sols.get(0).tryToFixTagsFor(sub);
             if (Objects.isNull(fixedSub)) {
                 storages.add(new ResultStorage(submissionsPath,
                         this.solutionScheme.size(),
@@ -122,7 +121,7 @@ public class Evaluator {
         }
     }
 
-    private String errorMsg(Solution sol, Submission<TaskSQL> sub, String message) {
+    private String errorMsg(Solution sol, Submission sub, String message) {
         if (Objects.isNull(sol))
             return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors() + " ErrorMsg:" + message;
         return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors()
@@ -140,8 +139,8 @@ public class Evaluator {
      * @param storages storage-container.if loading of a submission was unsuccessful, a new storage is added to container.
      * @return
      */
-    private List<Submission<TaskSQL>> loadSubmissions(Path submissionsPath, List<ResultStorage> storages) {
-        ArrayList<Submission<TaskSQL>> submissionList = new ArrayList<>();
+    private List<Submission> loadSubmissions(Path submissionsPath, List<ResultStorage> storages) {
+        ArrayList<Submission> submissionList = new ArrayList<>();
         int depth = 0;
         if (Files.isDirectory(submissionsPath)) {
             depth = 2;
@@ -150,7 +149,7 @@ public class Evaluator {
             Files.walk(submissionsPath, depth).forEach((x) -> {
                 try {
                     if (Files.isDirectory(x)) return;
-                    Submission<TaskSQL> s = Submission.fromPath(x).onlyTaskSQLSubmission();
+                    Submission s = Submission.fromPath(x);
                     s.setPath(x);
                     submissionList.add(s);
                     System.out.println("Submission loaded: "+x);

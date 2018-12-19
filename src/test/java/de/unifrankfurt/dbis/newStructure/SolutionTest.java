@@ -1,15 +1,18 @@
 package de.unifrankfurt.dbis.newStructure;
 
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Submission.Solution;
+import de.unifrankfurt.dbis.Submission.Submission;
+import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Submission.Tag;
 import de.unifrankfurt.dbis.TestResources;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SolutionTest {
 
@@ -17,7 +20,7 @@ public class SolutionTest {
     public void getterTest() throws IOException, SubmissionParseException {
 
         TestResources.Simple simple = TestResources.Simple.getInstance();
-        Submission<TaskSQL> submission = simple.getSubmission();
+        Submission submission = simple.getSubmission();
         Solution solution = new Solution(submission,simple.getDbFitHtml());
         assertEquals(submission,solution.getSubmission());
         assertEquals(simple.getDbFitHtml(),solution.getDBFitHtml());
@@ -34,7 +37,7 @@ public class SolutionTest {
     @Test
     public void generateSurveyHTML() throws IOException, SubmissionParseException {
         TestResources.Simple simple = TestResources.Simple.getInstance();
-        Submission<TaskSQL> submission = simple.getSubmission();
+        Submission submission = simple.getSubmission();
         Solution solution = new Solution(submission,simple.getDbFitHtml());
         String a = solution.generateSurveyHTML(submission);
         assertTrue(a.contains("<table>\n" +

@@ -43,6 +43,7 @@ public class Tag {
 
     public final static String STATIC = "static";
 
+
     public Tag(String name) {
         this.name = name;
         this.plugin = null;

@@ -1,7 +1,7 @@
 package de.unifrankfurt.dbis.GUI;
 
 import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.TaskSQL;
+import de.unifrankfurt.dbis.Submission.Task;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,17 +53,17 @@ public class Assignment {
      * creates Assignment from Submission. While representing nearly the same Assignment is only used in GUI and
      * Submission in everything related to DBFIT.
      *
-     * @param submission Submission<TaskSQL>
+     * @param submission Submission
      * @return Assignment
      */
-    public static Assignment fromSubmission(Submission<TaskSQL> submission) {
+    public static Assignment fromSubmission(Submission submission) {
         Assignment assignment = new Assignment(
                 submission.getName(),
                 submission.getTasks().stream().map((x) -> x.getTag().getName()).collect(Collectors.toList()));
-        for (TaskSQL t : submission.getTasks()) {
+        for (Task t : submission.getTasks()) {
             assignment.putCodeMap(
                     t.getTag().getName(),
-                    t.getCodeString());
+                    t.getSql());
         }
         return assignment;
     }

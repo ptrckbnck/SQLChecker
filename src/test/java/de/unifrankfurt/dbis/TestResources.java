@@ -18,78 +18,11 @@ import java.util.stream.Stream;
 public class TestResources {
 
 
-    public static class Simple{
-        private static Simple instance = new Simple();
-        private Path configPath;
-        private Submission<TaskSQL> submission;
-        private Path submissionPath;
-        private Solution solution;
-        private SQLScript reset;
-        private Path resetPath;
-        private Path dbFitHtmlPath;
-        private String dbFitHtml;
-
-        private Simple(){
-            this.configPath = null;
-            this.submission = null;
-            this.submissionPath = resourcePath("/test/simple/raw_simple.txt");
-            this.solution = null;
-            this.reset = null;
-            this.resetPath = resourcePath("/test/simple/reset_simple.txt");
-            this.dbFitHtmlPath = resourcePath("/test/simple/dbFitHtml.txt");
-            this.dbFitHtml = null;
-        }
-
-        public static Simple getInstance(){
-            return instance;
-        }
-
-
-
-        public Submission<TaskSQL> getSubmission() throws IOException, SubmissionParseException {
-            if (submission == null) {
-                submission = Submission.fromPath(submissionPath).onlyTaskSQLSubmission();
-            }
-            return submission;
-        }
-
-        public Path getSubmisionPath(){
-            return resourcePath("/test/simple/raw_simple.txt");
-        }
-
-        public Solution getSolution() throws IOException, SubmissionParseException {
-            if (solution == null){
-                Path dbFitHtml = resourcePath("/test/simple/dbFitHtml.txt");
-                Stream<String> lines = Files.lines(dbFitHtml, StandardCharsets.UTF_8);
-
-                solution = new Solution(
-                        getSubmission(),
-                        lines.collect(Collectors.joining("/n")));
-            }
-            return solution;
-        }
-
-        public SQLScript getReset() throws IOException {
-            if (reset == null)
-                reset = SQLScript.fromPath(getResetPath());
-            return reset;
-        }
-
-        public Path getResetPath(){
-            return resetPath;
-        }
-
-        public Path getDbFitHtmlPath() {
-            return dbFitHtmlPath;
-        }
-
-        public String getDbFitHtml() throws IOException {
-            if (dbFitHtml == null)
-                dbFitHtml = Files.lines(dbFitHtmlPath)
-                        .collect(Collectors.joining("\n"));
-            return dbFitHtml;
-        }
-
+    @Deprecated
+    public static DBFitSubmissionData getSimple() {
+        Path path = resourcePath("/test/simple/raw_simple.txt");
+        Submission sub = simpleSubmission();
+        return new DBFitSubmissionData(path, sub, "");
     }
 
     private static Path resourcePath(String path){
@@ -153,118 +86,52 @@ public class TestResources {
     }
 
     @Deprecated
-    public static DBFitSubmissionData getSimple(){
-        Path path = resourcePath("/test/simple/raw_simple.txt");
-        Submission<TaskSQL> sub = simpleSubmission();
-        return new DBFitSubmissionData(path,sub,"");
-    }
-
-    @Deprecated
-    private static Submission<TaskSQL> simpleSubmission(){
-        List< TaskSQL > taskList = new ArrayList<>();
-        taskList.add(new TaskSQLNonCallable(new Tag("1a"),
-                "",
+    private static Submission simpleSubmission() {
+        List<Task> taskList = new ArrayList<>();
+        taskList.add(new TaskNonCallable(new Tag("1a"),
                 "INSERT INTO simple.color (name,red,green,blue) VALUES\n" +
                 "('magenta', 255, 0, 255),\n" +
                 "('cyan', 0, 255, 255),\n" +
                 "('yellow', 255, 255, 0);"));
-        taskList.add(new TaskSQLNonCallable(new Tag("1b"),
-                "",
+        taskList.add(new TaskNonCallable(new Tag("1b"),
                 "CREATE TABLE `simple`.`animal` (\n" +
                         "`name` VARCHAR(45) NOT NULL,\n" +
                         "`genus` VARCHAR(45) NOT NULL,\n" +
                         "`species` VARCHAR(45) NOT NULL,\n" +
                         "PRIMARY KEY (`name`)\n" +
                         ");\n"));
-        taskList.add(new TaskSQLNonCallable(new Tag("1c"),
-                "",
+        taskList.add(new TaskNonCallable(new Tag("1c"),
                 "ALTER TABLE `simple`.`animal`\n" +
                 "ADD COLUMN `family` VARCHAR(45) NOT NULL AFTER `name`;\n"));
-        taskList.add(new TaskSQLNonCallable(new Tag("1d"),
-                "",
+        taskList.add(new TaskNonCallable(new Tag("1d"),
                 "INSERT INTO `simple`.`animal` (`name`, `family`, `genus`, `species`) VALUES\n" +
                 "('Tiger', 'Felidae', 'Panthera', 'P. tigris');\n"));
-        taskList.add(new TaskSQLNonCallable(new Tag("2a"),
-                "",
+        taskList.add(new TaskNonCallable(new Tag("2a"),
                 "/*Welche Farben beinhalten rot?*/\n" +
                 "select c.name from color c where c.red > 0;\n"));
-        taskList.add(new TaskSQLNonCallable(new Tag("2b"),
-                "",
+        taskList.add(new TaskNonCallable(new Tag("2b"),
                 "/*alle tiere*/\n" +
                 "select a.name from animal a;\n"));
-        return new Submission<TaskSQL>(taskList, "submission");
-    }
-
-    public static class DBFitSubmissionData {
-        private final Path path;
-        private final Submission<TaskSQL> submission;
-        private final String submissionString;
-
-        public DBFitSubmissionData(Path path,
-                                   Submission<TaskSQL> submission,
-                                   String submissionString) {
-            this.path = path;
-            this.submission = submission;
-            this.submissionString = submissionString;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public Submission<TaskSQL> getSubmission() {
-            return submission;
-        }
-
-        public String getSubmissionString() {
-            return submissionString;
-        }
-
-        public Solution getSolution() {
-            return null;
-        }
-    }
-    public static DBFitSubmissionData getSubmissionNoAuthor(){
-        Path path = resourcePath("/test/submission/noAuthor.txt");
-        List< TaskSQL > taskList = new ArrayList<>();
-        taskList.add(
-                new TaskSQLNonCallable(
-                        new Tag("tag"),
-                        "this is comment",
-                        "Select * from * ;"));
-        taskList.add(
-                new TaskSQLNonCallable(
-                        new Tag("tag2"),
-                        "this is comment 2",
-                        "SELECT USER(), DATABASE() ;"));
-        Submission<TaskSQL> sub = new Submission<>(taskList, "submission");
-        String submissionString = "/*tag*/\n" +
-                "/* this is comment */\n" +
-                "Select * from * ;\n" +
-                "\n" +
-                "/*tag2*/\n" +
-                "/* this is comment 2 */\n" +
-                "SELECT USER(), DATABASE() ;";
-        return new DBFitSubmissionData(path,sub,submissionString);
+        return new Submission(taskList, "submission");
     }
 
     public static DBFitSubmissionData getSubmissionWAuthor(){
         Path path = resourcePath("/test/submission/wAuthor.txt");
-        List<TaskSQL> taskList = new ArrayList<>();
+        List<Task> taskList = new ArrayList<>();
         taskList.add(
-                new TaskSQLNonCallable(
-                        new Tag("tag"),
-                        "this is comment",
-                        "Select * from * ;"));
+                new TaskNonCallable(
+                        Tags.get("tag"),
+                        "/* this is comment */\n" +
+                                "Select * from * ;"));
         taskList.add(
-                new TaskSQLNonCallable(
+                new TaskNonCallable(
                         new Tag("tag2"),
-                        "this is comment 2",
+                        "/* this is comment 2*/\n" +
                         "SELECT USER(), DATABASE() ;"));
         List<Student> students = new ArrayList<>();
         students.add(new Student("foo","bar","test@test.de"));
         students.add(new Student("schlub","ba","schlubba@test.de"));
-        Submission<TaskSQL> sub = new Submission<>(students,taskList, "submission");
+        Submission sub = new Submission(students, taskList, "submission");
         String submissionString = "/*authors*/\n" +
                 "foo;bar;test@test.de\n" +
                 "schlub;ba;schlubba@test.de\n" +
@@ -279,17 +146,107 @@ public class TestResources {
         return new DBFitSubmissionData(path, sub, submissionString);
     }
 
+    public static class Simple {
+        private static Simple instance = new Simple();
+        private Path configPath;
+        private Submission submission;
+        private Path submissionPath;
+        private Solution solution;
+        private SQLScript reset;
+        private Path resetPath;
+        private Path dbFitHtmlPath;
+        private String dbFitHtml;
+
+        private Simple() {
+            this.configPath = null;
+            this.submission = null;
+            this.submissionPath = resourcePath("/test/simple/raw_simple.txt");
+            this.solution = null;
+            this.reset = null;
+            this.resetPath = resourcePath("/test/simple/reset_simple.txt");
+            this.dbFitHtmlPath = resourcePath("/test/simple/dbFitHtml.txt");
+            this.dbFitHtml = null;
+        }
+
+        public static Simple getInstance() {
+            return instance;
+        }
 
 
-    public static Path getProjectZip(){
-        return (resourcePath("/test/CheckerProject/project.zip"));
+        public Submission getSubmission() throws IOException, SubmissionParseException {
+            if (submission == null) {
+                submission = Submission.fromPath(submissionPath);
+            }
+            return submission;
+        }
+
+        public Path getSubmisionPath() {
+            return resourcePath("/test/simple/raw_simple.txt");
+        }
+
+        public Solution getSolution() throws IOException, SubmissionParseException {
+            if (solution == null) {
+                Path dbFitHtml = resourcePath("/test/simple/dbFitHtml.txt");
+                Stream<String> lines = Files.lines(dbFitHtml, StandardCharsets.UTF_8);
+
+                solution = new Solution(
+                        getSubmission(),
+                        lines.collect(Collectors.joining("/n")));
+            }
+            return solution;
+        }
+
+        public SQLScript getReset() throws IOException {
+            if (reset == null)
+                reset = SQLScript.fromPath(getResetPath());
+            return reset;
+        }
+
+        public Path getResetPath() {
+            return resetPath;
+        }
+
+        public Path getDbFitHtmlPath() {
+            return dbFitHtmlPath;
+        }
+
+        public String getDbFitHtml() throws IOException {
+            if (dbFitHtml == null)
+                dbFitHtml = Files.lines(dbFitHtmlPath)
+                        .collect(Collectors.joining("\n"));
+            return dbFitHtml;
+        }
+
     }
 
-    public static Path getProjectTemplate(){
-        return (resourcePath("/test/CheckerProject/template.txt"));
+    public static class DBFitSubmissionData {
+        private final Path path;
+        private final Submission submission;
+        private final String submissionString;
+
+        public DBFitSubmissionData(Path path,
+                                   Submission submission,
+                                   String submissionString) {
+            this.path = path;
+            this.submission = submission;
+            this.submissionString = submissionString;
+        }
+
+        public Path getPath() {
+            return path;
+        }
+
+        public Submission getSubmission() {
+            return submission;
+        }
+
+        public String getSubmissionString() {
+            return submissionString;
+        }
+
+        public Solution getSolution() {
+            return null;
+        }
     }
 
-    public static Path getProjectPath(){
-        return (resourcePath("/test/CheckerProject/"));
-    }
 }

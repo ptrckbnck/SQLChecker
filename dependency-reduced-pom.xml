@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>de.unifrankfurt.dbis</groupId>
   <artifactId>SQLChecker</artifactId>
-    <version>1.0.3d_temp</version>
+    <version>1.0.3e</version>
   <build>
     <plugins>
       <plugin>

@@ -25,7 +25,7 @@ public class Solution {
     /**
      * Submission wihtout any non-TaskSQL Tasks.
      */
-    private Submission<TaskSQL> workSubmission;
+    private Submission workSubmission;
 
 
     /**
@@ -39,13 +39,24 @@ public class Solution {
      */
 
 
-    public Solution(Submission<? extends Task> submission, String dbFitHtml) {
-        this.workSubmission = submission.onlyTaskSQLSubmission();
+    public Solution(Submission submission, String dbFitHtml) {
+        this.workSubmission = submission;
         this.dbFitHtml = dbFitHtml;
     }
 
-    public Submission<TaskSQL> getSubmission() {
-        return workSubmission;
+    protected static List<Task> fixedTaskList(Submission sub, List<Tag> tags, List<Tag> faultyTags) {
+        List<Task> tasks = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+            Tag curTag = tags.get(i);
+            Task newTask;
+            if (faultyTags.contains(curTag)) {
+                newTask = sub.getTaskByTag(curTag);
+            } else {
+                newTask = new TaskNonCallable(curTag, "tag missing");
+            }
+            tasks.add(newTask);
+        }
+        return tasks;
     }
 
     public String getDBFitHtml() {
@@ -62,6 +73,14 @@ public class Solution {
         return this.workSubmission.getTagStrings();
     }
 
+    public Submission getSubmission() {
+        return workSubmission;
+    }
+
+    public String getName() {
+        return this.workSubmission.getName();
+    }
+
     /**
      * creates html which can be used by dbfit parser to run test.
      * A Solution has result for every tag.
@@ -71,52 +90,17 @@ public class Solution {
      * @param submission
      * @return Html code for DBFIT parser
      */
-    public String generateSurveyHTML(Submission<TaskSQL> submission) {
+    public String generateSurveyHTML(Submission submission) {
         String result = this.dbFitHtml;
         for (Tag tag : this.workSubmission.getTags()) {
             if (tag.isStatic()) continue;
-            String submissionCode = submission.getTaskByTag(tag).getCodeString();
+            String submissionCode = submission.getTaskByTag(tag).getSql();
             submissionCode = submissionCode
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
             result = result.replace(tag.serialized(), submissionCode);
         }
         return result;
-    }
-
-    public String getName() {
-        return this.workSubmission.getName();
-    }
-
-
-    /**
-     * runs DBFitTest to evaluate submission.
-     *
-     * @param root        path of submission
-     * @param source      Datasource
-     * @param resetScript ResetScript
-     * @param submission  Submission
-     * @param verbose     verbose Mode
-     * @return ResultStorage
-     * @throws SQLException
-     * @throws FitParseException
-     */
-    public ResultStorage evaluate(Path root,
-                                  DataSource source,
-                                  SQLScript resetScript,
-                                  Submission<TaskSQL> submission,
-                                  boolean verbose)
-            throws SQLException, FitParseException{
-        String html = this.generateSurveyHTML(submission);
-        Parse p = new Parse(html);
-        Count count = runDBFitTest(source, resetScript, p);
-        String parseResult = getParseResult(p);
-
-        if (verbose) {
-            System.out.println(parseResult);
-            System.out.println(count);
-        }
-        return new ResultStorage(root, this, submission, parseResult);
     }
 
     protected Count runDBFitTest(DataSource source, SQLScript resetScript, Parse p) throws SQLException {
@@ -206,19 +190,34 @@ public class Solution {
         return true;
     }
 
-    protected static List<TaskSQL> fixedTaskList(Submission<TaskSQL> sub, List<Tag> tags, List<Tag> faultyTags) {
-        List<TaskSQL> tasks = new ArrayList<>();
-        for (int i = 0; i < tags.size(); i++) {
-            Tag curTag = tags.get(i);
-            TaskSQL newTask;
-            if (faultyTags.contains(curTag)) {
-                newTask = sub.getTaskByTag(curTag);
-            } else {
-                newTask = new TaskSQLNonCallable(curTag, "tag missing", "tag missing");
-            }
-            tasks.add(newTask);
+    /**
+     * runs DBFitTest to evaluate submission.
+     *
+     * @param root        path of submission
+     * @param source      Datasource
+     * @param resetScript ResetScript
+     * @param submission  Submission
+     * @param verbose     verbose Mode
+     * @return ResultStorage
+     * @throws SQLException
+     * @throws FitParseException
+     */
+    public ResultStorage evaluate(Path root,
+                                  DataSource source,
+                                  SQLScript resetScript,
+                                  Submission submission,
+                                  boolean verbose)
+            throws SQLException, FitParseException {
+        String html = this.generateSurveyHTML(submission);
+        Parse p = new Parse(html);
+        Count count = runDBFitTest(source, resetScript, p);
+        String parseResult = getParseResult(p);
+
+        if (verbose) {
+            System.out.println(parseResult);
+            System.out.println(count);
         }
-        return tasks;
+        return new ResultStorage(root, this, submission, parseResult);
     }
 
     public CSVCreator csvCreator() {
@@ -232,14 +231,14 @@ public class Solution {
                 .useErrorMsg();
     }
 
-    public Submission<TaskSQL> tryToFixTagsFor(Submission<TaskSQL> sub) {
+    public Submission tryToFixTagsFor(Submission sub) {
         List<Tag> tags = this.workSubmission.getNonStaticTags();
         List<Tag> faultyTags = sub.getNonStaticTags();
         if (faultyTags.isEmpty()) return null; //no tags at all
         if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
         if (!isSublistWithGaps(tags, faultyTags)) return null;
-        List<TaskSQL> tasks = fixedTaskList(sub, tags, faultyTags);
-        Submission<TaskSQL> newSub = new Submission<>(sub.getAuthors(), tasks, sub.getName());
+        List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
+        Submission newSub = new Submission(sub.getAuthors(), tasks, sub.getName());
         newSub.setCharset(sub.getCharset());
         newSub.setPath(sub.getPath());
         return newSub;

@@ -14,7 +14,6 @@ import de.unifrankfurt.dbis.Runner;
 import de.unifrankfurt.dbis.Submission.SQLScript;
 import de.unifrankfurt.dbis.Submission.Submission;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
-import de.unifrankfurt.dbis.Submission.TaskSQL;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import javafx.beans.value.ChangeListener;
@@ -430,7 +429,7 @@ public class HomeController implements Initializable {
      *
      * @param submission
      */
-    public void initAssignment(Submission<TaskSQL> submission) {
+    public void initAssignment(Submission submission) {
         initAssignment(Assignment.fromSubmission(submission));
     }
 
@@ -644,9 +643,9 @@ public class HomeController implements Initializable {
         Stage stageTemplate = new Stage();
         File template = templateChooser.showOpenDialog(stageTemplate);
         if (template == null) return;
-        Submission<TaskSQL> submission;
+        Submission submission;
         try {
-            submission = Submission.fromPath(template.toPath()).onlyTaskSQLSubmission();
+            submission = Submission.fromPath(template.toPath());
 
         } catch (IOException e) {
             System.err.println("Fehler beim Öffnen der Aufgabe.");
@@ -1007,6 +1006,7 @@ public class HomeController implements Initializable {
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         try {
+            //TODO should use io of Submission
             FileIO.saveText(file.toPath(), new SQLCheckerProject(this.GUIConfig, this.assignment)
                     .createSubmission().serialize());
         } catch (IOException e) {

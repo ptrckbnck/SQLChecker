@@ -49,7 +49,7 @@ public class SubmissionParserTest {
     public void tokenizer() throws IOException, SubmissionParseException {
         String path = "/home/xyntek/Dropbox/SQLChecker/Bewertung/Blatt1/Abgaben/Katja_Korolew_s6929499_rz.uni-frankfurt.de/6983419.txt";
         String toParse = Files.readString(Paths.get(path), StandardCharsets.ISO_8859_1);
-        System.out.println(SubmissionParser.parse(toParse, StandardCharsets.ISO_8859_1));
+        //TODO set assert
     }
 
 
@@ -60,7 +60,7 @@ public class SubmissionParserTest {
     public void parse() throws IOException, SubmissionParseException {
         TestResources.DBFitSubmissionData s = TestResources.getSubmissionWAuthor();
         List<String> a = Files.readAllLines(s.getPath());
-        Submission<Task> b = SubmissionParser.parseLines(a, StandardCharsets.ISO_8859_1);
+        Submission b = SubmissionParser.parseLines(a, StandardCharsets.ISO_8859_1);
         //System.out.println(b);
     }
 

@@ -7,7 +7,6 @@ package de.unifrankfurt.dbis.DBFit;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.Student;
 import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.TaskSQL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -48,7 +47,7 @@ public class ResultStorage {
      * @param submission
      * @param resultRaw
      */
-    public ResultStorage(Path root, Solution sol, Submission<TaskSQL> submission, String resultRaw) {
+    public ResultStorage(Path root, Solution sol, Submission submission, String resultRaw) {
         this(root,
                 submission.getPath(),
                 submission.getAuthors(),
@@ -64,7 +63,7 @@ public class ResultStorage {
      * @param submission
      * @param exception
      */
-    public ResultStorage(Path root, Solution sol, Submission<TaskSQL> submission, Exception exception) {
+    public ResultStorage(Path root, Solution sol, Submission submission, Exception exception) {
         this(root,
                 submission.getPath(),
                 submission.getAuthors(),
@@ -80,7 +79,7 @@ public class ResultStorage {
      * @param submission
      * @param exception
      */
-    public ResultStorage(Path root, int taskCount, Submission<TaskSQL> submission, Exception exception) {
+    public ResultStorage(Path root, int taskCount, Submission submission, Exception exception) {
         this(root,
                 submission.getPath(),
                 submission.getAuthors(),
