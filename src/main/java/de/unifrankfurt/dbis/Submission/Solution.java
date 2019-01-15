@@ -33,6 +33,17 @@ public class Solution {
      */
     private final String dbFitHtml;
 
+    private List<List<String>> resultHeaders;
+
+    public List<List<String>> getResultHeaders() {
+        return resultHeaders;
+    }
+
+    //TODO replace with constructor parameter
+    public void setResultHeaders(List<List<String>> resultHeaders) {
+        this.resultHeaders = resultHeaders;
+    }
+
 
     /**
      * submission from which this Solution File where generated from.
@@ -90,6 +101,7 @@ public class Solution {
      * @param submission
      * @return Html code for DBFIT parser
      */
+
     public String generateSurveyHTML(Submission submission) {
         String result = this.dbFitHtml;
         for (Tag tag : this.workSubmission.getTags()) {
@@ -107,7 +119,6 @@ public class Solution {
         CustomMySQLTest test = new CustomMySQLTest();
         test.connect(source);
         resetScript.execute(source);
-
         PrintStream err = System.err; // catch dbfit output
         System.setErr(null);
         test.doTables(p);
@@ -190,6 +201,13 @@ public class Solution {
         return true;
     }
 
+    public ResultStorage evaluate(Path root,
+                                  DataSource source,
+                                  SQLScript resetScript,
+                                  Submission submission
+    ) throws FitParseException, SQLException {
+        return evaluate(root, source, resetScript, submission, false);
+    }
     /**
      * runs DBFitTest to evaluate submission.
      *
@@ -204,13 +222,34 @@ public class Solution {
     public ResultStorage evaluate(Path root,
                                   DataSource source,
                                   SQLScript resetScript,
-                                  Submission submission)
+                                  Submission submission,
+                                  boolean verbose)
             throws SQLException, FitParseException {
         String html = this.generateSurveyHTML(submission);
+        if (verbose) {
+            System.out.println(html);
+        }
         Parse p = new Parse(html);
         Count count = runDBFitTest(source, resetScript, p);
         String parseResult = getParseResult(p);
-        return new ResultStorage(root, this, submission, parseResult);
+
+        List<List<String>> subHeaders = submission.generateResultHeaders(source);
+        List<Boolean> diff = diffResultHeaders(this.resultHeaders, subHeaders);
+
+        return new ResultStorage(root, this, submission, parseResult, diff);
+    }
+
+    private List<Boolean> diffResultHeaders(List<List<String>> resultHeaders, List<List<String>> subHeaders) {
+
+        ArrayList<Boolean> diff = new ArrayList<>();
+        for (int i = 0; i < resultHeaders.size(); i++) {
+            if (resultHeaders.size() != subHeaders.size()) {
+                diff.add(false);
+            } else {
+                diff.add(resultHeaders.get(i).equals(subHeaders.get(i)));
+            }
+        }
+        return diff;
     }
 
     public CSVCreator csvCreator() {
@@ -218,7 +257,7 @@ public class Solution {
                 .useAuthors()
                 .useMatrikelNr()
                 .useSolutionName()
-                .useAllStatus(this.getDBFitTags())
+                .useAllStatusWithSQLHeaderCheck(this.getDBFitTags())
                 .useSuccess()
                 .useEncoding()
                 .useErrorMsg();

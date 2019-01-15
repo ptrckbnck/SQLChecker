@@ -182,7 +182,7 @@ class SolutionTest {
 
     void evaluate() throws fit.exception.FitParseException, SQLException {
         Solution solution = new Solution(testsubmission, DBFitHtml);
-        ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, testsubmission);
+        ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, testsubmission, false);
         String csv = resultStorage.csv(solution.csvCreator());
         String expectedCsv = "\"test/submission.txt\"," +
                 " \"[foo foo@bar.de bar]\"," +
@@ -210,7 +210,7 @@ class SolutionTest {
                 "test_submission");
         submissionFail.setPath(Paths.get("/home/test/submission.txt"));
 
-        ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, submissionFail);
+        ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, submissionFail, false);
         String csv = resultStorage.csv(solution.csvCreator());
         String expectedCsv = "\"test/submission.txt\"," +
                 " \"[foo foo@bar.de bar]\"," +

@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.Submission;
 
 import de.unifrankfurt.dbis.IO.FileIO;
+import de.unifrankfurt.dbis.SQL.SQLResultWrapper;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
@@ -150,19 +151,21 @@ public class Submission {
 
 
     public Solution generateSolution(DataSource source) throws SQLException {
-        List<Task> sqlTasks = this.tasks;
         StringBuilder builder = new StringBuilder();
         try (Connection connection = source.getConnection()) {
             builder.append(generateDBFitHeader(source));
 
-            for (Task sql : sqlTasks) {
+            for (Task sql : this.tasks) {
                 try (Statement s = connection.createStatement()){
                     builder.append(sql.generateDBFitHtml(s));
+
                 } catch (SQLException e) {
                     throw new SQLException(e.getMessage()+". Error generating html of: " + sql.getTag().serialized(), e);
                 }
             }
-            return new Solution(this, builder.toString());
+            Solution sol = new Solution(this, builder.toString());
+            sol.setResultHeaders(sol.getSubmission().generateResultHeaders(source));
+            return sol;
         }
     }
 
@@ -284,4 +287,26 @@ public class Submission {
         return this.getTags().stream().map(Tag::getName).collect(Collectors.toList());
     }
 
+    /**
+     * inner lists are schema of tables. empty inner list if success but no table(create table etc.). null if sql-error
+     *
+     * @param source
+     * @return
+     * @throws SQLException
+     */
+    public List<List<String>> generateResultHeaders(DataSource source) throws SQLException {
+        List<List<String>> sqlHeaders = new ArrayList<>();
+        try (Connection connection = source.getConnection()) {
+            for (Task sql : this.tasks) {
+                try (Statement s = connection.createStatement()) {
+                    SQLResultWrapper result = SQLResultWrapper.executeStatement(s, sql.getSql());
+                    sqlHeaders.add(result.getHeader());
+                } catch (SQLException e) {
+                    sqlHeaders.add(null);
+                }
+            }
+        }
+
+        return sqlHeaders;
+    }
 }

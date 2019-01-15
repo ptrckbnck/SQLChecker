@@ -56,7 +56,8 @@ public class Evaluator {
                 throw new SQLException("ResetScript: " + e.getMessage(), e);
             }
 
-            sols.add(s.generateSolution(config.getDataSource()));
+            Solution sol = s.generateSolution(config.getDataSource());
+            sols.add(sol);
         }
         return sols;
     }
@@ -105,7 +106,7 @@ public class Evaluator {
         for (Solution sol : this.sols){
             ResultStorage evaluate;
             try {
-                evaluate = sol.evaluate(submissionsPath, source, resetScript, sub);
+                evaluate = sol.evaluate(submissionsPath, source, resetScript, sub, verbose);
                 if (verbose) {
                     System.out.println(evaluate.getReadableResult());
                 }

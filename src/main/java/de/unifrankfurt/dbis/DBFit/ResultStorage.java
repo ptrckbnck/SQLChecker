@@ -30,9 +30,10 @@ public class ResultStorage {
     private final Path root;
     private final Charset charset;
     private final String resultRaw;
+    private final List<Boolean> resultHeaderDiff;
 
 
-    private ResultStorage(Path root, Path submissionPath, List<Student> authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset, String resultRaw) {
+    ResultStorage(Path root, Path submissionPath, List<Student> authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset, String resultRaw, List<Boolean> resultHeaderDiff) {
         this.root = root;
         this.submissionPath = submissionPath;
         this.authors = Objects.requireNonNullElse(authors, List.of());
@@ -42,6 +43,7 @@ public class ResultStorage {
         this.resultRaw = Objects.requireNonNullElse(resultRaw, "");
         this.status = Objects.requireNonNullElse(status, Arrays.asList(new String[taskCount]));
         this.errorMsg = Objects.requireNonNullElse(errorMSG, "");
+        this.resultHeaderDiff = resultHeaderDiff;
     }
 
     /**
@@ -49,15 +51,19 @@ public class ResultStorage {
      * @param sol
      * @param submission
      * @param resultRaw
+     * @param diff
      */
-    public ResultStorage(Path root, Solution sol, Submission submission, String resultRaw) {
+    public ResultStorage(Path root, Solution sol, Submission submission, String resultRaw, List<Boolean> diff) {
         this(root,
                 submission.getPath(),
                 submission.getAuthors(),
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 ResultStorage.getStatusList(resultRaw),
-                null, submission.getCharset(), resultRaw);
+                null,
+                submission.getCharset(),
+                resultRaw,
+                diff);
     }
 
     /**
@@ -73,7 +79,9 @@ public class ResultStorage {
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 null,
-                exception.toString(), submission.getCharset(), null);
+                exception.toString(), submission.getCharset(),
+                null,
+                null);
     }
 
     /**
@@ -91,6 +99,7 @@ public class ResultStorage {
                 null,
                 exception.toString(),
                 submission.getCharset(),
+                null,
                 null);
     }
 
@@ -109,6 +118,7 @@ public class ResultStorage {
                 taskCount,
                 null,
                 exception.toString(),
+                null,
                 null,
                 null);
     }
@@ -139,6 +149,10 @@ public class ResultStorage {
 
     public Path getRoot() {
         return root;
+    }
+
+    public List<Boolean> getResultHeaderDiff() {
+        return resultHeaderDiff;
     }
 
     public static String generateReadableResult(String resultRaw) {

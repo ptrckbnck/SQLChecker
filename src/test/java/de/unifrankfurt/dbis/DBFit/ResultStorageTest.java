@@ -1,7 +1,13 @@
 package de.unifrankfurt.dbis.DBFit;
 
+import de.unifrankfurt.dbis.Submission.Student;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResultStorageTest {
@@ -67,4 +73,29 @@ class ResultStorageTest {
         assertTrue(readable.contains("CountryISO3166_2LetterCode"));
         assertTrue(readable.contains("st"));
     }
+
+    @Test
+    void csv() {
+        CSVCreator csvc = new CSVCreator().useSubmissionPath()
+                .useAuthors()
+                .useMatrikelNr()
+                .useSolutionName()
+                .useAllStatusWithSQLHeaderCheck(List.of("tag"))
+                .useSuccess()
+                .useEncoding()
+                .useErrorMsg();
+
+        ResultStorage rs = new ResultStorage(Paths.get("root"),
+                Paths.get("sub"),
+                List.of(new Student("name", "mail", "number")),
+                "solname",
+                1,
+                List.of("pass"),
+                null,
+                StandardCharsets.UTF_8,
+                resultRaw,
+                List.of(false));
+        assertEquals("../sub,[name mail number],number,solname,pass but schema diff,1,UTF-8,", rs.csv(csvc));
+    }
+
 }
