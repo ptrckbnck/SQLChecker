@@ -56,7 +56,7 @@ public class Evaluator {
                 throw new SQLException("ResetScript: " + e.getMessage(), e);
             }
 
-            Solution sol = s.generateSolution(config.getDataSource());
+            Solution sol = s.generateSolution(config.getDataSource(), resetScript);
             sols.add(sol);
         }
         return sols;

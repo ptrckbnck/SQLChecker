@@ -150,7 +150,7 @@ public class Submission {
     }
 
 
-    public Solution generateSolution(DataSource source) throws SQLException {
+    public Solution generateSolution(DataSource source, SQLScript resetScript) throws SQLException {
         StringBuilder builder = new StringBuilder();
         try (Connection connection = source.getConnection()) {
             builder.append(generateDBFitHeader(source));
@@ -164,6 +164,7 @@ public class Submission {
                 }
             }
             Solution sol = new Solution(this, builder.toString());
+            resetScript.execute(source);
             sol.setResultHeaders(sol.getSubmission().generateResultHeaders(source));
             return sol;
         }
@@ -302,6 +303,7 @@ public class Submission {
                     SQLResultWrapper result = SQLResultWrapper.executeStatement(s, sql.getSql());
                     sqlHeaders.add(result.getHeader());
                 } catch (SQLException e) {
+                    System.err.println(e);
                     sqlHeaders.add(null);
                 }
             }

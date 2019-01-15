@@ -225,22 +225,23 @@ public class Solution {
                                   Submission submission,
                                   boolean verbose)
             throws SQLException, FitParseException {
+        resetScript.execute(source);
+        List<List<String>> subHeaders = submission.generateResultHeaders(source);
+        List<Boolean> diff = diffResultHeaders(this.resultHeaders, subHeaders);
+
         String html = this.generateSurveyHTML(submission);
-        if (verbose) {
+        /*if (verbose) {
             System.out.println(html);
-        }
+        }*/
         Parse p = new Parse(html);
         Count count = runDBFitTest(source, resetScript, p);
         String parseResult = getParseResult(p);
 
-        List<List<String>> subHeaders = submission.generateResultHeaders(source);
-        List<Boolean> diff = diffResultHeaders(this.resultHeaders, subHeaders);
 
         return new ResultStorage(root, this, submission, parseResult, diff);
     }
 
     private List<Boolean> diffResultHeaders(List<List<String>> resultHeaders, List<List<String>> subHeaders) {
-
         ArrayList<Boolean> diff = new ArrayList<>();
         for (int i = 0; i < resultHeaders.size(); i++) {
             if (resultHeaders.size() != subHeaders.size()) {
