@@ -197,7 +197,6 @@ public class Solution {
      * @param source      Datasource
      * @param resetScript ResetScript
      * @param submission  Submission
-     * @param verbose     verbose Mode
      * @return ResultStorage
      * @throws SQLException
      * @throws FitParseException
@@ -205,18 +204,12 @@ public class Solution {
     public ResultStorage evaluate(Path root,
                                   DataSource source,
                                   SQLScript resetScript,
-                                  Submission submission,
-                                  boolean verbose)
+                                  Submission submission)
             throws SQLException, FitParseException {
         String html = this.generateSurveyHTML(submission);
         Parse p = new Parse(html);
         Count count = runDBFitTest(source, resetScript, p);
         String parseResult = getParseResult(p);
-
-        if (verbose) {
-            System.out.println(parseResult);
-            System.out.println(count);
-        }
         return new ResultStorage(root, this, submission, parseResult);
     }
 

@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.DBFit.ResultStorage;
 import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -110,8 +111,8 @@ public class Runner {
                 }
                 if (verbose){
                     for(Solution s :sol){
-                        System.out.println("DBFitHtml of "+ sol.toString());
-                        System.out.println(s.getDBFitHtml());
+                        System.out.println("Result of " + s.getName());
+                        System.out.println(ResultStorage.generateReadableResult(s.getDBFitHtml()));
                     }
                 }
                 if (verbose) System.out.println("run Evaluation----------------------------");

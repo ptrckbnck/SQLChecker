@@ -4,6 +4,7 @@ package de.unifrankfurt.dbis.DBFit;
  *
  */
 
+import de.unifrankfurt.dbis.SQL.SQLResultTable;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.Student;
 import de.unifrankfurt.dbis.Submission.Submission;
@@ -28,15 +29,17 @@ public class ResultStorage {
     private final int taskCount;
     private final Path root;
     private final Charset charset;
+    private final String resultRaw;
 
 
-    private ResultStorage(Path root, Path submissionPath, List<Student> authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset) {
+    private ResultStorage(Path root, Path submissionPath, List<Student> authors, String solutionName, int taskCount, List<String> status, String errorMSG, Charset charset, String resultRaw) {
         this.root = root;
         this.submissionPath = submissionPath;
         this.authors = Objects.requireNonNullElse(authors, List.of());
         this.solutionName = Objects.requireNonNullElse(solutionName, "unknown solution");
         this.taskCount = taskCount;
         this.charset = charset;
+        this.resultRaw = Objects.requireNonNullElse(resultRaw, "");
         this.status = Objects.requireNonNullElse(status, Arrays.asList(new String[taskCount]));
         this.errorMsg = Objects.requireNonNullElse(errorMSG, "");
     }
@@ -54,7 +57,7 @@ public class ResultStorage {
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 ResultStorage.getStatusList(resultRaw),
-                null, submission.getCharset());
+                null, submission.getCharset(), resultRaw);
     }
 
     /**
@@ -70,7 +73,7 @@ public class ResultStorage {
                 sol.getName(),
                 sol.getSubmission().getTags().size(),
                 null,
-                exception.toString(), submission.getCharset());
+                exception.toString(), submission.getCharset(), null);
     }
 
     /**
@@ -87,7 +90,8 @@ public class ResultStorage {
                 taskCount,
                 null,
                 exception.toString(),
-                submission.getCharset());
+                submission.getCharset(),
+                null);
     }
 
     /**
@@ -105,6 +109,7 @@ public class ResultStorage {
                 taskCount,
                 null,
                 exception.toString(),
+                null,
                 null);
     }
 
@@ -134,6 +139,58 @@ public class ResultStorage {
 
     public Path getRoot() {
         return root;
+    }
+
+    public static String generateReadableResult(String resultRaw) {
+        Document soup = Jsoup.parse(resultRaw);
+        Elements tables = soup.getElementsByTag("table");
+        StringBuilder builder = new StringBuilder();
+        List<Element> tableList = new ArrayList<>(tables);
+        for (Element table : tableList.subList(2, tableList.size())) {
+            Elements rows = table.getElementsByTag("tr");
+            List<Element> rowList = new ArrayList<>(rows);
+
+            Element type = rowList.get(0);
+            for (Element element : type.getElementsByTag("td")) {
+                builder.append(element.html()).append("\n");
+            }
+
+            if (rowList.size() == 1) {
+                builder.append("Empty Table\n\n");
+                continue;
+            }
+
+            List<String> header = new ArrayList<>();
+            for (Element attr : rowList.get(1).getElementsByTag("td")) {
+                header.add(attr.text());
+            }
+            List<List<String>> list = new ArrayList<>();
+            for (Element row : rowList.subList(2, rowList.size())) {
+                Elements cells = row.getElementsByTag("td");
+                List<String> listt = new ArrayList<>();
+                for (Element element : cells) {
+                    listt.add(element.html());
+                }
+                for (int i = listt.size(); i < header.size(); i++) {
+                    listt.add("<threshold reached>");
+                }
+                list.add(listt);
+            }
+
+            SQLResultTable resultTable = new SQLResultTable(header, list);
+            builder.append(resultTable.toString()).append("\n");
+
+
+        }
+        return builder.toString();
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public String getResultRaw() {
+        return resultRaw;
     }
 
     private static List<String> getStatusList(String rawHtml) {
@@ -195,21 +252,7 @@ public class ResultStorage {
         return csvc.create(this);
     }
 
-//
-//    private String csv(String path, String authors, String solutionName, List<String> status, int countPass, String errorMsg) {
-//        List<String> fullList = new ArrayList<>();
-//        fullList.add(path);
-//        fullList.add(authors);
-//        fullList.add(solutionName);
-//        fullList.addAll(status);
-//        fullList.add(String.valueOf(countPass));
-//        fullList.add(errorMsg);
-//        return fullList.stream()
-//                .collect(Collectors.joining("\", \"",
-//                        "\"",
-//                        "\""));
-//
-//    }
+
 
     /**
      * method for comparing results of evaluation. prefers results with more passes. Modify if needed.
@@ -231,22 +274,6 @@ public class ResultStorage {
 
     }
 
-//    public String createCSV() {
-//        List<String> statusTemp;
-//        if (this.taskCount != this.status.size()) {
-//            statusTemp = Arrays.asList(new String[taskCount]);
-//        } else {
-//            statusTemp = status;
-//        }
-//        String path;
-//        if (Objects.isNull(submissionPath)) {
-//            path = "unknown";
-//        } else {
-//            path = (root.getParent().relativize(submissionPath).toString());
-//        }
-//        return csv(path, authors, solutionName, statusTemp, getCountPass(status), errorMsg);
-//
-//    }
 
     public int getCountPass(List<String> status) {
         return Collections.frequency(status, "pass");
@@ -269,4 +296,7 @@ public class ResultStorage {
                         "]"));
     }
 
+    public String getReadableResult() {
+        return ResultStorage.generateReadableResult(resultRaw);
+    }
 }
