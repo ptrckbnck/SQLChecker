@@ -299,6 +299,7 @@ public class Submission {
         List<List<String>> sqlHeaders = new ArrayList<>();
         try (Connection connection = source.getConnection()) {
             for (Task sql : this.tasks) {
+                if (sql.isStatic()) continue;
                 try (Statement s = connection.createStatement()) {
                     SQLResultWrapper result = SQLResultWrapper.executeStatement(s, sql.getSql());
                     sqlHeaders.add(result.getHeader());
@@ -308,7 +309,6 @@ public class Submission {
                 }
             }
         }
-
         return sqlHeaders;
     }
 }

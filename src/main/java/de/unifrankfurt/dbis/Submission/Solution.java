@@ -243,11 +243,21 @@ public class Solution {
 
     private List<Boolean> diffResultHeaders(List<List<String>> resultHeaders, List<List<String>> subHeaders) {
         ArrayList<Boolean> diff = new ArrayList<>();
-        for (int i = 0; i < resultHeaders.size(); i++) {
-            if (resultHeaders.size() != subHeaders.size()) {
+        List<Tag> tags = this.getSubmission().getTags();
+        boolean error = false;
+        if (resultHeaders.size() != this.getSubmission().getNonStaticTags().size()) error = true;
+        if (subHeaders.size() != resultHeaders.size()) error = true;
+        int count = 0;
+        for (Tag tag : tags) {
+            if (error) {
                 diff.add(false);
             } else {
-                diff.add(resultHeaders.get(i).equals(subHeaders.get(i)));
+                if (tag.isStatic()) {
+                    diff.add(true);
+                } else {
+                    diff.add(resultHeaders.get(count).equals(subHeaders.get(count)));
+                    count++;
+                }
             }
         }
         return diff;
