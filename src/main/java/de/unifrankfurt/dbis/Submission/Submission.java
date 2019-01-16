@@ -304,7 +304,6 @@ public class Submission {
                     SQLResultWrapper result = SQLResultWrapper.executeStatement(s, sql.getSql());
                     sqlHeaders.add(result.getHeader());
                 } catch (SQLException e) {
-                    System.err.println(e);
                     sqlHeaders.add(null);
                 }
             }
