@@ -50,10 +50,15 @@ public class CSVCreator {
     }
 
     public CSVCreator useAuthors() {
-        Function<ResultStorage, String> f = x -> String.valueOf(x.getAuthors());
+        Function<ResultStorage, String> f = x -> csvAuthors(x.getAuthors());
         this.functions.add(f);
         this.header.add("Authors");
         return this;
+    }
+
+    private String csvAuthors(List<Student> authors) {
+        if (Objects.isNull(authors)) return "unknown";
+        return authors.stream().map(Student::toString).collect(Collectors.joining("; "));
     }
 
     public CSVCreator useSolutionName() {

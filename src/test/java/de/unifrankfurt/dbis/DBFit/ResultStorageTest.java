@@ -95,7 +95,7 @@ class ResultStorageTest {
                 StandardCharsets.UTF_8,
                 resultRaw,
                 List.of(false));
-        assertEquals("../sub,[name mail number],number,solname,pass but schema diff,1,UTF-8,", rs.csv(csvc));
+        assertEquals("../sub,name mail number,number,solname,pass but schema diff,1,UTF-8,", rs.csv(csvc));
     }
 
 }
