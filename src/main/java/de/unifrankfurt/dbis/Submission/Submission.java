@@ -163,10 +163,9 @@ public class Submission {
                     throw new SQLException(e.getMessage()+". Error generating html of: " + sql.getTag().serialized(), e);
                 }
             }
-            Solution sol = new Solution(this, builder.toString());
-            resetScript.execute(source);
-            sol.setResultHeaders(sol.getSubmission().generateResultHeaders(source));
-            return sol;
+            return new Solution(this,
+                    builder.toString(),
+                    generateResultHeaders(source, resetScript));
         }
     }
 
@@ -292,10 +291,12 @@ public class Submission {
      * inner lists are schema of tables. empty inner list if success but no table(create table etc.). null if sql-error
      *
      * @param source
+     * @param resetScript
      * @return
      * @throws SQLException
      */
-    public List<List<String>> generateResultHeaders(DataSource source) throws SQLException {
+    public List<List<String>> generateResultHeaders(DataSource source, SQLScript resetScript) throws SQLException {
+        resetScript.execute(source);
         List<List<String>> sqlHeaders = new ArrayList<>();
         try (Connection connection = source.getConnection()) {
             for (Task sql : this.tasks) {

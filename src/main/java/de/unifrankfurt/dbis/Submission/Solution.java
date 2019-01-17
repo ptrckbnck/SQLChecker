@@ -35,14 +35,8 @@ public class Solution {
 
     private List<List<String>> resultHeaders;
 
-    public List<List<String>> getResultHeaders() {
-        return resultHeaders;
-    }
 
-    //TODO replace with constructor parameter
-    public void setResultHeaders(List<List<String>> resultHeaders) {
-        this.resultHeaders = resultHeaders;
-    }
+
 
 
     /**
@@ -50,9 +44,22 @@ public class Solution {
      */
 
 
-    public Solution(Submission submission, String dbFitHtml) {
+    public Solution(Submission submission, String dbFitHtml, List<List<String>> resultHeaders) {
         this.workSubmission = submission;
         this.dbFitHtml = dbFitHtml;
+        this.resultHeaders = resultHeaders;
+    }
+
+    public List<List<String>> getResultHeaders() {
+        return resultHeaders;
+    }
+
+    public String getDBFitHtml() {
+        return dbFitHtml;
+    }
+
+    public Submission getSubmission() {
+        return workSubmission;
     }
 
     protected static List<Task> fixedTaskList(Submission sub, List<Tag> tags, List<Tag> faultyTags) {
@@ -70,9 +77,6 @@ public class Solution {
         return tasks;
     }
 
-    public String getDBFitHtml() {
-        return dbFitHtml;
-    }
 
 
     /**
@@ -84,9 +88,6 @@ public class Solution {
         return this.workSubmission.getTagStrings();
     }
 
-    public Submission getSubmission() {
-        return workSubmission;
-    }
 
     public String getName() {
         return this.workSubmission.getName();
@@ -226,7 +227,7 @@ public class Solution {
                                   boolean verbose)
             throws SQLException, FitParseException {
         resetScript.execute(source);
-        List<List<String>> subHeaders = submission.generateResultHeaders(source);
+        List<List<String>> subHeaders = submission.generateResultHeaders(source, resetScript);
         List<Boolean> diff = diffResultHeaders(this.resultHeaders, subHeaders);
 
         String html = this.generateSurveyHTML(submission);

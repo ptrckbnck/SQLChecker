@@ -21,7 +21,7 @@ public class SolutionTest {
 
         TestResources.Simple simple = TestResources.Simple.getInstance();
         Submission submission = simple.getSubmission();
-        Solution solution = new Solution(submission,simple.getDbFitHtml());
+        Solution solution = new Solution(submission, simple.getDbFitHtml(), null);
         assertEquals(submission,solution.getSubmission());
         assertEquals(simple.getDbFitHtml(),solution.getDBFitHtml());
 
@@ -38,7 +38,7 @@ public class SolutionTest {
     public void generateSurveyHTML() throws IOException, SubmissionParseException {
         TestResources.Simple simple = TestResources.Simple.getInstance();
         Submission submission = simple.getSubmission();
-        Solution solution = new Solution(submission,simple.getDbFitHtml());
+        Solution solution = new Solution(submission, simple.getDbFitHtml(), null);
         String a = solution.generateSurveyHTML(submission);
         assertTrue(a.contains("<table>\n" +
                 "\t<tr>\n" +

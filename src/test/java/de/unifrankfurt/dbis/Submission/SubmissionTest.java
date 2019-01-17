@@ -35,7 +35,7 @@ public class SubmissionTest {
 
     @Test
     void generateResultHeaders() throws SQLException {
-        List<List<String>> headers = testsubmission.generateResultHeaders(source);
+        List<List<String>> headers = testsubmission.generateResultHeaders(source, resetScript);
         List<List<String>> list = new ArrayList<>();
         list.add(List.of("a"));
         list.add(List.of("2"));

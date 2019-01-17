@@ -191,7 +191,7 @@ public class TestResources {
 
                 solution = new Solution(
                         getSubmission(),
-                        lines.collect(Collectors.joining("/n")));
+                        lines.collect(Collectors.joining("/n")), null);
             }
             return solution;
         }
