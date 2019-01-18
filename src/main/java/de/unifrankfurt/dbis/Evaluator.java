@@ -75,7 +75,12 @@ public class Evaluator {
     public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
         List<ResultStorage> resultStorages = new ArrayList<>();
         List<Submission> subs = loadSubmissions(submissionsPath, resultStorages);
+        int i = 1;
+        int count_digits = ((int) Math.log10(subs.size())) + 1;
         for (Submission sub : subs) {
+            if (verbose) {
+                System.err.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
+            }
             runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
         }
         return new Report(resultStorages, this.sols.get(0).csvCreator());
