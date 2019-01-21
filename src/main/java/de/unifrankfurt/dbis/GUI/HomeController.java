@@ -80,7 +80,7 @@ public class HomeController implements Initializable {
     public MenuItem runAllMenuItem;
     public MenuItem exportMenuItem;
     public Label version;
-
+    public Button testButton;
 
 
     //database
@@ -158,19 +158,18 @@ public class HomeController implements Initializable {
         System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
         console.setFont(Font.font("monospaced"));
 
-
+        //init tasks
         CODEPANE.getStylesheets().add("/sql.css");
-
         codeAreas = new ArrayList<>();
-
-
         taskListView.setEditable(false);
         taskListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        //
 
         version.setText("Version " + Runner.getVersion());
 
         initConfig(null);
         updateMenu();
+
 
         //Config Fields listener
 
@@ -180,20 +179,23 @@ public class HomeController implements Initializable {
                 this.updateConfig();
             }
         };
-        databaseTextField.focusedProperty().addListener(configChangeListener);
-        usernameTextField.focusedProperty().addListener(configChangeListener);
-        passwordTextField.focusedProperty().addListener(configChangeListener);
-        hostTextField.focusedProperty().addListener(configChangeListener);
-        portTextField.focusedProperty().addListener(configChangeListener);
-        resetScriptPathTextField.focusedProperty().addListener(configChangeListener);
-        nameStudentTextField.focusedProperty().addListener(configChangeListener);
-        matNrTextField.focusedProperty().addListener(configChangeListener);
-        emailTextField.focusedProperty().addListener(configChangeListener);
-        gemeinschaftsabgabenCheckBox.focusedProperty().addListener(configChangeListener);
-        namePartnerTextField.focusedProperty().addListener(configChangeListener);
-        matNrPartnerTextField.focusedProperty().addListener(configChangeListener);
-        emailPartnerTextField.focusedProperty().addListener(configChangeListener);
-        timezoneTextField.focusedProperty().addListener(configChangeListener);
+
+        for (Control control : List.of(databaseTextField,
+                usernameTextField,
+                passwordTextField,
+                hostTextField,
+                portTextField,
+                resetScriptPathTextField,
+                nameStudentTextField,
+                matNrTextField,
+                emailTextField,
+                gemeinschaftsabgabenCheckBox,
+                namePartnerTextField,
+                matNrPartnerTextField,
+                emailPartnerTextField,
+                timezoneTextField)) {
+            control.focusedProperty().addListener(configChangeListener);
+        }
 
 
         ContextMenu cm = new ContextMenu();
@@ -253,7 +255,7 @@ public class HomeController implements Initializable {
                 .successionEnds(Duration.ofMillis(500))
                 .subscribe(ignore -> {
                             if (getSelectedTask() != null)
-                                this.assignment.putCodeMap(getSelectedTask(), codeArea.getText());
+                                this.assignment.setCode(getSelectedIndex(), codeArea.getText());
                         }
                 );
 
@@ -401,9 +403,9 @@ public class HomeController implements Initializable {
             this.taskListView.setItems(FXCollections.observableArrayList(new ArrayList<>()));
             setProjectPath(null); //implicit updateMenu()
         } else {
-            for (String task : assignment.getTasks()) {
+            for (int i = 0; i < assignment.getTasks().size(); i++) {
                 VirtualizedScrollPane<CodeArea> newPane = new VirtualizedScrollPane<>(initCodeArea());
-                newPane.getContent().replaceText(assignment.getCodeMap().get(task));
+                newPane.getContent().replaceText(assignment.getCodeOf(i));
                 newPane.getContent().getUndoManager().forgetHistory();
                 codeAreas.add(newPane);
             }
@@ -422,6 +424,7 @@ public class HomeController implements Initializable {
         this.activeCodeArea = codeArea;
         this.runButton.setDisable(codeArea == null);
         this.runMenuItem.setDisable(codeArea == null);
+        this.testButton.setDisable(codeArea == null);
     }
 
     /**
@@ -476,7 +479,7 @@ public class HomeController implements Initializable {
     public void taskSelected(MouseEvent mouseEvent) {
         String task = getSelectedTask();
         if (task == null) return;
-        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(assignment.getTasks().indexOf(task));
+        VirtualizedScrollPane<CodeArea> codeAreaVirtualizedScrollPane = codeAreas.get(getSelectedIndex());
         setActiveCodeArea(codeAreaVirtualizedScrollPane.getContent());
         this.CODEPANE.setCenter(codeAreaVirtualizedScrollPane);
         this.activeCodeArea.requestFocus();
@@ -490,6 +493,10 @@ public class HomeController implements Initializable {
         return taskListView.getSelectionModel().getSelectedItem();
     }
 
+    public int getSelectedIndex() {
+        return taskListView.getSelectionModel().getSelectedIndex();
+    }
+
     /**
      * Save project to given Path,
      *
@@ -499,7 +506,7 @@ public class HomeController implements Initializable {
     public void saveProject(Path path) throws IOException {
         if (Objects.nonNull(this.assignment)) {
             IntStream.range(0, this.assignment.getTasks().size()).forEach((i) -> {
-                this.assignment.putCodeMap(this.assignment.getTasks().get(i), this.codeAreas.get(i).getContent().getText());
+                this.assignment.setCode(i, this.codeAreas.get(i).getContent().getText());
             });
         }
         Files.write(path,
@@ -797,8 +804,12 @@ public class HomeController implements Initializable {
     }
 
     private boolean projectOK(SQLCheckerProject project) {
-        return Objects.nonNull(project) &&
-                Objects.nonNull(project.getAssignment()) &&
+        if (Objects.isNull(project)) return false;
+        Assignment assi = project.getAssignment();
+        return Objects.nonNull(assi) &&
+                Objects.nonNull(assi.getTasks()) &&
+                Objects.nonNull(assi.getName()) &&
+                Objects.nonNull(assi.getCodes()) &&
                 Objects.nonNull(project.getGUIConfig());
     }
 
@@ -973,9 +984,9 @@ public class HomeController implements Initializable {
         new Thread(new Task<>() {
             @Override
             protected Object call() {
-                for (String task : assignment.getTasks()) {
+                for (int i = 0; i < assignment.getTasks().size(); i++) {
                     try {
-                        runCode(task, assignment.getCodeMap().get(task)).join();
+                        runCode(assignment.getTasks().get(i), assignment.getCodeOf(i)).join();
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -1013,5 +1024,17 @@ public class HomeController implements Initializable {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }
 
+    }
+
+    public void runTaskTest(ActionEvent actionEvent) {
+        String sql = this.activeCodeArea.getText();
+        SQLTester tester = new SQLTester(this.GUIConfig, sql, schemaOfActiveTask(), verbose);
+        Thread t = new Thread(tester);
+        System.out.println("Teste Schema von '" + getSelectedTask() + "':");
+        t.start();
+    }
+
+    public List<String> schemaOfActiveTask() {
+        return this.assignment.getSchemata().get(getSelectedIndex());
     }
 }

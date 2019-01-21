@@ -69,14 +69,12 @@ public class SubmissionParser {
      *
      * @param lines List of String which contains the serialized Submission
      * @return Submission created
-     * @throws SubmissionParseException when something went wring while parsing.
      */
-    public static Submission parseLines(List<String> lines, Charset cs)
-            throws SubmissionParseException {
+    public static Submission parseLines(List<String> lines, Charset cs) {
         return parse(String.join("\n", lines), cs);
     }
 
-    public static Submission parse(String toParse, Charset cs) throws SubmissionParseException {
+    public static Submission parse(String toParse, Charset cs) {
         ArrayList<Task> tasks = new ArrayList<>();
         List<Student> authors = null;
         String name = "no_name_found";
@@ -115,13 +113,9 @@ public class SubmissionParser {
      *
      * @param token SubmissionToken
      * @return a newly created Task
-     * @throws SubmissionParseException if parsing went wrong
      */
-    public static Task fromToken(SubmissionToken token) throws SubmissionParseException {
-        if (token.getTag().getPlugin() == null) {
-            return Task.parseToken(token);
-        }
-        throw new SubmissionParseException(SubmissionParseException.ErrorType.UNKNOWN_PLUGIN);
+    public static Task fromToken(SubmissionToken token) {
+        return Task.parseToken(token);
     }
 
 

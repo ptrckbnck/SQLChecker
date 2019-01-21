@@ -5,8 +5,8 @@ import de.unifrankfurt.dbis.Submission.*;
 import de.unifrankfurt.dbis.config.GUIConfig;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * class for maintaining all data in of serialising for a project.
@@ -56,12 +56,16 @@ public class SQLCheckerProject {
      * @return
      */
     public Submission createSubmission() {
-        Map<String, String> map = assignment.getCodeMap();
-        List<Task> tasks = assignment.getTasks()
-                .stream()
-                .map((key) -> Task.parseToken(
-                        new SubmissionTokenBuilder().setTag(new Tag(key)).setBody(map.get(key)).createSubmissionToken())).collect(Collectors.toList());
-        return new Submission(studentList(), tasks, assignment.getName());
+        List<String> codes = assignment.getCodes();
+        List<String> tasks = assignment.getTasks();
+        List<Task> list = IntStream.range(0, tasks.size())
+                .mapToObj(i -> Task.parseToken(
+                        new SubmissionTokenBuilder().
+                                setTag(new Tag(tasks.get(i)))
+                                .setBody(codes.get(i))
+                                .createSubmissionToken()))
+                .collect(Collectors.toList());
+        return new Submission(studentList(), list, assignment.getName());
     }
 
 }

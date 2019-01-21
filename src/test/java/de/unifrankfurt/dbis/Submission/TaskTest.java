@@ -8,7 +8,7 @@ class TaskTest {
 
     @Test
     void sqlWOComment() {
-        TaskNonCallable task = new TaskNonCallable(Tags.get("tag"), "-- test\n" +
+        TaskSQL task = new TaskSQL(Tags.get("tag"), null, "-- test\n" +
                 "#test\n" +
                 "/*test\n" +
                 "test2*/\n" +
@@ -18,28 +18,28 @@ class TaskTest {
 
     @Test
     void sqlWOComment2() {
-        TaskNonCallable task = new TaskNonCallable(Tags.get("tag"), "-- test\n" +
+        TaskSQL task = new TaskSQL(Tags.get("tag"), null, "-- test\n" +
                 "sql -- test");
         assertEquals("sql", task.sqlWOComment());
     }
 
     @Test
     void sqlWOComment3() {
-        TaskNonCallable task = new TaskNonCallable(Tags.get("tag"), "-- test\n" +
+        TaskSQL task = new TaskSQL(Tags.get("tag"), null, "-- test\n" +
                 "sql #test");
         assertEquals("sql", task.sqlWOComment());
     }
 
     @Test
     void sqlWOComment4() {
-        TaskNonCallable task = new TaskNonCallable(Tags.get("tag"), "-- test\n" +
+        TaskSQL task = new TaskSQL(Tags.get("tag"), null, "-- test\n" +
                 "sql /*test */");
         assertEquals("sql", task.sqlWOComment());
     }
 
     @Test
     void sqlWOComment5() {
-        TaskNonCallable task = new TaskNonCallable(Tags.get("tag"), "-- test\n" +
+        TaskSQL task = new TaskSQL(Tags.get("tag"), null, "-- test\n" +
                 "sql \n" +
                 "sql2 # test\n" +
                 "sql3 -- test\n" +

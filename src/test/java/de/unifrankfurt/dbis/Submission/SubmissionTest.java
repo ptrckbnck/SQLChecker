@@ -21,10 +21,10 @@ public class SubmissionTest {
     static void setUp() {
         List<Student> students = List.of(new Student("foo", "bar", "foo@bar.de"));
 
-        Task task1 = new TaskNonCallable(new Tag("Aufgabe1"), "/* comment1 */\nSELECT '1' as 'a';");
-        Task task2 = new TaskNonCallable(new Tag("Aufgabe2"), "/* comment2 */\nSELECT '2';");
-        Task task3 = new TaskNonCallable(new Tag("Aufgabe3"), "/* comment3 */\ncreate table if not exists testtable(id int);");
-        Task task4 = new TaskNonCallable(new Tag("Aufgabe3"), "/* comment4 */\n...");
+        Task task1 = new TaskSQL(new Tag("Aufgabe1"), null, "/* comment1 */\nSELECT '1' as 'a';");
+        Task task2 = new TaskSQL(new Tag("Aufgabe2"), null, "/* comment2 */\nSELECT '2';");
+        Task task3 = new TaskSQL(new Tag("Aufgabe3"), null, "/* comment3 */\ncreate table if not exists testtable(id int);");
+        Task task4 = new TaskSQL(new Tag("Aufgabe3"), null, "/* comment4 */\n...");
         List<Task> tasks = List.of(task1, task2, task3, task4);
         testsubmission = new Submission(students, tasks, "test_submission");
         testsubmission.setPath(Paths.get("/home/test/submission.txt"));

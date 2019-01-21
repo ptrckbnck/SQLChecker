@@ -18,13 +18,6 @@ import java.util.stream.Stream;
 public class TestResources {
 
 
-    @Deprecated
-    public static DBFitSubmissionData getSimple() {
-        Path path = resourcePath("/test/simple/raw_simple.txt");
-        Submission sub = simpleSubmission();
-        return new DBFitSubmissionData(path, sub, "");
-    }
-
     private static Path resourcePath(String path){
         try {
             URI p = TestResources.class.getResource(path).toURI();
@@ -85,48 +78,20 @@ public class TestResources {
                 "chk.allowstatic=true\n";
     }
 
-    @Deprecated
-    private static Submission simpleSubmission() {
-        List<Task> taskList = new ArrayList<>();
-        taskList.add(new TaskNonCallable(new Tag("1a"),
-                "INSERT INTO simple.color (name,red,green,blue) VALUES\n" +
-                "('magenta', 255, 0, 255),\n" +
-                "('cyan', 0, 255, 255),\n" +
-                "('yellow', 255, 255, 0);"));
-        taskList.add(new TaskNonCallable(new Tag("1b"),
-                "CREATE TABLE `simple`.`animal` (\n" +
-                        "`name` VARCHAR(45) NOT NULL,\n" +
-                        "`genus` VARCHAR(45) NOT NULL,\n" +
-                        "`species` VARCHAR(45) NOT NULL,\n" +
-                        "PRIMARY KEY (`name`)\n" +
-                        ");\n"));
-        taskList.add(new TaskNonCallable(new Tag("1c"),
-                "ALTER TABLE `simple`.`animal`\n" +
-                "ADD COLUMN `family` VARCHAR(45) NOT NULL AFTER `name`;\n"));
-        taskList.add(new TaskNonCallable(new Tag("1d"),
-                "INSERT INTO `simple`.`animal` (`name`, `family`, `genus`, `species`) VALUES\n" +
-                "('Tiger', 'Felidae', 'Panthera', 'P. tigris');\n"));
-        taskList.add(new TaskNonCallable(new Tag("2a"),
-                "/*Welche Farben beinhalten rot?*/\n" +
-                "select c.name from color c where c.red > 0;\n"));
-        taskList.add(new TaskNonCallable(new Tag("2b"),
-                "/*alle tiere*/\n" +
-                "select a.name from animal a;\n"));
-        return new Submission(taskList, "submission");
-    }
+
 
     public static DBFitSubmissionData getSubmissionWAuthor(){
         Path path = resourcePath("/test/submission/wAuthor.txt");
         List<Task> taskList = new ArrayList<>();
         taskList.add(
-                new TaskNonCallable(
+                new TaskSQL(
                         Tags.get("tag"),
-                        "/* this is comment */\n" +
+                        null, "/* this is comment */\n" +
                                 "Select * from * ;"));
         taskList.add(
-                new TaskNonCallable(
+                new TaskSQL(
                         new Tag("tag2"),
-                        "/* this is comment 2*/\n" +
+                        null, "/* this is comment 2*/\n" +
                         "SELECT USER(), DATABASE() ;"));
         List<Student> students = new ArrayList<>();
         students.add(new Student("foo","bar","test@test.de"));

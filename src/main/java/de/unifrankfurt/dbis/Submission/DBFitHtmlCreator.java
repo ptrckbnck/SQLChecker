@@ -19,7 +19,7 @@ abstract public class DBFitHtmlCreator {
      * @return String DBFit-Html
      * @throws SQLException if something went wrong with database connection.
      */
-    public static String htmlCreateNonCallable(TaskNonCallable task, Statement statement) throws SQLException {
+    public static String htmlCreateNonCallable(TaskSQL task, Statement statement) throws SQLException {
         {
             StringBuilder html = new StringBuilder();
             String tableHtml;

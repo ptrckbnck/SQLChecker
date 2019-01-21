@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static de.unifrankfurt.dbis.Submission.Task.parseSchema;
+
 /**
  * represents DBFIT Solution File
  */
@@ -70,7 +72,7 @@ public class Solution {
             if (faultyTags.contains(curTag)) {
                 newTask = sub.getTaskByTag(curTag);
             } else {
-                newTask = new TaskNonCallable(curTag, "tag missing");
+                newTask = new TaskSQL(curTag, parseSchema(tags.get(i).getAddition()), "tag missing");
             }
             tasks.add(newTask);
         }

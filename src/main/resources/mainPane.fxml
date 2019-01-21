@@ -100,6 +100,9 @@
                                                                 text="Speichern"/>
                                                         <Button fx:id="runButton" disable="true" mnemonicParsing="false"
                                                                 onAction="#runTaskCode" text="Ausführen"/>
+                                                        <Button fx:id="testButton" disable="true"
+                                                                mnemonicParsing="false" onAction="#runTaskTest"
+                                                                text="Test"/>
                                                         <Button fx:id="undoButton" disable="true"
                                                                 mnemonicParsing="false" onAction="#undo"
                                                                 text="Rückgängig"/>
@@ -109,6 +112,7 @@
                                                         <Button fx:id="resetButton" mnemonicParsing="false"
                                                                 onAction="#handleResetDatabase"
                                                                 text="Datenbank Rücksetzen"/>
+
                                                     </items>
                                                 </ToolBar>
                                             </top>

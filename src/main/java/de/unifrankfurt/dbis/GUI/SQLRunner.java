@@ -20,10 +20,10 @@ public class SQLRunner extends Task<Integer> {
     public SQLRunner(GUIConfig guiConfig, String sql, boolean verbose) {
         this.guiConfig = guiConfig;
         this.sql = sql;
-        this.setOnFailed(getDefaultEventHandler(this, guiConfig, "Ausführen des Codes fehlgeschlagen.", verbose));
+        this.setOnFailed(getDefaultEventHandler(this, "Ausführen des Codes fehlgeschlagen.", verbose));
     }
 
-    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task<Integer> task, GUIConfig config, String errorMessage, Boolean verbose) {
+    public static EventHandler<WorkerStateEvent> getDefaultEventHandler(Task<Integer> task, String errorMessage, Boolean verbose) {
         return (x) -> {
             System.err.println(errorMessage);
             if (SQLException.class.isAssignableFrom(task.getException().getClass())) {

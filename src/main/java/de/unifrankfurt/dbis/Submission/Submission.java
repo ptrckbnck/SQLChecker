@@ -311,4 +311,12 @@ public class Submission {
         }
         return sqlHeaders;
     }
+
+    //implies all Task are TaskSQL //TODO fix
+    public List<List<String>> getSchemata() {
+        return this.getTasks()
+                .stream()
+                .map(x -> ((TaskSQL) x).getSchema())
+                .collect(Collectors.toList());
+    }
 }

@@ -26,8 +26,8 @@ class SolutionTest {
     static void setUp() {
         List<Student> students = List.of(new Student("foo", "bar", "foo@bar.de"));
 
-        Task task1 = new TaskNonCallable(new Tag("Aufgabe1"), "/* comment1 */\nSELECT '1';");
-        Task task2 = new TaskNonCallable(new Tag("Aufgabe2"), "/* comment2 */\nSELECT '2';");
+        Task task1 = new TaskSQL(new Tag("Aufgabe1"), null, "/* comment1 */\nSELECT '1';");
+        Task task2 = new TaskSQL(new Tag("Aufgabe2"), null, "/* comment2 */\nSELECT '2';");
 
         List<Task> tasks = List.of(task1, task2);
         testsubmission = new Submission(students, tasks, "test_submission");
@@ -205,8 +205,8 @@ class SolutionTest {
         Solution solution = new Solution(testsubmission, DBFitHtml, null);
         Submission submissionFail = new Submission(List.of(new Student("foo", "bar", "foo@bar.de")),
                 List.of(
-                        new TaskNonCallable(Tags.get("Aufgabe1"), "-- comment1\nSELECT '1';"),
-                        new TaskNonCallable(Tags.get("Aufgabe2"), "-- comment2\nSELECT 'FAIL' as '2';")),
+                        new TaskSQL(Tags.get("Aufgabe1"), null, "-- comment1\nSELECT '1';"),
+                        new TaskSQL(Tags.get("Aufgabe2"), null, "-- comment2\nSELECT 'FAIL' as '2';")),
                 "test_submission");
         submissionFail.setPath(Paths.get("/home/test/submission.txt"));
 
@@ -320,14 +320,14 @@ class SolutionTest {
     @Test
     void fixedTaskList() {
         Submission sub = new Submission(List.of(new Student("a", "b", "c")),
-                List.of(new TaskNonCallable(new Tag("tag1"), "-- comment1\nsql1"),
-                        new TaskNonCallable(new Tag("tag3"), "-- comment3\nsql3")), "name");
+                List.of(new TaskSQL(new Tag("tag1"), "-- comment1\nsql1"),
+                        new TaskSQL(new Tag("tag3"), "-- comment3\nsql3")), "name");
         List<Task> newList = Solution.fixedTaskList(sub,
                 List.of(new Tag("tag1"), new Tag("tag2"), new Tag("tag3")),
                 List.of(new Tag("tag1"), new Tag("tag3")));
-        List<Task> expectedList = List.of(new TaskNonCallable(new Tag("tag1"), "-- comment1\nsql1"),
-                new TaskNonCallable(new Tag("tag2"), "tag missing"),
-                new TaskNonCallable(new Tag("tag3"), "-- comment3\nsql3"));
+        List<Task> expectedList = List.of(new TaskSQL(new Tag("tag1"), "-- comment1\nsql1"),
+                new TaskSQL(new Tag("tag2"), "tag missing"),
+                new TaskSQL(new Tag("tag3"), "-- comment3\nsql3"));
         assertEquals(expectedList, newList);
     }
 

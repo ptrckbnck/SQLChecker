@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class SubmissionParserTest {
 
     String test = "/*authors*/\n" +
@@ -52,6 +54,35 @@ public class SubmissionParserTest {
         //TODO set assert
     }
 
+    @Test
+    public void tokenizerTemplate() {
+        List<SubmissionToken> a = SubmissionParser.tokenizer("/*submission_name*/\n" +
+                "Blatt4\n" +
+                "\n" +
+                "/*1a*/\n" +
+                "/* Kommentar zu Aufgabe 1a\n" +
+                "ueber mehrere Zeilen */\n" +
+                "...\n" +
+                "\n" +
+                "/*1b*/\n" +
+                "-- Kommentar zu Aufgabe 1b\n" +
+                "...\n" +
+                "\n" +
+                "/*2a*/\n" +
+                "-- Kommentar zu Aufgabe 1c\n" +
+                "...\n" +
+                "\n" +
+                "/*2b*/\n" +
+                "-- Kommentar \n" +
+                "...\n" +
+                "/*2c*/\n" +
+                "-- Kommentar \n" +
+                "...\n" +
+                "/*2d*/\n" +
+                "-- Kommentar \n" +
+                "...");
+        assertEquals(a.get(0).getTag(), new Tag("submission_name"));
+    }
 
     public void parseAuthor() {
     }
@@ -72,7 +103,4 @@ public class SubmissionParserTest {
     public void splitBody() {
     }
 
-    @Test
-    void tokenizer1() {
-    }
 }

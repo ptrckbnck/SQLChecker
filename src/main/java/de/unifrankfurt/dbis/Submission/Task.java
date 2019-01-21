@@ -2,9 +2,11 @@ package de.unifrankfurt.dbis.Submission;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 /**
@@ -19,13 +21,6 @@ public abstract class Task {
 
     private final String sql;
 
-    @Deprecated
-    public Task(Tag tag, String comment, List<String> commands) {
-        this.tag = tag;
-        if (!comment.trim().isEmpty())
-            commands.add(0, comment);
-        this.sql = String.join("\n", commands);
-    }
 
     public Task(Tag tag, String sql) {
         this.tag = tag;
@@ -44,10 +39,17 @@ public abstract class Task {
      */
     public static Task parseToken(SubmissionToken token) {
         TaskBody body = new TaskBody(token.getBody());
-        return new TaskNonCallable(token.getTag(), body.getSql());
+        String addition = token.getAddition();
+        return new TaskSQL(token.getTag(), parseSchema(addition), body.getSql());
     }
 
-
+    public static List<String> parseSchema(String string) {
+        if (Objects.isNull(string)) return null;
+        if (!(string.startsWith("[") && string.endsWith("]"))) return null;
+        string = string.substring(1, string.length() - 1);
+        String[] splited = string.split(",");
+        return Arrays.stream(splited).map(String::trim).collect(Collectors.toList());
+    }
     /**
      * Concatenation of Commentary and every SQL commands, separatedby "\n".
      *
