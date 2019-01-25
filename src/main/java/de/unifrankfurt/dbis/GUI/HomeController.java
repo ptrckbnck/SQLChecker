@@ -80,8 +80,6 @@ public class HomeController implements Initializable {
     public MenuItem runAllMenuItem;
     public MenuItem exportMenuItem;
     public Label version;
-    public Button testButton;
-
 
     //database
     @FXML
@@ -424,7 +422,6 @@ public class HomeController implements Initializable {
         this.activeCodeArea = codeArea;
         this.runButton.setDisable(codeArea == null);
         this.runMenuItem.setDisable(codeArea == null);
-        this.testButton.setDisable(codeArea == null);
     }
 
     /**
@@ -717,7 +714,7 @@ public class HomeController implements Initializable {
      */
     private Thread runCode(String task, String sql) {
 
-        SQLRunner runner = new SQLRunner(this.GUIConfig, sql, verbose);
+        SQLRunner runner = new SQLRunner(this.GUIConfig, schemaOfActiveTask(), sql, verbose);
         Thread t = new Thread(runner);
         System.out.println(task + ": SQL Code wird ausgeführt.");
         t.start();
@@ -1026,13 +1023,6 @@ public class HomeController implements Initializable {
 
     }
 
-    public void runTaskTest(ActionEvent actionEvent) {
-        String sql = this.activeCodeArea.getText();
-        SQLTester tester = new SQLTester(this.GUIConfig, sql, schemaOfActiveTask(), verbose);
-        Thread t = new Thread(tester);
-        System.out.println("Teste Schema von '" + getSelectedTask() + "':");
-        t.start();
-    }
 
     public List<String> schemaOfActiveTask() {
         return this.assignment.getSchemata().get(getSelectedIndex());
