@@ -53,6 +53,7 @@ public class SQLCheckerProject {
 
     /**
      * creates Submission with data from this project.
+     *
      * @return
      */
     public Submission createSubmission() {
@@ -67,5 +68,4 @@ public class SQLCheckerProject {
                 .collect(Collectors.toList());
         return new Submission(studentList(), list, assignment.getName());
     }
-
 }

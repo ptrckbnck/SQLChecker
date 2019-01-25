@@ -1017,9 +1017,9 @@ public class HomeController implements Initializable {
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         try {
-            //TODO should use io of Submission
-            FileIO.saveText(file.toPath(), new SQLCheckerProject(this.GUIConfig, this.assignment)
-                    .createSubmission().serialize());
+            new SQLCheckerProject(this.GUIConfig, this.assignment)
+                    .createSubmission()
+                    .storeInPath(file.toPath());
         } catch (IOException e) {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }

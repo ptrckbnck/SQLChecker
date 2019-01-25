@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,12 +46,7 @@ public class SubmissionParserTest {
             "from flightexecution\n" +
             "where PlaneID = 2 and FlightDurationInMinutes<130\n" +
             "order by FlightNo;";
-    @Test
-    public void tokenizer() throws IOException, SubmissionParseException {
-        String path = "/home/xyntek/Dropbox/SQLChecker/Bewertung/Blatt1/Abgaben/Katja_Korolew_s6929499_rz.uni-frankfurt.de/6983419.txt";
-        String toParse = Files.readString(Paths.get(path), StandardCharsets.ISO_8859_1);
-        //TODO set assert
-    }
+
 
     @Test
     public void tokenizerTemplate() {

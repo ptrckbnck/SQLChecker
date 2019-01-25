@@ -122,8 +122,6 @@ public class Submission {
      * @throws IOException IO
      */
     public void storeInPath(Path submissionPath) throws IOException {
-        //Files.write(submissionPath, serializeAuthor(), StandardCharsets.UTF_8);
-        //Files.write(submissionPath, serializeTasks(), StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
         FileIO.saveText(submissionPath, serialize());
     }
 
@@ -312,11 +310,16 @@ public class Submission {
         return sqlHeaders;
     }
 
-    //implies all Task are TaskSQL //TODO fix
     public List<List<String>> getSchemata() {
         return this.getTasks()
                 .stream()
-                .map(x -> ((TaskSQL) x).getSchema())
+                .map(x -> {
+                    if (TaskSQL.class.isAssignableFrom(x.getClass())) {
+                        return ((TaskSQL) x).getSchema();
+                    } else {
+                        return null;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 }
