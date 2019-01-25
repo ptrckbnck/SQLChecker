@@ -318,7 +318,7 @@ public class HomeController implements Initializable {
                 .setPartnerOk(gemeinschaftsabgabenCheckBox.isSelected())
                 .setPartnerName(namePartnerTextField.getText())
                 .setPartnerMatNr(matNrPartnerTextField.getText())
-                .setPartnerEmail(emailTextField.getText())
+                .setPartnerEmail(emailPartnerTextField.getText())
                 .createConfig();
     }
 
