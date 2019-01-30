@@ -26,8 +26,8 @@ import static java.lang.System.exit;
  * does not work atm.
  */
 public class Runner {
-    private static final String version = "1.1";
-    private static final String name = "SQL Checker";
+    private static final String version = Runner.class.getPackage().getImplementationVersion();
+    private static final String name = Runner.class.getPackage().getName();
 
 
     public static String getVersion() {
@@ -44,7 +44,10 @@ public class Runner {
         Options options = runner.createOptions();
         CommandLine commandLine = runner.argumentParse(options, args);
         if (commandLine == null) return;
-
+        if (commandLine.hasOption("version")) {
+            System.out.println(name + " " + version);
+            return;
+        }
 
         if (commandLine.hasOption("h")){
             printHelp(options);
@@ -230,7 +233,7 @@ public class Runner {
 
         Option onlyBest = Option.builder("onlyBest")
                 .longOpt("onlyBest")
-                .desc("in csv mode, do not print all evaluations, only the best of each student.")
+                .desc("in csv mode, do not print all evaluations, only the best of each student. ")
                 .build();
         options.addOption(onlyBest);
 
@@ -241,6 +244,11 @@ public class Runner {
                 .build();
         options.addOption(help);
 
+        Option version = Option.builder(null)
+                .longOpt("version")
+                .desc("prints version of SQLChecker")
+                .build();
+        options.addOption(version);
 
         return options;
     }
