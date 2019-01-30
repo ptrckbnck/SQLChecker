@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" minHeight="500.0" minWidth="500.0"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" fx:id="basePane" minHeight="500.0" minWidth="500.0"
             nodeOrientation="LEFT_TO_RIGHT" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #fff;"
             xmlns="http://javafx.com/javafx/10.0.1" fx:controller="de.unifrankfurt.dbis.GUI.HomeController">
     <children>

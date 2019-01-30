@@ -27,6 +27,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -80,6 +81,7 @@ public class HomeController implements Initializable {
     public MenuItem runAllMenuItem;
     public MenuItem exportMenuItem;
     public Label version;
+    public AnchorPane basePane;
 
     //database
     @FXML
@@ -361,30 +363,8 @@ public class HomeController implements Initializable {
         emailPartnerTextField.setDisable(bool);
     }
 
-    /**
-     * updates menu and stage if projectPath or assignment changes
-     */
-    private void updateMenu() {
-        boolean assignmentNotExists = this.assignment == null;
-        boolean projectNotExists = this.projectPath == null;
-
-
-        this.saveMenuItem.setDisable(assignmentNotExists | projectNotExists);
-        this.saveMenuItem.isDisable();
-        this.saveButton.setDisable(assignmentNotExists | projectNotExists);
-        this.saveAsMenuItem.setDisable(assignmentNotExists);
-        this.saveAsMenuItem.isDisable();
-        this.closeMenuItem.setDisable(assignmentNotExists);
-        this.closeMenuItem.isDisable();
-        this.runAllMenuItem.setDisable(assignmentNotExists);
-        this.runAllMenuItem.isDisable();
-        this.exportMenuItem.setDisable(assignmentNotExists);
-
-        if (!assignmentNotExists)
-            GUIApp.getPrimaryStage().setTitle(this.assignment.getName());
-        else
-            GUIApp.getPrimaryStage().setTitle("");
-
+    public static Stage getPrimaryStage() {
+        return GUIApp.getPrimaryStage();
     }
 
     /**
@@ -627,58 +607,29 @@ public class HomeController implements Initializable {
         );
     }
 
-
     /**
-     * creates new Project
-     * @param actionEvent
+     * updates menu and stage if projectPath or assignment changes
      */
-    public void newProject(ActionEvent actionEvent) {
-        closeProject();
-        //select template first
-        FileChooser templateChooser = new FileChooser();
-        templateChooser.setTitle("Öffne Aufgaben-Template Datei");
-        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
-        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
-        if (Objects.nonNull(this.projectPath))
-            templateChooser.setInitialDirectory(this.projectPath.getParent().toFile());
-        else {
-            templateChooser.setInitialDirectory(currentTerminalPath().toFile());
-        }
-        Stage stageTemplate = new Stage();
-        File template = templateChooser.showOpenDialog(stageTemplate);
-        if (template == null) return;
-        Submission submission;
-        try {
-            submission = Submission.fromPath(template.toPath());
+    private void updateMenu() {
+        boolean assignmentNotExists = this.assignment == null;
+        boolean projectNotExists = this.projectPath == null;
 
-        } catch (IOException e) {
-            System.err.println("Fehler beim Öffnen der Aufgabe.");
-            return;
-        } catch (SubmissionParseException e) {
-            System.err.println("Fehler beim Einlesen der Aufgabe.");
-            return;
-        }
 
-        // now select Project Path
-        FileChooser projectChooser = new FileChooser();
-        projectChooser.setTitle("Lege Speicherort des neuen Projekts fest");
-        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
-        projectChooser.setInitialDirectory(template.getParentFile());
-        Stage stageProject = new Stage();
-        File project = projectChooser.showSaveDialog(stageProject);
-        if (project == null) return;
-        try {
-            createEmptyFile(project.toPath());
-            setProjectPath(project.toPath());
-            this.initAssignment(submission);
-            loadConfigImplicit();
-            loadResetImplicit();
-            saveProject(project.toPath());
-        } catch (IOException e) {
-            System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
-            setProjectPath(null);
-        }
+        this.saveMenuItem.setDisable(assignmentNotExists | projectNotExists);
+        this.saveMenuItem.isDisable();
+        this.saveButton.setDisable(assignmentNotExists | projectNotExists);
+        this.saveAsMenuItem.setDisable(assignmentNotExists);
+        this.saveAsMenuItem.isDisable();
+        this.closeMenuItem.setDisable(assignmentNotExists);
+        this.closeMenuItem.isDisable();
+        this.runAllMenuItem.setDisable(assignmentNotExists);
+        this.runAllMenuItem.isDisable();
+        this.exportMenuItem.setDisable(assignmentNotExists);
+
+        if (!assignmentNotExists)
+            getPrimaryStage().setTitle(this.assignment.getName());
+        else
+            getPrimaryStage().setTitle("");
 
     }
 
@@ -760,24 +711,51 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Load Project
+     * creates new Project
      * @param actionEvent
      */
-    public void loadProject(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("öffne Checker Datei");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        if (Objects.nonNull(this.projectPath))
-            fileChooser.setInitialDirectory(this.projectPath.getParent().toFile());
-        else {
-            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
-        }
-        Stage stage = new Stage();
-        File file = fileChooser.showOpenDialog(stage);
-        if (file == null) return;
+    public void newProject(ActionEvent actionEvent) {
         closeProject();
-        Path path = file.toPath();
-        loadProject(path);
+        //select template first
+        FileChooser templateChooser = new FileChooser();
+        templateChooser.setTitle("Öffne Aufgaben-Template Datei");
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
+        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
+        fileChooserOpenSetInitDir(templateChooser);
+        File template = templateChooser.showOpenDialog(getPrimaryStage());
+        if (template == null) return;
+        Submission submission;
+        try {
+            submission = Submission.fromPath(template.toPath());
+
+        } catch (IOException e) {
+            System.err.println("Fehler beim Öffnen der Aufgabe.");
+            return;
+        } catch (SubmissionParseException e) {
+            System.err.println("Fehler beim Einlesen der Aufgabe.");
+            return;
+        }
+
+        // now select Project Path
+        FileChooser projectChooser = new FileChooser();
+        projectChooser.setTitle("Lege Speicherort des neuen Projekts fest");
+        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
+        projectChooser.setInitialDirectory(template.getParentFile());
+        Stage stageProject = new Stage();
+        File project = projectChooser.showSaveDialog(stageProject);
+        if (project == null) return;
+        try {
+            createEmptyFile(project.toPath());
+            setProjectPath(project.toPath());
+            this.initAssignment(submission);
+            loadConfigImplicit();
+            loadResetImplicit();
+            saveProject(project.toPath());
+        } catch (IOException e) {
+            System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
+            setProjectPath(null);
+        }
 
     }
 
@@ -811,6 +789,32 @@ public class HomeController implements Initializable {
     }
 
     /**
+     * Load Project
+     *
+     * @param actionEvent
+     */
+    public void loadProject(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("öffne Checker Datei");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        fileChooserOpenSetInitDir(fileChooser);
+        File file = fileChooser.showOpenDialog(getPrimaryStage());
+        if (file == null) return;
+        closeProject();
+        Path path = file.toPath();
+        loadProject(path);
+
+    }
+
+    private void fileChooserOpenSetInitDir(FileChooser fileChooser) {
+        if (projectPath != null) {
+            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
+        } else {
+            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
+        }
+    }
+
+    /**
      * exports current Config.
      * @param actionEvent
      */
@@ -820,13 +824,8 @@ public class HomeController implements Initializable {
         fileChooser.setTitle("Speichere aktuelle Konfiguration als Datei.");
         fileChooser.getExtensionFilters()
                 .add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
-        if (projectPath != null) {
-            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
-        } else {
-            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
-        }
-        Stage stage = new Stage();
-        File file = fileChooser.showSaveDialog(stage);
+        fileChooserOpenSetInitDir(fileChooser);
+        File file = fileChooser.showSaveDialog(getPrimaryStage());
         if (Objects.isNull(file)) {
             return;
         }
@@ -835,27 +834,6 @@ public class HomeController implements Initializable {
         } catch (IOException e) {
             System.err.println("Fehler beim Speichern der Config-Datei: " + e.getMessage());
         }
-    }
-
-    /**
-     * import Config.
-     * @param actionEvent
-     */
-    public void importConfig(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Importiere Konfigurationsdatei");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
-        if (projectPath != null) {
-            fileChooser.setInitialDirectory(projectPath.getParent().toFile());
-        } else {
-            fileChooser.setInitialDirectory(currentTerminalPath().toFile());
-        }
-        Stage stage = new Stage();
-        File file = fileChooser.showOpenDialog(stage);
-        if (Objects.isNull(file)) {
-            return;
-        }
-        loadConfig(file.toPath());
     }
 
     private void loadConfig(Path path) {
@@ -904,27 +882,23 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Loads reset Script.
+     * import Config.
      * @param actionEvent
      */
-    public void loadResetScript(ActionEvent actionEvent) {
+    public void importConfig(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Importiere Resetskript");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Datei (*.sql)", "*.sql"));
-        if (this.resetScript != null) {
-            fileChooser.setInitialDirectory(this.resetScript.getParent().toFile());
-        } else if (projectPath != null) {
+        fileChooser.setTitle("Importiere Konfigurationsdatei");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Konfigurationsdatei (*.conf)", "*.conf"));
+        if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
         } else {
             fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
-        Stage stage = new Stage();
-        File file = fileChooser.showOpenDialog(stage);
+        File file = fileChooser.showOpenDialog(getPrimaryStage());
         if (Objects.isNull(file)) {
             return;
         }
-        initResetScript(file.toPath());
-
+        loadConfig(file.toPath());
     }
 
     /**
@@ -995,6 +969,32 @@ public class HomeController implements Initializable {
         }).start();
     }
 
+    /**
+     * Loads reset Script.
+     *
+     * @param actionEvent
+     */
+    public void loadResetScript(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Importiere Resetskript");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Datei (*.sql)", "*.sql"));
+        if (this.resetScript != null) {
+            fileChooser.setInitialDirectory(this.resetScript.getParent().toFile());
+        } else {
+            fileChooserOpenSetInitDir(fileChooser);
+        }
+        File file = fileChooser.showOpenDialog(getPrimaryStage());
+        if (Objects.isNull(file)) {
+            return;
+        }
+        initResetScript(file.toPath());
+
+    }
+
+
+    public List<String> schemaOfActiveTask() {
+        return this.assignment.getSchemata().get(getSelectedIndex());
+    }
 
     /**
      * creates zip File with Submission for loading to Olat.
@@ -1010,8 +1010,7 @@ public class HomeController implements Initializable {
         } else {
             fileChooser.setInitialDirectory(currentTerminalPath().toFile());
         }
-        Stage stage = new Stage();
-        File file = fileChooser.showSaveDialog(stage);
+        File file = fileChooser.showSaveDialog(getPrimaryStage());
         if (file == null) return;
         try {
             new SQLCheckerProject(this.GUIConfig, this.assignment)
@@ -1021,10 +1020,5 @@ public class HomeController implements Initializable {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }
 
-    }
-
-
-    public List<String> schemaOfActiveTask() {
-        return this.assignment.getSchemata().get(getSelectedIndex());
     }
 }
