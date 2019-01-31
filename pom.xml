@@ -32,9 +32,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>de.unifrankfurt.dbis.Runner</mainClass>
-                            <addDefaultImplementationEntries>
-                                true
-                            </addDefaultImplementationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
                 </configuration>

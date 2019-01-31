@@ -1,6 +1,5 @@
 package de.unifrankfurt.dbis;
 
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.DBFit.ResultStorage;
 import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
@@ -23,7 +22,6 @@ import static java.lang.System.exit;
 /**
  * Runner is the main executable class for this project.
  * It parses command line arguments and executes accordingly.
- * does not work atm.
  */
 public class Runner {
     private static final String version = Runner.class.getPackage().getImplementationVersion();
@@ -148,8 +146,6 @@ public class Runner {
             }
 
         }
-        // MysSQLDatasource creates abandoned connection. do not know why. this helps exit program.
-        AbandonedConnectionCleanupThread.shutdown();
     }
 
     /**
