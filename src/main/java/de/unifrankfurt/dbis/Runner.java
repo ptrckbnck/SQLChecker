@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.DBFit.ResultStorage;
 import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
@@ -144,7 +145,7 @@ public class Runner {
                 } else System.err.println(e.toString());
 
             }
-
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
     }
 
