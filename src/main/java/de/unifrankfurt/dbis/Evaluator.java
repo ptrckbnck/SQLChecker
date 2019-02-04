@@ -80,6 +80,8 @@ public class Evaluator {
         for (Submission sub : subs) {
             if (verbose) {
                 System.err.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
+                System.err.flush();
+                System.out.flush();
             }
             runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
         }

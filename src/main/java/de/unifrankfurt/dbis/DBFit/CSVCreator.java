@@ -96,9 +96,13 @@ public class CSVCreator {
                 } else {
 
                     final String s = x.getStatus().get(finalI);
-                    final Boolean d = x.getResultHeaderDiff().get(finalI);
-                    if (s.equals("pass") && !d)
-                        return "pass but schema diff";
+                    if (Objects.isNull(x.getResultHeaderDiff())) {
+                        //TODO somekind of warning?
+                    } else {
+                        final Boolean d = x.getResultHeaderDiff().get(finalI);
+                        if (s.equals("pass") && !d)
+                            return "pass but schema diff";
+                    }
                     return s;
                 }
             };
@@ -154,6 +158,7 @@ public class CSVCreator {
     public CSVCreator useMatrikelNr() {
         Function<ResultStorage, String> f = x -> x.getAuthors().stream()
                 .map(Student::getMatriculationNumber)
+                .sorted()
                 .collect(Collectors.joining(";"));
         this.functions.add(f);
         this.header.add("MatrikelNr");
