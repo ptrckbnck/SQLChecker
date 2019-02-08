@@ -110,6 +110,12 @@ public class Solution {
         for (Tag tag : this.workSubmission.getTags()) {
             if (tag.isStatic()) continue;
             String submissionCode = submission.getTaskByTag(tag).getSql();
+
+            //TODO HOTFIX REMOVE COMMENTS
+            submissionCode = submissionCode
+                    .replaceFirst("^--.*", "")
+                    .replaceFirst("^#.*", "");
+
             submissionCode = submissionCode
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
@@ -234,7 +240,7 @@ public class Solution {
 
         String html = this.generateSurveyHTML(submission);
         /*if (verbose) {
-            System.out.println(html);
+            System.err.println(html);
         }*/
         Parse p = new Parse(html);
         Count count = runDBFitTest(source, resetScript, p);
