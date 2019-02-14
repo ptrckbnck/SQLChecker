@@ -113,9 +113,9 @@ public class Solution {
 
             //TODO HOTFIX REMOVE COMMENTS
             submissionCode = submissionCode
-                    .replaceFirst("^--.*", "")
-                    .replaceFirst("^#.*", "");
-
+                    .replaceAll("--.*", "")  //remove -- comments
+                    .replaceAll("#.*", "") // remove # comments
+                    .replaceAll("(?m)^\\s+", ""); //remove empty lines
             submissionCode = submissionCode
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
