@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static de.unifrankfurt.dbis.Submission.Task.parseSchema;
+
 /**
  * represents DBFIT Solution File
  */
@@ -25,7 +27,7 @@ public class Solution {
     /**
      * Submission wihtout any non-TaskSQL Tasks.
      */
-    private Submission<TaskSQL> workSubmission;
+    private Submission workSubmission;
 
 
     /**
@@ -33,24 +35,50 @@ public class Solution {
      */
     private final String dbFitHtml;
 
+    private List<List<String>> resultHeaders;
+
+
+
+
 
     /**
      * submission from which this Solution File where generated from.
      */
 
 
-    public Solution(Submission<? extends Task> submission, String dbFitHtml) {
-        this.workSubmission = submission.onlyTaskSQLSubmission();
+    public Solution(Submission submission, String dbFitHtml, List<List<String>> resultHeaders) {
+        this.workSubmission = submission;
         this.dbFitHtml = dbFitHtml;
+        this.resultHeaders = resultHeaders;
     }
 
-    public Submission<TaskSQL> getSubmission() {
-        return workSubmission;
+    protected static List<Task> fixedTaskList(Submission sub, List<Tag> tags, List<Tag> faultyTags) {
+        List<Task> tasks = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+            Tag curTag = tags.get(i);
+            Task newTask;
+            if (faultyTags.contains(curTag)) {
+                newTask = sub.getTaskByTag(curTag);
+            } else {
+                newTask = new TaskSQL(curTag, parseSchema(tags.get(i).getAddition()), "tag missing");
+            }
+            tasks.add(newTask);
+        }
+        return tasks;
     }
 
     public String getDBFitHtml() {
         return dbFitHtml;
     }
+
+    public List<List<String>> getResultHeaders() {
+        return resultHeaders;
+    }
+
+    public Submission getSubmission() {
+        return workSubmission;
+    }
+
 
 
     /**
@@ -62,6 +90,10 @@ public class Solution {
         return this.workSubmission.getTagStrings();
     }
 
+    public String getName() {
+        return this.workSubmission.getName();
+    }
+
     /**
      * creates html which can be used by dbfit parser to run test.
      * A Solution has result for every tag.
@@ -71,11 +103,18 @@ public class Solution {
      * @param submission
      * @return Html code for DBFIT parser
      */
-    public String generateSurveyHTML(Submission<TaskSQL> submission) {
+
+    public String generateSurveyHTML(Submission submission) {
         String result = this.dbFitHtml;
         for (Tag tag : this.workSubmission.getTags()) {
             if (tag.isStatic()) continue;
-            String submissionCode = submission.getTaskByTag(tag).getCodeString();
+            String submissionCode = submission.getTaskByTag(tag).getSql();
+
+            //TODO HOTFIX REMOVE COMMENTS
+            submissionCode = submissionCode
+                    .replaceAll("--.*", "")  //remove -- comments
+                    .replaceAll("#.*", "") // remove # comments
+                    .replaceAll("(?m)^\\s+", ""); //remove empty lines
             submissionCode = submissionCode
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
@@ -84,46 +123,10 @@ public class Solution {
         return result;
     }
 
-    public String getName() {
-        return this.workSubmission.getName();
-    }
-
-
-    /**
-     * runs DBFitTest to evaluate submission.
-     *
-     * @param root        path of submission
-     * @param source      Datasource
-     * @param resetScript ResetScript
-     * @param submission  Submission
-     * @param verbose     verbose Mode
-     * @return ResultStorage
-     * @throws SQLException
-     * @throws FitParseException
-     */
-    public ResultStorage evaluate(Path root,
-                                  DataSource source,
-                                  SQLScript resetScript,
-                                  Submission<TaskSQL> submission,
-                                  boolean verbose)
-            throws SQLException, FitParseException{
-        String html = this.generateSurveyHTML(submission);
-        Parse p = new Parse(html);
-        Count count = runDBFitTest(source, resetScript, p);
-        String parseResult = getParseResult(p);
-
-        if (verbose) {
-            System.out.println(parseResult);
-            System.out.println(count);
-        }
-        return new ResultStorage(root, this, submission, parseResult);
-    }
-
     protected Count runDBFitTest(DataSource source, SQLScript resetScript, Parse p) throws SQLException {
         CustomMySQLTest test = new CustomMySQLTest();
         test.connect(source);
         resetScript.execute(source);
-
         PrintStream err = System.err; // catch dbfit output
         System.setErr(null);
         test.doTables(p);
@@ -206,19 +209,67 @@ public class Solution {
         return true;
     }
 
-    protected static List<TaskSQL> fixedTaskList(Submission<TaskSQL> sub, List<Tag> tags, List<Tag> faultyTags) {
-        List<TaskSQL> tasks = new ArrayList<>();
-        for (int i = 0; i < tags.size(); i++) {
-            Tag curTag = tags.get(i);
-            TaskSQL newTask;
-            if (faultyTags.contains(curTag)) {
-                newTask = sub.getTaskByTag(curTag);
+    public ResultStorage evaluate(Path root,
+                                  DataSource source,
+                                  SQLScript resetScript,
+                                  Submission submission
+    ) throws FitParseException, SQLException {
+        return evaluate(root, source, resetScript, submission, false);
+    }
+
+    /**
+     * runs DBFitTest to evaluate submission.
+     *
+     * @param root        path of submission
+     * @param source      Datasource
+     * @param resetScript ResetScript
+     * @param submission  Submission
+     * @return ResultStorage
+     * @throws SQLException
+     * @throws FitParseException
+     */
+    public ResultStorage evaluate(Path root,
+                                  DataSource source,
+                                  SQLScript resetScript,
+                                  Submission submission,
+                                  boolean verbose)
+            throws SQLException, FitParseException {
+        resetScript.execute(source);
+        List<List<String>> subHeaders = submission.generateResultHeaders(source, resetScript);
+        List<Boolean> diff = diffResultHeaders(this.resultHeaders, subHeaders);
+
+        String html = this.generateSurveyHTML(submission);
+        /*if (verbose) {
+            System.err.println(html);
+        }*/
+        Parse p = new Parse(html);
+        Count count = runDBFitTest(source, resetScript, p);
+        String parseResult = getParseResult(p);
+
+
+        return new ResultStorage(root, this, submission, parseResult, diff);
+    }
+
+    private List<Boolean> diffResultHeaders(List<List<String>> resultHeaders, List<List<String>> subHeaders) {
+        ArrayList<Boolean> diff = new ArrayList<>();
+        List<Tag> tags = this.getSubmission().getTags();
+        boolean error = false;
+        if (resultHeaders.size() != this.getSubmission().getNonStaticTags().size()) error = true;
+        if (subHeaders.size() != resultHeaders.size()) error = true;
+        int count = 0;
+        for (Tag tag : tags) {
+            if (error) {
+                diff.add(false);
             } else {
-                newTask = new TaskSQLNonCallable(curTag, "tag missing", "tag missing");
+                if (tag.isStatic()) {
+                    diff.add(true);
+                } else {
+                    diff.add(resultHeaders.get(count).equals(subHeaders.get(count)));
+                    count++;
+                }
             }
-            tasks.add(newTask);
         }
-        return tasks;
+        return diff;
     }
 
     public CSVCreator csvCreator() {
@@ -226,20 +277,20 @@ public class Solution {
                 .useAuthors()
                 .useMatrikelNr()
                 .useSolutionName()
-                .useAllStatus(this.getDBFitTags())
+                .useAllStatusWithSQLHeaderCheck(this.getDBFitTags())
                 .useSuccess()
                 .useEncoding()
                 .useErrorMsg();
     }
 
-    public Submission<TaskSQL> tryToFixTagsFor(Submission<TaskSQL> sub) {
+    public Submission tryToFixTagsFor(Submission sub) {
         List<Tag> tags = this.workSubmission.getNonStaticTags();
         List<Tag> faultyTags = sub.getNonStaticTags();
         if (faultyTags.isEmpty()) return null; //no tags at all
         if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
         if (!isSublistWithGaps(tags, faultyTags)) return null;
-        List<TaskSQL> tasks = fixedTaskList(sub, tags, faultyTags);
-        Submission<TaskSQL> newSub = new Submission<>(sub.getAuthors(), tasks, sub.getName());
+        List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
+        Submission newSub = new Submission(sub.getAuthors(), tasks, sub.getName());
         newSub.setCharset(sub.getCharset());
         newSub.setPath(sub.getPath());
         return newSub;

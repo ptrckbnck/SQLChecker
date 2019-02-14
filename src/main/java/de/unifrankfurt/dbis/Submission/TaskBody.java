@@ -4,16 +4,11 @@ import java.util.Objects;
 
 public class TaskBody {
 
-    private final String comment;
+
     private final String sql;
 
-    public TaskBody(String comment, String sql) {
-        this.comment = comment;
+    public TaskBody(String sql) {
         this.sql = sql;
-    }
-
-    public String getComment() {
-        return comment;
     }
 
     public String getSql() {
@@ -22,22 +17,19 @@ public class TaskBody {
 
     @Override
     public String toString() {
-        return comment + '\n' + sql + '\n';
+        return sql;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof TaskBody)) return false;
         TaskBody taskBody = (TaskBody) o;
-        return Objects.equals(comment, taskBody.comment) &&
-                Objects.equals(sql, taskBody.sql);
+        return Objects.equals(sql, taskBody.sql);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(comment, sql);
+        return Objects.hash(sql);
     }
-
 }

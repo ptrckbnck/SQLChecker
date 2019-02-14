@@ -14,11 +14,7 @@ public class Tag {
      */
     private final String name;
 
-    /**
-     * A optional name for a plugin. Like "alternative" to indicate that this exercise is a alternative solution for a
-     * proceeding exercise or "FD" to indicate that the exercise is a functional dependency exercise
-     */
-    private final String plugin;
+    public final static String TAG_ADDITION_SEPARATOR = "%%";
     /**
      * The tag prefix is the prefix of a multiline SQL comment to guarantee the execution of a submission within another
      * SQL application
@@ -30,12 +26,7 @@ public class Tag {
      * SQL application
      */
     public final static String TAG_SUFFIX = "*/";
-
-    /**
-     * The separator is a arbitrary sequence of symbol just for separating the tag name from the plugin name
-     */
-    public final static String PLUGIN_SEPERATOR = "::";
-
+    private final String addition;
 
     public final static String AUTHORTAG = "authors";
 
@@ -43,24 +34,15 @@ public class Tag {
 
     public final static String STATIC = "static";
 
+
     public Tag(String name) {
         this.name = name;
-        this.plugin = null;
+        this.addition = null;
     }
 
-    public Tag(String name, String plugin) {
+    public Tag(String name, String addition) {
         this.name = name;
-        this.plugin = plugin;
-    }
-
-    /**
-     * @return String representation of Tag for serializing
-     */
-    public String serialized() {
-        if (plugin == null)
-            return TAG_PREFIX + name + TAG_SUFFIX;
-        else
-            return TAG_PREFIX + name + PLUGIN_SEPERATOR + plugin + TAG_SUFFIX;
+        this.addition = addition;
     }
 
     /**
@@ -69,16 +51,35 @@ public class Tag {
      * @param line a String which should be checked for a tag
      */
     public static Tag parse(String line) {
-        if (line.startsWith(TAG_PREFIX) && line.endsWith(TAG_SUFFIX) && !line.contains(" ")) {
-            String tag = line.substring(TAG_PREFIX.length(), line.indexOf(TAG_SUFFIX));
-            if (tag.contains(PLUGIN_SEPERATOR)) {
-                String[] parts = tag.split(PLUGIN_SEPERATOR);
-                return new Tag(parts[0], parts[1]);
-            } else {
-                return new Tag(tag);
+        if (line.startsWith(TAG_PREFIX) && line.endsWith(TAG_SUFFIX)) {
+            line = line.substring(TAG_PREFIX.length(), line.length() - TAG_SUFFIX.length());
+            String[] tagString = line.split(TAG_ADDITION_SEPARATOR, 2);
+            String tag = tagString[0];
+            if (tag.isEmpty()) {
+                return null;
             }
+            if (tag.matches(".*\\s.*")) { //contains whitespace
+                return null;
+            }
+            if (tagString.length == 1) {
+                return new Tag(tag);
+            } else {
+                return new Tag(tag, tagString[1]);
+            }
+
         } else {
             return null;
+        }
+    }
+
+    /**
+     * @return String representation of Tag for serializing
+     */
+    public String serialized() {
+        if (Objects.isNull(addition))
+            return TAG_PREFIX + name + TAG_SUFFIX;
+        else {
+            return TAG_PREFIX + name + TAG_ADDITION_SEPARATOR + addition + TAG_SUFFIX;
         }
     }
 
@@ -86,33 +87,33 @@ public class Tag {
         return name;
     }
 
-    public String getPlugin() {
-        return plugin;
+    public String getAddition() {
+        return addition;
+    }
+
+    public boolean isStatic() {
+        return this.name.equals(STATIC);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+        Tag tag = (Tag) o;
+        return Objects.equals(name, tag.name) &&
+                Objects.equals(addition, tag.addition);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, addition);
     }
 
     @Override
     public String toString() {
         return "Tag{" +
                 "name='" + name + '\'' +
-                ", plugin='" + plugin + '\'' +
+                ", addition='" + addition + '\'' +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
-        return Objects.equals(name, tag.name) &&
-                Objects.equals(plugin, tag.plugin);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, plugin);
-    }
-
-    public boolean isStatic() {
-        return this.name.equals(STATIC);
     }
 }

@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * todo javadocs
+ *  The class SQLScript is a container for a list of SQL-statements, a script.
+ *  It provides a method to run the script via DataSource-object.
  */
 public class SQLScript {
     private final List<String> queryList;

@@ -33,4 +33,9 @@ public class SubmissionToken {
     public String toString() {
         return tag.serialized() + "\n" + body;
     }
+
+
+    public String getAddition() {
+        return tag.getAddition();
+    }
 }

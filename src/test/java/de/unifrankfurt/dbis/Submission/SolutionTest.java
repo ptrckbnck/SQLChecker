@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SolutionTest {
-    private static Submission<TaskSQL> testsubmission = null;
+    private static Submission testsubmission = null;
     private static String DBFitHtml = null;
     private static DataSource source = null;
     private static SQLScript resetScript;
@@ -24,12 +24,13 @@ class SolutionTest {
      */
     @BeforeAll
     static void setUp() {
-        testsubmission =
-                new Submission<>(List.of(new Student("foo", "bar", "foo@bar.de")),
-                        List.of(
-                                new TaskSQLNonCallable(new Tag("Aufgabe1"), "comment1", "SELECT '1';"),
-                                new TaskSQLNonCallable(new Tag("Aufgabe2"), "comment2", "SELECT '2';")),
-                        "test_submission");
+        List<Student> students = List.of(new Student("foo", "bar", "foo@bar.de"));
+
+        Task task1 = new TaskSQL(new Tag("Aufgabe1"), null, "/* comment1 */\nSELECT '1';");
+        Task task2 = new TaskSQL(new Tag("Aufgabe2"), null, "/* comment2 */\nSELECT '2';");
+
+        List<Task> tasks = List.of(task1, task2);
+        testsubmission = new Submission(students, tasks, "test_submission");
         testsubmission.setPath(Paths.get("/home/test/submission.txt"));
 
         DBFitHtml = "<table>\n" +
@@ -129,7 +130,7 @@ class SolutionTest {
      */
     @Test
     void getSubmission() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         assertEquals(testsubmission, solution.getSubmission());
     }
 
@@ -138,7 +139,7 @@ class SolutionTest {
      */
     @Test
     void getDBFitHtml() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         assertEquals(DBFitHtml, solution.getDBFitHtml());
     }
 
@@ -147,7 +148,7 @@ class SolutionTest {
      */
     @Test
     void getDBFitTags() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         assertEquals(List.of("Aufgabe1", "Aufgabe2"), solution.getDBFitTags());
     }
 
@@ -156,7 +157,7 @@ class SolutionTest {
      */
     @Test
     void generateSurveyHTML() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         String html = solution.generateSurveyHTML(testsubmission);
         assertEquals(surveyHtml, html.trim());
     }
@@ -167,7 +168,7 @@ class SolutionTest {
      */
     @Test
     void getName() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         assertEquals("test_submission", solution.getName());
     }
 
@@ -177,12 +178,10 @@ class SolutionTest {
      * The submission is the same that was used to create the Solution in the first place.
      * Execution of evaluate creates a resultStorage whose createCSV method is used to compare the return value.
      *
-     * @throws fit.exception.FitParseException
-     * @throws SQLException
      */
 
     void evaluate() throws fit.exception.FitParseException, SQLException {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         ResultStorage resultStorage = solution.evaluate(Paths.get("/home/test/"), source, resetScript, testsubmission, false);
         String csv = resultStorage.csv(solution.csvCreator());
         String expectedCsv = "\"test/submission.txt\"," +
@@ -200,16 +199,14 @@ class SolutionTest {
     /**
      * tests Solution.evaluate() with an partially incorrect submission.
      *
-     * @throws fit.exception.FitParseException
-     * @throws SQLException
      */
 
     void evaluateFail() throws fit.exception.FitParseException, SQLException {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
-        Submission<TaskSQL> submissionFail = new Submission<>(List.of(new Student("foo", "bar", "foo@bar.de")),
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
+        Submission submissionFail = new Submission(List.of(new Student("foo", "bar", "foo@bar.de")),
                 List.of(
-                        new TaskSQLNonCallable(new Tag("Aufgabe1"), "comment1", "SELECT '1';"),
-                        new TaskSQLNonCallable(new Tag("Aufgabe2"), "comment2", "SELECT 'FAIL' as '2';")),
+                        new TaskSQL(Tags.get("Aufgabe1"), null, "-- comment1\nSELECT '1';"),
+                        new TaskSQL(Tags.get("Aufgabe2"), null, "-- comment2\nSELECT 'FAIL' as '2';")),
                 "test_submission");
         submissionFail.setPath(Paths.get("/home/test/submission.txt"));
 
@@ -233,7 +230,7 @@ class SolutionTest {
      */
     @Test
     void generateCSVHeader() {
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         String csv = solution.generateCSVHeader();
         String expectedCsv = "\"Path\", \"Authors\", \"Solution\", \"Aufgabe1\", \"Aufgabe2\", \"#Success\", \"ErrorMsg\"";
         assertEquals(expectedCsv, csv);
@@ -243,13 +240,11 @@ class SolutionTest {
     /**
      * tests whether solution.getParseResult() creates correct HTML for given fit.Parse.
      *
-     * @throws SQLException
-     * @throws fit.exception.FitParseException
      */
     @Test
     void getParseResult() throws SQLException, fit.exception.FitParseException {
         fit.Parse parse = new fit.Parse(surveyHtml);
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         solution.runDBFitTest(source, resetScript, parse);
         String parseResult = solution.getParseResult(parse);
         String expectedParseResult = "<table>\n" +
@@ -302,13 +297,11 @@ class SolutionTest {
     /**
      * tests method Solution.runDBFitTest.
      *
-     * @throws fit.exception.FitParseException
-     * @throws SQLException
      */
     @Test
     void runDBFitTest() throws fit.exception.FitParseException, SQLException {
         fit.Parse parse = new fit.Parse(surveyHtml);
-        Solution solution = new Solution(testsubmission, DBFitHtml);
+        Solution solution = new Solution(testsubmission, DBFitHtml, null);
         Count count = solution.runDBFitTest(source, resetScript, parse);
         assertEquals(new Count(2, 0, 0, 0),count);
     }
@@ -326,15 +319,15 @@ class SolutionTest {
 
     @Test
     void fixedTaskList() {
-        Submission<TaskSQL> sub = new Submission<>(List.of(new Student("a", "b", "c")),
-                List.of(new TaskSQLNonCallable(new Tag("tag1"), "comment1", "sql1"),
-                        new TaskSQLNonCallable(new Tag("tag3"), "comment3", "sql3")), "name");
-        List<TaskSQL> newList = Solution.fixedTaskList(sub,
+        Submission sub = new Submission(List.of(new Student("a", "b", "c")),
+                List.of(new TaskSQL(new Tag("tag1"), "-- comment1\nsql1"),
+                        new TaskSQL(new Tag("tag3"), "-- comment3\nsql3")), "name");
+        List<Task> newList = Solution.fixedTaskList(sub,
                 List.of(new Tag("tag1"), new Tag("tag2"), new Tag("tag3")),
                 List.of(new Tag("tag1"), new Tag("tag3")));
-        List<TaskSQL> expectedList = List.of(new TaskSQLNonCallable(new Tag("tag1"), "comment1", "sql1"),
-                new TaskSQLNonCallable(new Tag("tag2"), "tag missing", "tag missing"),
-                new TaskSQLNonCallable(new Tag("tag3"), "comment3", "sql3"));
+        List<Task> expectedList = List.of(new TaskSQL(new Tag("tag1"), "-- comment1\nsql1"),
+                new TaskSQL(new Tag("tag2"), "tag missing"),
+                new TaskSQL(new Tag("tag3"), "-- comment3\nsql3"));
         assertEquals(expectedList, newList);
     }
 
@@ -359,8 +352,8 @@ class SolutionTest {
                 "/*1b*/\n" +
                 "/* Kommentar zu Aufgabe 1b */\n" +
                 "sql2\n";
-        Solution sol = new Solution(SubmissionParser.parse(solString, StandardCharsets.UTF_8), "");
-        Submission<TaskSQL> sub = SubmissionParser.parse(subString, StandardCharsets.UTF_8).onlyTaskSQLSubmission();
+        Solution sol = new Solution(SubmissionParser.parse(solString, StandardCharsets.UTF_8), "", null);
+        Submission sub = SubmissionParser.parse(subString, StandardCharsets.UTF_8);
         Submission newSub = sol.tryToFixTagsFor(sub);
         assertEquals(sub.getAuthors(), newSub.getAuthors());
         assertEquals(sub.getPath(), newSub.getPath());

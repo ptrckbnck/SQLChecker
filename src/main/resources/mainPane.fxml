@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" minHeight="500.0" minWidth="500.0"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" fx:id="basePane" minHeight="500.0" minWidth="500.0"
             nodeOrientation="LEFT_TO_RIGHT" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #fff;"
             xmlns="http://javafx.com/javafx/10.0.1" fx:controller="de.unifrankfurt.dbis.GUI.HomeController">
     <children>
@@ -58,12 +58,12 @@
                                 <Menu mnemonicParsing="false" text="Ausführen">
                                     <items>
                                         <MenuItem fx:id="resetMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleResetDatabase" text="Datenbank Rücksetzen"/>
+                                                  onAction="#handleResetDatabase" text="Vollständg Ausführen"/>
                                         <MenuItem fx:id="runMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#runTaskCode" text="Aufgabe ausführen"/>
+                                                  onAction="#runTaskCode" text="Aufgabe Ausführen"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
                                         <MenuItem fx:id="runAllMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleRunAll" text="Vollständg ausführen"/>
+                                                  onAction="#handleRunAll" text="Vollständg Ausführen"/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="Olat">
@@ -109,6 +109,7 @@
                                                         <Button fx:id="resetButton" mnemonicParsing="false"
                                                                 onAction="#handleResetDatabase"
                                                                 text="Datenbank Rücksetzen"/>
+
                                                     </items>
                                                 </ToolBar>
                                             </top>
@@ -301,12 +302,6 @@
                                                                                                         vgrow="SOMETIMES"/>
                                                                                     </rowConstraints>
                                                                                     <children>
-                                                                                        <CheckBox
-                                                                                                fx:id="gemeinschaftsabgabenCheckBox"
-                                                                                                mnemonicParsing="false"
-                                                                                                onAction="#handleGemeinschaftsabgabenCheckBox"
-                                                                                                GridPane.columnIndex="1"
-                                                                                                GridPane.rowIndex="3"/>
                                                                                         <Label text="Gemeinschaftsabgaben erlaubt"
                                                                                                GridPane.rowIndex="3"/>
                                                                                         <Label/>
@@ -326,12 +321,23 @@
                                                                                                 fx:id="emailTextField"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="2"/>
+                                                                                        <CheckBox
+                                                                                                fx:id="gemeinschaftsabgabenCheckBox"
+                                                                                                mnemonicParsing="false"
+                                                                                                onAction="#handleGemeinschaftsabgabenCheckBox"
+                                                                                                GridPane.columnIndex="1"
+                                                                                                GridPane.rowIndex="3"/>
                                                                                         <Label text="Vor- und Zuname des Partners"
                                                                                                GridPane.rowIndex="4"/>
                                                                                         <Label text="Matrikelnummer des Partners"
                                                                                                GridPane.rowIndex="5"/>
                                                                                         <Label text="E-Mail Adresse des Partners"
                                                                                                GridPane.rowIndex="6"/>
+                                                                                        <TextField
+                                                                                                fx:id="namePartnerTextField"
+                                                                                                disable="true"
+                                                                                                GridPane.columnIndex="1"
+                                                                                                GridPane.rowIndex="4"/>
                                                                                         <TextField
                                                                                                 fx:id="matNrPartnerTextField"
                                                                                                 disable="true"
@@ -342,11 +348,6 @@
                                                                                                 disable="true"
                                                                                                 GridPane.columnIndex="1"
                                                                                                 GridPane.rowIndex="6"/>
-                                                                                        <TextField
-                                                                                                fx:id="namePartnerTextField"
-                                                                                                disable="true"
-                                                                                                GridPane.columnIndex="1"
-                                                                                                GridPane.rowIndex="4"/>
                                                                                     </children>
                                                                                 </GridPane>
                                                                             </children>

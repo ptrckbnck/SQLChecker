@@ -6,7 +6,7 @@ import fit.Counts;
 import java.util.Objects;
 
 /**
- * todo javadocs
+ * class for saving some feedback of DBFIT evaluations. DBFIT uses a similar "Count"-object.
  */
 public class Count {
     private int right;

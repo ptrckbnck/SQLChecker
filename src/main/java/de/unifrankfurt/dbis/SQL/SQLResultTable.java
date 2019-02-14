@@ -18,7 +18,7 @@ public class SQLResultTable {
     List<String> header;
     List<List<String>> data;
 
-    SQLResultTable(List<String> header, List<List<String>> data) {
+    public SQLResultTable(List<String> header, List<List<String>> data) {
         this.header = header;
         this.data = data;
     }

@@ -69,14 +69,12 @@ public class SubmissionParser {
      *
      * @param lines List of String which contains the serialized Submission
      * @return Submission created
-     * @throws SubmissionParseException when something went wring while parsing.
      */
-    public static Submission<Task> parseLines(List<String> lines, Charset cs)
-            throws SubmissionParseException {
+    public static Submission parseLines(List<String> lines, Charset cs) {
         return parse(String.join("\n", lines), cs);
     }
 
-    public static Submission<Task> parse(String toParse, Charset cs) throws SubmissionParseException {
+    public static Submission parse(String toParse, Charset cs) {
         ArrayList<Task> tasks = new ArrayList<>();
         List<Student> authors = null;
         String name = "no_name_found";
@@ -100,11 +98,11 @@ public class SubmissionParser {
         for (SubmissionToken token : tokens) {
             tasks.add(fromToken(token));
         }
-        Submission<Task> sub;
+        Submission sub;
         if (authors == null)
-            sub = new Submission<>(tasks, name);
+            sub = new Submission(tasks, name);
         else
-            sub = new Submission<>(authors, tasks, name);
+            sub = new Submission(authors, tasks, name);
         sub.setCharset(cs);
         return sub;
     }
@@ -115,98 +113,9 @@ public class SubmissionParser {
      *
      * @param token SubmissionToken
      * @return a newly created Task
-     * @throws SubmissionParseException if parsing went wrong
      */
-    public static Task fromToken(SubmissionToken token) throws SubmissionParseException {
-        if (token.getTag().getPlugin() == null) {
-            return TaskSQL.parseToken(token);
-        }
-        throw new SubmissionParseException(SubmissionParseException.ErrorType.UNKNOWN_PLUGIN);
-    }
-
-    /*TODO neu erstellen. erkennt Kommentare manchmal falsch*/
-    public static TaskBody splitBody(String body) {
-        StringBuilder comment = new StringBuilder();
-        StringBuilder sql = new StringBuilder();
-        int togglePos = 0;
-        int length = body.length();
-        for (int i = 0; i < length; i++) {
-            char c = body.charAt(i);
-
-            if (c == '\'') {
-                i = skipToToken(body, i, '\'');
-            } else if (c == '\"') {
-                i = skipToToken(body, i, '\"');
-            } else if (c == '`') {
-                i = body.indexOf('`', i);
-            } else if (c == '#' && length >= i + 1 && body.charAt(i + 1) == ' ') {
-                if (i > 0) {
-                    sql.append(body.substring(togglePos, i - 1)).append("\n");
-                }
-                togglePos = body.indexOf("\n", i);
-                comment.append(body.substring(i + 2, togglePos++)).append("\n");
-                i = togglePos;
-            } else if (c == '-'
-                    && length > i + 2
-                    && body.charAt(i + 1) == '-'
-                    && isControlCharacter(body.charAt(i + 2))) { // index test
-                if (i > togglePos) {
-                    sql.append(body.substring(togglePos, i - 1)).append("\n");
-                }
-
-                togglePos = indexOf(body, "\n", i);
-                comment.append(substring(body, i + 3, togglePos)).append("\n");
-                i = togglePos++;
-            } else if (c == '/' && length >= i + 2 && body.charAt(i + 1) == '*' && body.charAt(i + 2) == ' ') {
-                if (i > togglePos) {
-                    sql.append(body.substring(togglePos, i - 1)).append("\n");
-                }
-                togglePos = indexOf(body, "*/", i);
-                comment.append(body.substring(i + 3, togglePos++)).append("\n");
-                i = togglePos++;
-            }
-        }
-        if (togglePos <= length) {
-            sql.append(body.substring(togglePos, length));
-        }
-        return new TaskBody(
-                comment.toString().trim(),
-                sql.toString().trim());
-    }
-
-
-    private static int skipToToken(String query, int start, char token) {
-        boolean esc = false;
-        int length = query.length();
-        for (int i = start + 1; i < length; i++) {
-            char c = query.charAt(i);
-            if (c == token && !esc) {
-                return i;
-            }
-            esc = c == '\\';
-        }
-        return length;
-    }
-
-
-    private static int indexOf(String query, String str, int start) {
-        int idx = query.indexOf(str, start);
-        idx = idx >= 0 ? idx : query.length();
-        return idx;
-    }
-
-
-    private static boolean isControlCharacter(char c) {
-        return (c == ' ' || c == '\n' || c == '\t');
-    }
-
-
-    private static String substring(String query, int start, int end) {
-        if (start <= end) {
-            return query.substring(start, end);
-        } else {
-            return "";
-        }
+    public static Task fromToken(SubmissionToken token) {
+        return Task.parseToken(token);
     }
 
 

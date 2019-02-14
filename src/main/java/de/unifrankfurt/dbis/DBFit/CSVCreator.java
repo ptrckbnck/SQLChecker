@@ -37,7 +37,11 @@ public class CSVCreator {
             if (Objects.isNull(p)) {
                 return "unknown";
             } else {
-                return (x.getRoot().getParent().relativize(p).toString());
+                if (x.getRoot().getParent() == null) {
+                    return (x.getRoot().relativize(p).toString());
+                } else {
+                    return (x.getRoot().getParent().relativize(p).toString());
+                }
             }
         };
         this.functions.add(f);
@@ -46,10 +50,15 @@ public class CSVCreator {
     }
 
     public CSVCreator useAuthors() {
-        Function<ResultStorage, String> f = x -> String.valueOf(x.getAuthors());
+        Function<ResultStorage, String> f = x -> csvAuthors(x.getAuthors());
         this.functions.add(f);
         this.header.add("Authors");
         return this;
+    }
+
+    private String csvAuthors(List<Student> authors) {
+        if (Objects.isNull(authors)) return "unknown";
+        return authors.stream().map(Student::toString).collect(Collectors.joining("; "));
     }
 
     public CSVCreator useSolutionName() {
@@ -68,6 +77,33 @@ public class CSVCreator {
                     return "";
                 } else {
                     return x.getStatus().get(finalI);
+                }
+            };
+            this.functions.add(f);
+            this.header.add(header.get(i));
+        }
+        return this;
+    }
+
+    public CSVCreator useAllStatusWithSQLHeaderCheck(List<String> header) {
+        int size = header.size();
+
+        for (int i = 0; i < size; i++) {
+            final int finalI = i;
+            Function<ResultStorage, String> f = x -> {
+                if (size != x.getStatus().size()) {
+                    return "";
+                } else {
+
+                    final String s = x.getStatus().get(finalI);
+                    if (Objects.isNull(x.getResultHeaderDiff())) {
+                        //TODO somekind of warning?
+                    } else {
+                        final Boolean d = x.getResultHeaderDiff().get(finalI);
+                        if (s.equals("pass") && !d)
+                            return "pass but schema diff";
+                    }
+                    return s;
                 }
             };
             this.functions.add(f);
@@ -122,6 +158,7 @@ public class CSVCreator {
     public CSVCreator useMatrikelNr() {
         Function<ResultStorage, String> f = x -> x.getAuthors().stream()
                 .map(Student::getMatriculationNumber)
+                .sorted()
                 .collect(Collectors.joining(";"));
         this.functions.add(f);
         this.header.add("MatrikelNr");

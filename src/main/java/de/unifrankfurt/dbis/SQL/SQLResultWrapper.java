@@ -113,5 +113,16 @@ public class SQLResultWrapper {
 
     }
 
-
+    /**
+     * returns schema as list or null
+     *
+     * @return
+     */
+    public List<String> getHeader() {
+        if (this.result.get(0) instanceof SQLResultTable) {
+            if (this.isEmpty()) return List.of();
+            Object obj = this.result.get(0);
+            return ((SQLResultTable) obj).header;
+        } else return List.of();
+    }
 }

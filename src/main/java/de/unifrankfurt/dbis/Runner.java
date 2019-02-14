@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.DBFit.ResultStorage;
 import de.unifrankfurt.dbis.Submission.Report;
 import de.unifrankfurt.dbis.Submission.Solution;
 import de.unifrankfurt.dbis.Submission.SubmissionParseException;
@@ -22,11 +23,10 @@ import static java.lang.System.exit;
 /**
  * Runner is the main executable class for this project.
  * It parses command line arguments and executes accordingly.
- * does not work atm.
  */
 public class Runner {
-    private static final String version = "1.0.3";
-    private static final String name = "SQL Checker";
+    private static final String version = Runner.class.getPackage().getImplementationVersion();
+    private static final String name = Runner.class.getPackage().getName();
 
 
     public static String getVersion() {
@@ -43,7 +43,10 @@ public class Runner {
         Options options = runner.createOptions();
         CommandLine commandLine = runner.argumentParse(options, args);
         if (commandLine == null) return;
-
+        if (commandLine.hasOption("version")) {
+            System.out.println(name + " " + version);
+            return;
+        }
 
         if (commandLine.hasOption("h")){
             printHelp(options);
@@ -110,8 +113,8 @@ public class Runner {
                 }
                 if (verbose){
                     for(Solution s :sol){
-                        System.out.println("DBFitHtml of "+ sol.toString());
-                        System.out.println(s.getDBFitHtml());
+                        System.out.println("Result of " + s.getName());
+                        System.out.println(ResultStorage.generateReadableResult(s.getDBFitHtml()));
                     }
                 }
                 if (verbose) System.out.println("run Evaluation----------------------------");
@@ -142,10 +145,8 @@ public class Runner {
                 } else System.err.println(e.toString());
 
             }
-
+            AbandonedConnectionCleanupThread.checkedShutdown();
         }
-        // MysSQLDatasource creates abandoned connection. do not know why. this helps exit program.
-        AbandonedConnectionCleanupThread.shutdown();
     }
 
     /**
@@ -229,7 +230,7 @@ public class Runner {
 
         Option onlyBest = Option.builder("onlyBest")
                 .longOpt("onlyBest")
-                .desc("in csv mode, do not print all evaluations, only the best of each student.")
+                .desc("in csv mode, do not print all evaluations, only the best of each student. ")
                 .build();
         options.addOption(onlyBest);
 
@@ -240,6 +241,11 @@ public class Runner {
                 .build();
         options.addOption(help);
 
+        Option version = Option.builder(null)
+                .longOpt("version")
+                .desc("prints version of SQLChecker")
+                .build();
+        options.addOption(version);
 
         return options;
     }

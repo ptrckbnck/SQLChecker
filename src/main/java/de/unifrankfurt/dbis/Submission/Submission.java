@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.Submission;
 
 import de.unifrankfurt.dbis.IO.FileIO;
+import de.unifrankfurt.dbis.SQL.SQLResultWrapper;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
@@ -25,7 +26,8 @@ import static java.nio.file.Files.readAllLines;
  * A Submission Object is used as Template for creating a Solution.
  * Then you can check if any Submission Object satisfies created Solution.
  */
-public class Submission<e extends Task> {
+
+public class Submission {
 
     /**
      * authors of this document.
@@ -35,7 +37,7 @@ public class Submission<e extends Task> {
     /**
      * defined Tasks
      */
-    private final List<e> tasks;
+    private final List<Task> tasks;
 
     /**
      * Name of this Submission.
@@ -45,13 +47,13 @@ public class Submission<e extends Task> {
     private Charset charset;
     private Path path = null;
 
-    public Submission(List<? extends e> tasks, String name) {
+    public Submission(List<Task> tasks, String name) {
         this.tasks = new ArrayList<>(tasks);
         this.name = name;
         this.authors = new ArrayList<>();
     }
 
-    public Submission(List<Student> authors, List<? extends e> tasks, String name) {
+    public Submission(List<Student> authors, List<Task> tasks, String name) {
         this.authors = authors;
         this.tasks = new ArrayList<>(tasks);
         this.name = name;
@@ -65,8 +67,8 @@ public class Submission<e extends Task> {
      * @throws IOException              from File IO
      * @throws SubmissionParseException when parsing goes wrong
      */
-    public static Submission<Task> fromPath(Path submissionPath) throws IOException, SubmissionParseException {
-        Submission<Task> sub;
+    public static Submission fromPath(Path submissionPath) throws IOException, SubmissionParseException {
+        Submission sub;
         try {
             //using readAllLines to allow \n & \r\n
             List<String> toParse = readAllLines(submissionPath, StandardCharsets.UTF_8);
@@ -87,7 +89,7 @@ public class Submission<e extends Task> {
         return authors;
     }
 
-    public List<e> getTasks() {
+    public List<Task> getTasks() {
         return tasks;
     }
 
@@ -120,26 +122,7 @@ public class Submission<e extends Task> {
      * @throws IOException IO
      */
     public void storeInPath(Path submissionPath) throws IOException {
-        //Files.write(submissionPath, serializeAuthor(), StandardCharsets.UTF_8);
-        //Files.write(submissionPath, serializeTasks(), StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
         FileIO.saveText(submissionPath, serialize());
-    }
-
-
-    /**
-     * Runs every SQL Code of every Task containing SQL.
-     * Does not evaluate result.
-     * Use this function to see if code runs or to update your database.
-     *
-     * @param connection Connection which should be used for database communication.
-     * @throws SQLException creates SQLException if any kind of problem with database occurred.
-     */
-    public void runSQL(Connection connection) throws SQLException {
-        connection.setAutoCommit(true);
-        Statement statement = connection.createStatement();
-        for (Task task : tasks) {
-            task.runSQL(statement);
-        }
     }
 
     /**
@@ -165,38 +148,22 @@ public class Submission<e extends Task> {
     }
 
 
-    /**
-     * Return a List of every TaskSQL
-     * Workaround to work with List of TaskSQL instead of List of Task.
-     * If needed a walker function should be implemented.
-     *
-     * @return List of TaskSQL
-     */
-    public List<TaskSQL> getTaskSQLList() {
-        List<TaskSQL> list = new ArrayList<>();
-        for (Task task : this.tasks) {
-            if (task instanceof TaskSQL) {
-                list.add((TaskSQL) task);
-            }
-        }
-        return list;
-    }
-
-
-    public Solution generateSolution(DataSource source) throws SQLException {
-        List<TaskSQL> sqlTasks = getTaskSQLList();
+    public Solution generateSolution(DataSource source, SQLScript resetScript) throws SQLException {
         StringBuilder builder = new StringBuilder();
         try (Connection connection = source.getConnection()) {
             builder.append(generateDBFitHeader(source));
 
-            for (TaskSQL sql : sqlTasks) {
+            for (Task sql : this.tasks) {
                 try (Statement s = connection.createStatement()){
                     builder.append(sql.generateDBFitHtml(s));
+
                 } catch (SQLException e) {
                     throw new SQLException(e.getMessage()+". Error generating html of: " + sql.getTag().serialized(), e);
                 }
             }
-            return new Solution(this, builder.toString());
+            return new Solution(this,
+                    builder.toString(),
+                    generateResultHeaders(source, resetScript));
         }
     }
 
@@ -264,21 +231,6 @@ public class Submission<e extends Task> {
                 .collect(Collectors.joining("\n"));
     }
 
-    /**
-     * Creates Submission with only TaskSQL. Any other task will be ignored.
-     *
-     * @return Submission<TaskSQL>
-     */
-    public Submission<TaskSQL> onlyTaskSQLSubmission() {
-        Submission<TaskSQL> newSub = new Submission<>(
-                this.authors,
-                this.getTaskSQLList(), name);
-        newSub.setPath(path);
-        newSub.setCharset(charset);
-        return newSub;
-
-    }
-
 
     /**
      * Get Task with given tag.
@@ -287,9 +239,9 @@ public class Submission<e extends Task> {
      * @param tag Tag
      * @return Task if any exists with given Tag else null.
      */
-    public e getTaskByTag(Tag tag) {
-        HashMap<Tag, e> tagTaskHashMap = new HashMap<>();
-        for (e task : this.tasks)
+    public Task getTaskByTag(Tag tag) {
+        HashMap<Tag, Task> tagTaskHashMap = new HashMap<>();
+        for (Task task : this.tasks)
             tagTaskHashMap.put(task.getTag(), task);
         return tagTaskHashMap.get(tag);
 
@@ -308,13 +260,13 @@ public class Submission<e extends Task> {
         return path;
     }
 
-    public boolean sameSchema(List<Submission<TaskSQL>> others) {
+    public boolean sameSchema(List<Submission> others) {
         return others
                 .stream()
                 .allMatch(this::sameSchema);
     }
 
-    public boolean sameSchema(Submission<TaskSQL> other) {
+    public boolean sameSchema(Submission other) {
         return this.getTags().equals(other.getTags());
     }
 
@@ -333,11 +285,41 @@ public class Submission<e extends Task> {
         return this.getTags().stream().map(Tag::getName).collect(Collectors.toList());
     }
 
-    public List<String> getNonStaticTagStrings() {
-        return this.getTags()
+    /**
+     * inner lists are schema of tables. empty inner list if success but no table(create table etc.). null if sql-error
+     *
+     * @param source
+     * @param resetScript
+     * @return
+     * @throws SQLException
+     */
+    public List<List<String>> generateResultHeaders(DataSource source, SQLScript resetScript) throws SQLException {
+        resetScript.execute(source);
+        List<List<String>> sqlHeaders = new ArrayList<>();
+        try (Connection connection = source.getConnection()) {
+            for (Task sql : this.tasks) {
+                if (sql.isStatic()) continue;
+                try (Statement s = connection.createStatement()) {
+                    SQLResultWrapper result = SQLResultWrapper.executeStatement(s, sql.getSql());
+                    sqlHeaders.add(result.getHeader());
+                } catch (SQLException e) {
+                    sqlHeaders.add(null);
+                }
+            }
+        }
+        return sqlHeaders;
+    }
+
+    public List<List<String>> getSchemata() {
+        return this.getTasks()
                 .stream()
-                .filter((tag) -> !tag.isStatic())
-                .map(Tag::getName)
+                .map(x -> {
+                    if (TaskSQL.class.isAssignableFrom(x.getClass())) {
+                        return ((TaskSQL) x).getSchema();
+                    } else {
+                        return null;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 }

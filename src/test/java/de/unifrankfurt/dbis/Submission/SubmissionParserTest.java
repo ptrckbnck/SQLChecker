@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SubmissionParserTest {
 
@@ -45,13 +46,37 @@ public class SubmissionParserTest {
             "from flightexecution\n" +
             "where PlaneID = 2 and FlightDurationInMinutes<130\n" +
             "order by FlightNo;";
-    @Test
-    public void tokenizer() throws IOException, SubmissionParseException {
-        String path = "/home/xyntek/Dropbox/SQLChecker/Bewertung/Blatt1/Abgaben/Katja_Korolew_s6929499_rz.uni-frankfurt.de/6983419.txt";
-        String toParse = Files.readString(Paths.get(path), StandardCharsets.ISO_8859_1);
-        System.out.println(SubmissionParser.parse(toParse, StandardCharsets.ISO_8859_1));
-    }
 
+
+    @Test
+    public void tokenizerTemplate() {
+        List<SubmissionToken> a = SubmissionParser.tokenizer("/*submission_name*/\n" +
+                "Blatt4\n" +
+                "\n" +
+                "/*1a*/\n" +
+                "/* Kommentar zu Aufgabe 1a\n" +
+                "ueber mehrere Zeilen */\n" +
+                "...\n" +
+                "\n" +
+                "/*1b*/\n" +
+                "-- Kommentar zu Aufgabe 1b\n" +
+                "...\n" +
+                "\n" +
+                "/*2a*/\n" +
+                "-- Kommentar zu Aufgabe 1c\n" +
+                "...\n" +
+                "\n" +
+                "/*2b*/\n" +
+                "-- Kommentar \n" +
+                "...\n" +
+                "/*2c*/\n" +
+                "-- Kommentar \n" +
+                "...\n" +
+                "/*2d*/\n" +
+                "-- Kommentar \n" +
+                "...");
+        assertEquals(a.get(0).getTag(), new Tag("submission_name"));
+    }
 
     public void parseAuthor() {
     }
@@ -60,7 +85,7 @@ public class SubmissionParserTest {
     public void parse() throws IOException, SubmissionParseException {
         TestResources.DBFitSubmissionData s = TestResources.getSubmissionWAuthor();
         List<String> a = Files.readAllLines(s.getPath());
-        Submission<Task> b = SubmissionParser.parseLines(a, StandardCharsets.ISO_8859_1);
+        Submission b = SubmissionParser.parseLines(a, StandardCharsets.ISO_8859_1);
         //System.out.println(b);
     }
 
@@ -72,7 +97,4 @@ public class SubmissionParserTest {
     public void splitBody() {
     }
 
-    @Test
-    void tokenizer1() {
-    }
 }

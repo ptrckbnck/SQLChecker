@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.GUI.ExceptionAlert;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -65,5 +66,9 @@ public class GUIApp extends Application {
 
     public static List<String> getRunnerParameters() {
         return parameters;
+    }
+
+    public void stop() {
+        AbandonedConnectionCleanupThread.checkedShutdown();
     }
 }
