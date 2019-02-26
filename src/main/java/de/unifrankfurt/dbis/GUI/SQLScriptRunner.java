@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis.GUI;
 
-import de.unifrankfurt.dbis.Submission.SQLScript;
+import de.unifrankfurt.dbis.Inner.SQLScript;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import javafx.concurrent.Task;
 

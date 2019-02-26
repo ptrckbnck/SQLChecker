@@ -1,10 +1,9 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import de.unifrankfurt.dbis.DBFit.ResultStorage;
-import de.unifrankfurt.dbis.Submission.Report;
-import de.unifrankfurt.dbis.Submission.Solution;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Inner.Report;
+import de.unifrankfurt.dbis.Inner.Solution;
+import de.unifrankfurt.dbis.Inner.SubmissionParseException;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
 
@@ -114,7 +113,7 @@ public class Runner {
                 if (verbose){
                     for(Solution s :sol){
                         System.out.println("Result of " + s.getName());
-                        System.out.println(ResultStorage.generateReadableResult(s.getDBFitHtml()));
+                        System.out.println(s.getExpectedResultPrintable());
                     }
                 }
                 if (verbose) System.out.println("run Evaluation----------------------------");
@@ -124,13 +123,14 @@ public class Runner {
 
 
                 if (doCsv){
+                    final List<String> csv = report.getCSV(Solution.defaultCSVCreator(report));
                     if (Objects.isNull(saveCSV)) {
-                        report.getCSV().forEach(System.out::println);
+                        csv.forEach(System.out::println);
                     }
                     else {
                         Path path = Paths.get(saveCSV);
                         try {
-                            Files.write(path, report.getCSV(), StandardCharsets.UTF_8);
+                            Files.write(path, csv, StandardCharsets.UTF_8);
                         } catch(IOException e){
                             System.out.println("could not write CSV at "+saveCSV+": "+e.getMessage());
                         }

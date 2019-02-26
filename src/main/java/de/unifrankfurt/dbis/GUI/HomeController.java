@@ -10,10 +10,9 @@ import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
+import de.unifrankfurt.dbis.Inner.SQLScript;
+import de.unifrankfurt.dbis.Inner.Submission;
 import de.unifrankfurt.dbis.Runner;
-import de.unifrankfurt.dbis.Submission.SQLScript;
-import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
 import javafx.beans.value.ChangeListener;
@@ -405,7 +404,7 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Initialize Assignment from Submission.
+     * Initialize Assignment from Inner.
      *
      * @param submission
      */
@@ -731,9 +730,6 @@ public class HomeController implements Initializable {
         } catch (IOException e) {
             System.err.println("Fehler beim Öffnen der Aufgabe.");
             return;
-        } catch (SubmissionParseException e) {
-            System.err.println("Fehler beim Einlesen der Aufgabe.");
-            return;
         }
 
         // now select Project Path
@@ -997,7 +993,7 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * creates zip File with Submission for loading to Olat.
+     * creates zip File with Inner for loading to Olat.
      * @param actionEvent
      */
     public void handleExportOlat(ActionEvent actionEvent) {

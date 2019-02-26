@@ -4,9 +4,9 @@ package de.unifrankfurt.dbis.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.Submission.SQLScript;
-import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Inner.SQLScript;
+import de.unifrankfurt.dbis.Inner.Submission;
+import de.unifrankfurt.dbis.Inner.SubmissionParseException;
 import org.ini4j.Ini;
 
 import java.io.IOException;

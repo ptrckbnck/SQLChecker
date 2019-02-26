@@ -1,7 +1,7 @@
 package de.unifrankfurt.dbis.GUI;
 
-import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.Task;
+import de.unifrankfurt.dbis.Inner.Submission;
+import de.unifrankfurt.dbis.Inner.Task;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,10 +25,10 @@ public class Assignment {
     }
 
     /**
-     * creates Assignment from Submission. While representing nearly the same Assignment is only used in GUI and
-     * Submission in everything related to DBFIT.
+     * creates Assignment from Inner. While representing nearly the same Assignment is only used in GUI and
+     * Inner in everything related to DBFIT.
      *
-     * @param submission Submission
+     * @param submission Inner
      * @return Assignment
      */
     public static Assignment fromSubmission(Submission submission) {
@@ -36,7 +36,7 @@ public class Assignment {
                 submission.getName(),
                 submission.getTagStrings(),
                 submission.getTasks().stream().map(Task::getSql).collect(Collectors.toList()),
-                submission.getSchemata());
+                submission.getPredefinedSchemata());
     }
 
     public List<String> getTasks() {

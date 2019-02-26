@@ -7,17 +7,21 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
  * converts the ResultSet in a easily readable 2dim String List.
  */
-public class SQLResultTable {
-    List<String> header;
-    List<List<String>> data;
+public class SQLResultTable implements SQLResult {
+    private final List<String> header;
+    private final List<String> type;
+    private final List<List<Object>> data;
 
-    public SQLResultTable(List<String> header, List<List<String>> data) {
+    public SQLResultTable(List<String> header, List<String> type, List<List<Object>> data) {
         this.header = header;
+        this.type = type;
         this.data = data;
     }
 
@@ -29,51 +33,30 @@ public class SQLResultTable {
      * @throws SQLException @see ResultSet#getMetaData()
      */
     public static SQLResultTable fromResultSet(ResultSet resultSet) throws SQLException {
-        List<List<String>> table = new ArrayList<>();
+        List<List<Object>> table = new ArrayList<>();
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
         List<String> head = new ArrayList<>();
+        List<String> type = new ArrayList<>();
 
-        //create header
-        for (int i = 0; i < columnCount; i++)
+        //create header & type
+        for (int i = 0; i < columnCount; i++) {
             head.add(metaData.getColumnLabel(i + 1));
+            type.add(metaData.getColumnTypeName(i + 1));
+        }
 
         //data
         while (resultSet.next()) {
-            List<String> values = new ArrayList<>();
+            List<Object> values = new ArrayList<>();
             for (int i = 0; i < columnCount; i++) {
-                values.add(resultSet.getString(i + 1));
+                values.add(resultSet.getObject(i + 1));
             }
             table.add(values);
         }
-        return new SQLResultTable(head, table);
+        return new SQLResultTable(head, type, table);
     }
 
-    /**
-     * creates a Html String used for DBFIT Solution.
-     * It basically surrounds every value with <td></td>
-     * and surround that with <tr></tr>.
-     *
-     * @return String of html
-     */
-    public String convertToDBFitHtml() {
-        StringBuilder html = new StringBuilder();
 
-        html.append("\t<tr>\n");
-        for (String relem : this.header) {
-            html.append("\t\t<td>").append(relem).append("</td>\n");
-        }
-        html.append("\t</tr>\n");
-
-        for (List<String> row : this.data) {
-            html.append("\t<tr>\n");
-            for (String relem : row) {
-                html.append("\t\t<td>").append(relem).append("</td>\n");
-            }
-            html.append("\t</tr>\n");
-        }
-        return html.toString();
-    }
 
     @Override
     public String toString() {
@@ -82,8 +65,8 @@ public class SQLResultTable {
         at.addRule();
         at.addRow(this.header);
         at.addRule();
-        for (List<String> row : this.data) {
-            at.addRow(row);
+        for (List<Object> row : this.data) {
+            at.addRow(row.stream().map(Objects::toString).collect(Collectors.toList()));
         }
         at.addRule();
         return at.render();
@@ -115,7 +98,15 @@ public class SQLResultTable {
         return this.data.size();
     }
 
-    public List<List<String>> getData() {
+    public List<List<Object>> getData() {
         return data;
+    }
+
+    public List<String> getHeader() {
+        return header;
+    }
+
+    public List<String> getType() {
+        return type;
     }
 }

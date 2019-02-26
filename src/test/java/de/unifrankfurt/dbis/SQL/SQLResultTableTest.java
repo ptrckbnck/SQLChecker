@@ -12,6 +12,7 @@ public class SQLResultTableTest {
     public void toStringTest() {
         SQLResultTable rt = new SQLResultTable(
                 List.of("a", "b", "c"),
+                List.of("String", "String", "String"),
                 List.of(
                         List.of("a1", "b1", "c1"),
                         List.of("a2", "b2", "c2")

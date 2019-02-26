@@ -1,9 +1,10 @@
 package de.unifrankfurt.dbis.IO;
 
 import de.unifrankfurt.dbis.GUI.Assignment;
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Inner.*;
 import de.unifrankfurt.dbis.config.GUIConfig;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -52,7 +53,7 @@ public class SQLCheckerProject {
     }
 
     /**
-     * creates Submission with data from this project.
+     * creates Inner with data from this project.
      *
      * @return
      */
@@ -66,6 +67,6 @@ public class SQLCheckerProject {
                                 .setBody(codes.get(i))
                                 .createSubmissionToken()))
                 .collect(Collectors.toList());
-        return new Submission(studentList(), list, assignment.getName());
+        return new Submission(studentList(), list, assignment.getName(), StandardCharsets.UTF_8);
     }
 }

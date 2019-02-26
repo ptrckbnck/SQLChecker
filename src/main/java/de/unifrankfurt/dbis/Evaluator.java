@@ -1,10 +1,8 @@
 package de.unifrankfurt.dbis;
 
-import de.unifrankfurt.dbis.DBFit.ResultStorage;
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Inner.*;
 import de.unifrankfurt.dbis.config.DataSource;
 import de.unifrankfurt.dbis.config.EvalConfig;
-import fit.exception.FitParseException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,8 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 
 public class Evaluator {
@@ -73,8 +73,10 @@ public class Evaluator {
 
 
     public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
-        List<ResultStorage> resultStorages = new ArrayList<>();
-        List<Submission> subs = loadSubmissions(submissionsPath, resultStorages);
+        Report report = new Report();
+        report.setRootPath(submissionsPath);
+        report.setSolutionMetadata(sols.get(0).getMetaData());
+        List<Submission> subs = loadSubmissions(submissionsPath, report, null);
         int i = 1;
         int count_digits = ((int) Math.log10(subs.size())) + 1;
         for (Submission sub : subs) {
@@ -83,25 +85,23 @@ public class Evaluator {
                 System.err.flush();
                 System.out.flush();
             }
-            runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
+            runSubmissionEvaluation(sub, report, verbose, csvOnlyBest);
         }
-        return new Report(resultStorages, this.sols.get(0).csvCreator());
+        return report;
     }
 
 
-    public void runSubmissionEvaluation(Submission sub, List<ResultStorage> storages, boolean verbose, boolean csvOnlyBest) {
+    public void runSubmissionEvaluation(Submission sub, Report report, boolean verbose, boolean csvOnlyBest) {
         if(verbose) {
             System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
         }
-
         List<ResultStorage> curStorages = new ArrayList<>();
+
+        //try to fix sub, if possible
         if (!sub.isSubmissionFor(sols.get(0))) {
             Submission fixedSub = sols.get(0).tryToFixTagsFor(sub);
             if (Objects.isNull(fixedSub)) {
-                storages.add(new ResultStorage(submissionsPath,
-                        this.solutionScheme.size(),
-                        sub,
-                        new Exception("Tags do not match")));
+                report.add(new ResultStorage().setErrorMsg("no valid submission"));
                 System.out.println(errorMsg(null,
                         sub,
                         "Submissions tags do not match with solution"));
@@ -110,25 +110,25 @@ public class Evaluator {
             sub = fixedSub;
         }
 
+        //run evaluation for every given solution
         for (Solution sol : this.sols){
-            ResultStorage evaluate;
+            ResultStorage resultStorage = new ResultStorage();
             try {
-                evaluate = sol.evaluate(submissionsPath, source, resetScript, sub, verbose);
+                sol.evaluate(resultStorage, source, resetScript, sub, verbose);
                 if (verbose) {
-                    System.out.println(evaluate.getReadableResult());
+                    System.out.println(report.lastFeedback());
                 }
-                System.out.println(evaluate.createReport(this.solutionScheme));
-            } catch (SQLException | FitParseException e) {
-                evaluate = new ResultStorage(submissionsPath, sol, sub, e);
+            } catch (Exception e) {
+                resultStorage.setSubmission(sub).setSolution(sol).setException(e);
                 System.out.println(errorMsg(sol, sub, e.getMessage()));
 
             }
-            curStorages.add(evaluate);
+            curStorages.add(resultStorage);
         }
         if (csvOnlyBest){
-            storages.add(onlyBest(curStorages));
+            report.add(onlyBest(curStorages));
         }else{
-            storages.addAll(curStorages);
+            report.addAll(curStorages);
         }
     }
 
@@ -136,7 +136,7 @@ public class Evaluator {
         if (Objects.isNull(sol))
             return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors() + " ErrorMsg:" + message;
         return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors()
-                + " Solution:" + sol.getSubmission().getName() + " ErrorMsg:" + message;
+                + " Solution:" + sol.getName() + " ErrorMsg:" + message;
     }
 
     private ResultStorage onlyBest(List<ResultStorage> storages) {
@@ -144,38 +144,38 @@ public class Evaluator {
         return storages.get(0);
     }
 
-    /**
-     * loads every submissionsPath
-     * @param submissionsPath path to submissionsPath
-     * @param storages storage-container.if loading of a submission was unsuccessful, a new storage is added to container.
-     * @return
-     */
-    private List<Submission> loadSubmissions(Path submissionsPath, List<ResultStorage> storages) {
-        ArrayList<Submission> submissionList = new ArrayList<>();
+    private List<Submission> loadSubmissions(Path root, Report report, Function<Submission, Boolean> filter) {
         int depth = 0;
-        if (Files.isDirectory(submissionsPath)) {
+        if (Files.isDirectory(root)) {
             depth = 2;
         }
+        List<Path> pathes = new ArrayList<>();
         try {
-            Files.walk(submissionsPath, depth).forEach((x) -> {
-                try {
-                    if (Files.isDirectory(x)) return;
-                    Submission s = Submission.fromPath(x);
-                    s.setPath(x);
-                    submissionList.add(s);
-                    System.out.println("Submission loaded: "+x);
-                } catch (SubmissionParseException e) {
-                    storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
-                    System.out.println("SubmissionParseException, "+e.getMessage()+": "+x);
-                } catch (IOException e) {
-                    storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
-                    System.out.println("IOException, " + e.getMessage()+": "+x);
-                }
+            Files.walk(root, depth).forEach((x) -> {
+                if (Files.isDirectory(x)) return;
+                pathes.add(x);
             });
         } catch (IOException e) {
-            System.err.println("Submission path is no valid File nor Directory.");
+            System.err.println("root path is no valid File nor Directory.");
         }
-        return submissionList;
+        return loadSubmissions(pathes, report, filter);
+    }
+
+    private List<Submission> loadSubmissions(Collection<Path> submissionPaths, Report report, Function<Submission, Boolean> filter) {
+        List<Submission> list = new ArrayList<>();
+        for (Path p : submissionPaths) {
+            try {
+                Submission sub = Submission.fromPath(p);
+                if (Objects.isNull(filter) || filter.apply(sub)) {
+                    list.add(sub);
+                }
+
+            } catch (IOException e) {
+                report.add(new ResultStorage().setSubmissionPath(p).setException(e));
+                System.out.println(report.lastFeedback());
+            }
+        }
+        return list;
     }
 
 
