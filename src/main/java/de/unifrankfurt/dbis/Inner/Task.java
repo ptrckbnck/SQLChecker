@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis.Inner;
 
-import de.unifrankfurt.dbis.SQL.SQLResult;
+import de.unifrankfurt.dbis.SQL.SQLData;
 import de.unifrankfurt.dbis.SQL.SQLResults;
 import de.unifrankfurt.dbis.config.DataSource;
 
@@ -93,7 +93,7 @@ public abstract class Task {
         return Objects.hash(tag, sql);
     }
 
-    public SQLResult execute(DataSource dataSource) {
+    public SQLData execute(DataSource dataSource) {
         return SQLResults.execute(dataSource, this.getSql());
     }
 }

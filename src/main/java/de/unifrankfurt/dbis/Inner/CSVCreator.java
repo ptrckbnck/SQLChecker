@@ -1,9 +1,10 @@
 package de.unifrankfurt.dbis.Inner;
 
 
+import de.unifrankfurt.dbis.SQL.SQLResultDiff;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -34,14 +35,14 @@ public class CSVCreator {
     public CSVCreator useSubmissionPath() {
         Path p = report.getRootPath();
         Function<ResultStorage, String> f = x -> {
-            if (Objects.isNull(p)) {
-                return "unknown";
-            } else {
+            try {
                 if (p.getRoot().getParent() == null) {
                     return (p.getRoot().relativize(x.getSubmissionPath()).toString());
                 } else {
                     return (p.getRoot().getParent().relativize(p).toString());
                 }
+            } catch (Exception e) {
+                return "unknown";
             }
         };
         this.functions.add(f);
@@ -69,18 +70,20 @@ public class CSVCreator {
     }
 
     public CSVCreator useAllStatus() {
-        int size = header.size();
+        final List<Tag> tags = report.getSolutionMetadata().getTags();
+        int size = tags.size();
         for (int i = 0; i < size; i++) {
             final int finalI = i;
             Function<ResultStorage, String> f = x -> {
-                if (size != x.getStatus().size()) {
+                if (size != x.getDiff().size()) {
                     return "";
                 } else {
-                    return x.getStatus().get(finalI).toString();
+                    return x.getDiff().get(finalI).isOk().toString();
                 }
             };
             this.functions.add(f);
-            this.header.add(header.get(i));
+
+            this.header.add(tags.get(i).getName());
         }
         return this;
     }
@@ -88,7 +91,7 @@ public class CSVCreator {
 
 
     public CSVCreator useErrorMsg() {
-        Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getErrorMsg(), "unknown");
+        Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getErrorMsg(), "none");
         this.functions.add(f);
         this.header.add("ErrorMsg");
         return this;
@@ -102,7 +105,7 @@ public class CSVCreator {
     }
 
     public CSVCreator useSuccess() {
-        Function<ResultStorage, String> f = x -> String.valueOf(Collections.frequency(x.getStatus(), "pass"));
+        Function<ResultStorage, String> f = x -> String.valueOf(x.getDiff().stream().map(SQLResultDiff::isOk).filter(i -> i).count());
         this.functions.add(f);
         this.header.add("#Success");
         return this;
@@ -124,17 +127,23 @@ public class CSVCreator {
     }
 
     public CSVCreator useEncoding() {
-        Function<ResultStorage, String> f = x -> String.valueOf(x.getEncoding());
+        Function<ResultStorage, String> f = x -> String.valueOf(x.getCharset());
         this.functions.add(f);
         this.header.add("Encoding");
         return this;
     }
 
     public CSVCreator useMatrikelNr() {
-        Function<ResultStorage, String> f = x -> x.getAuthors().stream()
-                .map(Student::getMatriculationNumber)
-                .sorted()
-                .collect(Collectors.joining(";"));
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getAuthors().stream()
+                        .map(Student::getMatriculationNumber)
+                        .sorted()
+                        .collect(Collectors.joining(";"));
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
         this.functions.add(f);
         this.header.add("MatrikelNr");
         return this;

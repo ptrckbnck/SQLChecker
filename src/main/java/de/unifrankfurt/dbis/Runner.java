@@ -121,9 +121,8 @@ public class Runner {
 
                 Report report = evaluator.runEvaluation(verbose, commandLine.hasOption("onlyBest"));
 
-
                 if (doCsv){
-                    final List<String> csv = report.getCSV(Solution.defaultCSVCreator(report));
+                    final List<String> csv = report.getCSV();
                     if (Objects.isNull(saveCSV)) {
                         csv.forEach(System.out::println);
                     }

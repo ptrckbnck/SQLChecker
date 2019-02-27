@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 /**
  * converts the ResultSet in a easily readable 2dim String List.
  */
-public class SQLResultTable implements SQLResult {
+public class SQLDataTable implements SQLData {
     private final List<String> header;
     private final List<String> type;
     private final List<List<Object>> data;
 
-    public SQLResultTable(List<String> header, List<String> type, List<List<Object>> data) {
+    public SQLDataTable(List<String> header, List<String> type, List<List<Object>> data) {
         this.header = header;
         this.type = type;
         this.data = data;
@@ -32,7 +32,7 @@ public class SQLResultTable implements SQLResult {
      * @return SQLResultTable
      * @throws SQLException @see ResultSet#getMetaData()
      */
-    public static SQLResultTable fromResultSet(ResultSet resultSet) throws SQLException {
+    public static SQLDataTable fromResultSet(ResultSet resultSet) throws SQLException {
         List<List<Object>> table = new ArrayList<>();
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
@@ -53,7 +53,7 @@ public class SQLResultTable implements SQLResult {
             }
             table.add(values);
         }
-        return new SQLResultTable(head, type, table);
+        return new SQLDataTable(head, type, table);
     }
 
 
@@ -108,5 +108,10 @@ public class SQLResultTable implements SQLResult {
 
     public List<String> getType() {
         return type;
+    }
+
+    @Override
+    public boolean failed() {
+        return false;
     }
 }

@@ -3,11 +3,11 @@ package de.unifrankfurt.dbis.SQL;
 
 import java.sql.SQLException;
 
-public class SQLResultFail implements SQLResult {
+public class SQLDataFail implements SQLData {
 
     private final SQLException sqlException;
 
-    public SQLResultFail(SQLException e) {
+    public SQLDataFail(SQLException e) {
         this.sqlException = e;
     }
 
@@ -18,5 +18,10 @@ public class SQLResultFail implements SQLResult {
     @Override
     public String toString() {
         return this.sqlException.toString();
+    }
+
+    @Override
+    public boolean failed() {
+        return true;
     }
 }

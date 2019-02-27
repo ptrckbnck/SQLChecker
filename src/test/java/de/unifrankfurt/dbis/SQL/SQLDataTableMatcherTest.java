@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SQLResultTableMatcherTest {
+class SQLDataTableMatcherTest {
 
     @Test
     void match() {
@@ -19,7 +19,7 @@ class SQLResultTableMatcherTest {
 
     @Test
     void keySplit() {
-        SQLResultTable table = new SQLResultTable(List.of("0", "1", "2", "3", "4", "5"),
+        SQLDataTable table = new SQLDataTable(List.of("0", "1", "2", "3", "4", "5"),
                 List.of("", "", ""),
                 List.of(List.of("1", "1", "2", "1", "2", "3"),
                         List.of("1", "1", "2", "2", "3", "4"),
@@ -44,7 +44,7 @@ class SQLResultTableMatcherTest {
                 new SQLResultTableMatcher.PairKeyIndiciesSet(List.of("1", "2", "3"), Set.of(3))),
                 splitted);
 
-        table = new SQLResultTable(List.of("0", "1", "2", "3", "4", "5"),
+        table = new SQLDataTable(List.of("0", "1", "2", "3", "4", "5"),
                 List.of("", "", "", "", "", ""), List.of());
         splitted = SQLResultTableMatcher.keySplit(table, List.of(0, 1, 2));
         assertEquals(List.of(), splitted);

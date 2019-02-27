@@ -2,17 +2,21 @@ package de.unifrankfurt.dbis.SQL;
 
 public class SQLResultDiffTypeMismatch implements SQLResultDiff {
 
-    private final SQLResult expected;
-    private final SQLResult actual;
+    private final SQLData expected;
+    private final SQLData actual;
 
-    public SQLResultDiffTypeMismatch(SQLResult expected, SQLResult actual) {
+    public SQLResultDiffTypeMismatch(SQLData expected, SQLData actual) {
         this.expected = expected;
         this.actual = actual;
     }
 
     @Override
     public String getMessage() {
-        return "Type mismatch. Expected: " + expected.getClass() + ", but was: " + actual.getClass();
+        if (!expected.failed() && actual.failed()) {
+            return "Failed: " + actual.toString();
+        } else {
+            return "Type mismatch. Expected: " + expected.getClass().getSimpleName() + ", but was: " + actual.getClass().getSimpleName();
+        }
     }
 
     @Override

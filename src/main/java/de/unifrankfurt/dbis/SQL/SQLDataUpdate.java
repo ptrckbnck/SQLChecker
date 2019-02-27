@@ -1,9 +1,9 @@
 package de.unifrankfurt.dbis.SQL;
 
-public class SQLResultUpdate implements SQLResult {
+public class SQLDataUpdate implements SQLData {
     private final int updateCount;
 
-    public SQLResultUpdate(int updateCount) {
+    public SQLDataUpdate(int updateCount) {
         this.updateCount = updateCount;
     }
 
@@ -16,4 +16,8 @@ public class SQLResultUpdate implements SQLResult {
         return "Query OK, " + updateCount + " rows affected";
     }
 
+    @Override
+    public boolean failed() {
+        return false;
+    }
 }

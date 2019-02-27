@@ -1,7 +1,7 @@
 package de.unifrankfurt.dbis.GUI;
 
-import de.unifrankfurt.dbis.SQL.SQLResult;
-import de.unifrankfurt.dbis.SQL.SQLResultTable;
+import de.unifrankfurt.dbis.SQL.SQLData;
+import de.unifrankfurt.dbis.SQL.SQLDataTable;
 import de.unifrankfurt.dbis.SQL.SQLResults;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import javafx.concurrent.Task;
@@ -60,13 +60,13 @@ public class SQLRunner extends Task<Integer> {
     protected Integer call() {
 
         checkSQL(sql);
-        SQLResult result = SQLResults.execute(guiConfig.getDataSource(), sql);
+        SQLData result = SQLResults.execute(guiConfig.getDataSource(), sql);
         System.out.println(result);
 
-        if (Objects.isNull(schema) || !result.getClass().isAssignableFrom(SQLResultTable.class)) return 0;
+        if (Objects.isNull(schema) || !result.getClass().isAssignableFrom(SQLDataTable.class)) return 0;
 
         SchemaTester tester = new SchemaTester(guiConfig.getDataSource(), sql, schema);
-        final List<String> header = ((SQLResultTable) result).getHeader();
+        final List<String> header = ((SQLDataTable) result).getHeader();
         List<Boolean> testResult = tester.test(header);
         if (Objects.isNull(testResult)) {
             System.out.println("Schema inkorrekt. Das Schema hat nicht die erwartete Länge " + schema.size() + ".");

@@ -1,10 +1,10 @@
 package de.unifrankfurt.dbis.SQL;
 
 public class SQLResultDiffTableTypeMismatch implements SQLResultDiff {
-    private final SQLResultTable expected;
-    private final SQLResultTable actual;
+    private final SQLDataTable expected;
+    private final SQLDataTable actual;
 
-    public SQLResultDiffTableTypeMismatch(SQLResultTable expected, SQLResultTable actual) {
+    public SQLResultDiffTableTypeMismatch(SQLDataTable expected, SQLDataTable actual) {
         this.expected = expected;
         this.actual = actual;
     }

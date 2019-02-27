@@ -26,4 +26,14 @@ public class SolutionMetadata {
     public List<Tag> getNonStaticTags() {
         return nonStaticTags;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("SolutionMetadata{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", tags=").append(tags);
+        sb.append(", nonStaticTags=").append(nonStaticTags);
+        sb.append('}');
+        return sb.toString();
+    }
 }

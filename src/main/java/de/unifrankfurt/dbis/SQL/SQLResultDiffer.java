@@ -5,18 +5,18 @@ import java.util.Objects;
 
 public class SQLResultDiffer {
 
-    public static SQLResultDiff diff(SQLResult expectedResult, SQLResult actualResult) {
+    public static SQLResultDiff diff(SQLData expectedResult, SQLData actualResult) {
         return SQLResultDiffer.diff(expectedResult, actualResult, null);
     }
 
-    static SQLResultDiff diff(SQLResult expectedResult, SQLResult actualResult, List<Integer> order) {
+    static SQLResultDiff diff(SQLData expectedResult, SQLData actualResult, List<Integer> order) {
         try {
             if (expectedResult.getClass() != actualResult.getClass()) {
                 return new SQLResultDiffTypeMismatch(expectedResult, actualResult);
             }
-            if (expectedResult.getClass() == SQLResultTable.class) {
-                SQLResultTable expectedTable = (SQLResultTable) expectedResult;
-                SQLResultTable actualTable = (SQLResultTable) actualResult;
+            if (expectedResult.getClass() == SQLDataTable.class) {
+                SQLDataTable expectedTable = (SQLDataTable) expectedResult;
+                SQLDataTable actualTable = (SQLDataTable) actualResult;
                 if (!expectedTable.getHeader().equals(actualTable.getHeader())) {
                     return new SQLResultDiffSchemaMismatch(expectedTable, actualTable);
                 }
@@ -28,16 +28,15 @@ public class SQLResultDiffer {
                     order = List.of();
                 }
                 SQLResultTableDiff matched = SQLResultTableMatcher.match(expectedTable, actualTable, order);
-                System.err.println(matched);
                 if (Objects.isNull(matched)) {
                     return new SQLResultDiffSchemaMismatch(expectedTable, actualTable); //should not be reached
                 }
                 if (!matched.isOk()) {
                     return new SQLResultDiffTableDataMismatch(expectedTable, actualTable, matched);
                 }
-                return new SQLResultOK();
+                return new SQLResultDiffOK();
             }
-            return new SQLResultOK();
+            return new SQLResultDiffOK();
         } catch (Exception e) {
             return new SQLResultDiffException(e);
         }

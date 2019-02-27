@@ -24,7 +24,6 @@ public class Evaluator {
     private Path submissionsPath;
     private SQLScript resetScript;
     private DataSource source;
-    private List<String> solutionScheme;
 
     public Evaluator(String configPath) {
         this.configPath = configPath;
@@ -43,7 +42,6 @@ public class Evaluator {
         samples = config.getSolutions();
         if (samples.isEmpty()) throw new IOException("No Solution File");
         if (!haveAllSameScheme(samples)) throw new IOException("tags of solutions do not match");
-        this.solutionScheme = this.samples.get(0).getTagStrings();
     }
 
 
@@ -115,9 +113,6 @@ public class Evaluator {
             ResultStorage resultStorage = new ResultStorage();
             try {
                 sol.evaluate(resultStorage, source, resetScript, sub, verbose);
-                if (verbose) {
-                    System.out.println(report.lastFeedback());
-                }
             } catch (Exception e) {
                 resultStorage.setSubmission(sub).setSolution(sol).setException(e);
                 System.out.println(errorMsg(sol, sub, e.getMessage()));
@@ -172,7 +167,6 @@ public class Evaluator {
 
             } catch (IOException e) {
                 report.add(new ResultStorage().setSubmissionPath(p).setException(e));
-                System.out.println(report.lastFeedback());
             }
         }
         return list;

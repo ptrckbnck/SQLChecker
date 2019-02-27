@@ -4,7 +4,8 @@ package de.unifrankfurt.dbis.Inner;
  *
  */
 
-import de.unifrankfurt.dbis.SQL.SQLResult;
+import de.unifrankfurt.dbis.SQL.SQLData;
+import de.unifrankfurt.dbis.SQL.SQLResultDiff;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -17,11 +18,11 @@ import java.util.stream.IntStream;
 public class ResultStorage {
     private List<Student> authors;
     private String solutionName;
-    private List<EvalStatus> status;
+    private List<SQLResultDiff> diffs;
     private String errorMsg;
     private List<Integer> score;
     private Charset charset;
-    private List<SQLResult> sqlResults;
+    private List<SQLData> sqlData;
     private Exception exception;
     private Submission submission;
     private Solution solution;
@@ -49,13 +50,13 @@ public class ResultStorage {
         return this;
     }
 
-    public List<EvalStatus> getStatus() {
-        return status;
+    public ResultStorage setDiffs(List<SQLResultDiff> diffs) {
+        this.diffs = diffs;
+        return this;
     }
 
-    public ResultStorage setStatus(List<EvalStatus> status) {
-        this.status = status;
-        return this;
+    public List<SQLResultDiff> getDiff() {
+        return diffs;
     }
 
     public String getErrorMsg() {
@@ -86,12 +87,12 @@ public class ResultStorage {
         return this;
     }
 
-    public List<SQLResult> getSqlResults() {
-        return sqlResults;
+    public List<SQLData> getSqlData() {
+        return sqlData;
     }
 
-    public ResultStorage setSqlResults(List<SQLResult> sqlResults) {
-        this.sqlResults = sqlResults;
+    public ResultStorage setSqlData(List<SQLData> sqlData) {
+        this.sqlData = sqlData;
         return this;
     }
 
@@ -100,10 +101,6 @@ public class ResultStorage {
         return csvc.create(this);
     }
 
-
-    public Charset getEncoding() {
-        return this.charset;
-    }
 
     private String report(Path path, String authors, List<String> tags, List<String> status) {
         String prefix = "SUCCESS Path:" + path + " Authors:" + authors + " Solution:" + solutionName + " Evaluation:[";
@@ -155,15 +152,16 @@ public class ResultStorage {
         return "ResultStorage{" +
                 "authors=" + authors +
                 ", solutionName='" + solutionName + '\'' +
-                ", status=" + status +
+                ", diffs=" + diffs +
                 ", errorMsg='" + errorMsg + '\'' +
                 ", score=" + score +
                 ", charset=" + charset +
-                ", sqlResults=" + sqlResults +
+                ", sqlResults=" + sqlData +
                 ", exception=" + exception +
                 ", submission=" + submission +
                 ", solution=" + solution +
                 ", submissionPath=" + submissionPath +
                 '}';
     }
+
 }

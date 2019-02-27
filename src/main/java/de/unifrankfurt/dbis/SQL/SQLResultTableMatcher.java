@@ -7,45 +7,89 @@ import java.util.stream.Stream;
 public abstract class SQLResultTableMatcher {
 
 
-    public static SQLResultTableDiff match(SQLResultTable expected,
-                                           SQLResultTable actual,
+    public static SQLResultTableDiff match(SQLDataTable expected,
+                                           SQLDataTable actual,
                                            Collection<Integer> order) {
-        order = !Objects.isNull(order) ? new ArrayList<>() : order;
+        order = Objects.isNull(order) ? new ArrayList<>() : order;
 
         if (!schemaMatch(expected, actual)) return null;
-        List<PairKeyIndiciesSet> keySplittedExpected = SQLResultTableMatcher.keySplit(expected, order);
-        List<PairKeyIndiciesSet> keySplittedActual = SQLResultTableMatcher.keySplit(actual, order);
+        final List<PairKeyIndiciesSet> keySplittedExpected = SQLResultTableMatcher.keySplit(expected, order);
+        final List<PairKeyIndiciesSet> keySplittedActual = SQLResultTableMatcher.keySplit(actual, order);
 
         for (int i = 0; i < keySplittedExpected.size(); i++) {
             PairKeyIndiciesSet expectedPair = keySplittedExpected.get(i);
-            if (keySplittedActual.size() <= i) {
-
-                return new SQLResultTableDiff(expectedPair.getRowsAsList(), List.of());
+            if (keySplittedActual.size() <= i) { // no values with current key in actual data
+                final List<Integer> rows = keySplittedExpected.get(i).getRowsAsList();
+                return new SQLResultTableDiff(rows, List.of(), List.of(), rows, false);
             }
-            PairKeyIndiciesSet actualPair = keySplittedActual.get(i);
-            if (!expectedPair.equals(actualPair)) {
-                return new SQLResultTableDiff(expectedPair.getRowsAsList(), actualPair.getRowsAsList());
-            }
+            final PairKeyIndiciesSet actualPair = keySplittedActual.get(i);
 
-            if (!expectedPair.getRowValues(expected).equals(actualPair.getRowValues(actual))) {
-                return new SQLResultTableDiff(expectedPair.getRowsAsList(), actualPair.getRowsAsList());
+
+            if (!expectedPair.getRowValues(expected).equals(actualPair.getRowValues(actual))) { // values of current key do not match
+                return new SQLResultTableDiff(expectedPair.getRowsAsList(),
+                        actualPair.getRowsAsList(),
+                        surplus(expected, actual, expectedPair, actualPair),
+                        missing(expected, actual, expectedPair, actualPair),
+                        false);
             }
         }
         if (keySplittedActual.size() > keySplittedExpected.size()) {
-            return new SQLResultTableDiff(List.of(), keySplittedActual.get(keySplittedExpected.size() + 1).getRowsAsList()); //trailing rows
+            final List<Integer> rows = keySplittedActual.get(keySplittedExpected.size()).getRowsAsList();
+            return new SQLResultTableDiff(List.of(), rows, rows, List.of(), false);
         }
-        System.err.println(keySplittedActual);
-        System.err.println(keySplittedExpected);//TODO remove
-        return new SQLResultTableDiff(); //ok
+        return new SQLResultTableDiff(List.of(), List.of(), List.of(), List.of(), true); //ok
     }
 
+
+    public static List<Integer> surplus(SQLDataTable expected,
+                                        SQLDataTable actual,
+                                        PairKeyIndiciesSet expectedPair,
+                                        PairKeyIndiciesSet actualPair) {
+        List<Integer> remainingLines = actualPair.getRowsAsList();
+        for (Integer row : expectedPair.getRowsAsList()) {
+            List<Object> expectedValue = expected.getData().get(row);
+            for (Integer i : remainingLines) {
+                final List<Object> actualValue = actual.getData().get(i);
+                if (actualValue.equals(expectedValue)) {
+                    remainingLines.remove(i);
+                    break;
+                }
+            }
+        }
+        return remainingLines;
+    }
+
+    public static List<Integer> missing(SQLDataTable expected,
+                                        SQLDataTable actual,
+                                        PairKeyIndiciesSet expectedPair,
+                                        PairKeyIndiciesSet actualPair) {
+        List<Integer> remainingLines = actualPair.getRowsAsList();
+        List<Integer> missing = new ArrayList<>();
+        for (Integer row : expectedPair.getRowsAsList()) {
+            List<Object> expectedValue = expected.getData().get(row);
+            boolean found = false;
+            for (Integer i : remainingLines) {
+                final List<Object> actualValue = actual.getData().get(i);
+                if (actualValue.equals(expectedValue)) {
+                    remainingLines.remove(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                missing.add(row);
+            }
+
+        }
+        return missing;
+    }
 
     /**
      * @param table
      * @param order
      * @return Liste von einer Menge von Indizes. Indizied beziehen sich auf rows des tables. Alle Objekte der Menge haben gleiche Keys.
      */
-    public static List<PairKeyIndiciesSet> keySplit(SQLResultTable table,
+    public static List<PairKeyIndiciesSet> keySplit(SQLDataTable table,
                                                     Collection<Integer> order) {
 
         PairKeyIndiciesSet current = null;
@@ -77,8 +121,8 @@ public abstract class SQLResultTableMatcher {
     }
 
 
-    public static boolean schemaMatch(SQLResultTable expected,
-                                      SQLResultTable actual) {
+    public static boolean schemaMatch(SQLDataTable expected,
+                                      SQLDataTable actual) {
         return (expected.getHeader()
                 .equals(actual.getHeader()));
 
@@ -141,8 +185,8 @@ public abstract class SQLResultTableMatcher {
                     '}';
         }
 
-        public Set<List<Object>> getRowValues(SQLResultTable table) {
-            return this.getRows().stream().map(i -> table.getData().get(i)).collect(Collectors.toSet());
+        public Map<List<Object>, Long> getRowValues(SQLDataTable table) { //multiset
+            return this.rows.stream().collect(Collectors.groupingBy(table.getData()::get, Collectors.counting()));
         }
     }
 }

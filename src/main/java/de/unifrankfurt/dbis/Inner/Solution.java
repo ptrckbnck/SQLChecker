@@ -9,16 +9,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static de.unifrankfurt.dbis.Inner.Task.parseSchema;
 
 public class Solution extends CheckerFrame {
-    private final List<SQLResult> expectedResults;
+    private final List<SQLData> expectedResults;
 
-    protected Solution(List<Task> tasks, String name, Charset charset, List<SQLResult> sqlResult) {
+    protected Solution(List<Task> tasks, String name, Charset charset, List<SQLData> sqlData) {
         super(tasks, name, charset);
-        this.expectedResults = sqlResult;
+        this.expectedResults = sqlData;
     }
 
     public static Solution createSolution(List<Task> tasks, String name, Charset charset, SQLScript resetScript, DataSource datasource) {
@@ -28,11 +27,11 @@ public class Solution extends CheckerFrame {
             System.err.println("WARNING: error running ResetScript: " + e.getMessage());
             return null;
         }
-        List<SQLResult> expectedResults = new ArrayList<>();
+        List<SQLData> expectedResults = new ArrayList<>();
         for (Task t : tasks) {
             String sql = t.getSql();
-            SQLResult result = SQLResults.execute(datasource, sql);
-            if (result instanceof SQLResultFail) {
+            SQLData result = SQLResults.execute(datasource, sql);
+            if (result instanceof SQLDataFail) {
                 //TODO
                 System.err.println("WARNING: error while running task: " + t + "\n" + result);
             }
@@ -87,71 +86,51 @@ public class Solution extends CheckerFrame {
         return true;
     }
 
-    public static CSVCreator defaultCSVCreator(Report report) {
-        return new CSVCreator(report).useSubmissionPath()
-                .useAuthors()
-                .useMatrikelNr()
-                .useSolutionName()
-                .useAllStatus()
-                .useSuccess()
-                .useEncoding()
-                .useErrorMsg();
-    }
 
-    public List<SQLResult> getExpectedResults() {
+    public List<SQLData> getExpectedResults() {
         return expectedResults;
     }
 
     public String getExpectedResultPrintable() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < this.tasks.size(); i++) {
-            builder.append(tasks.get(i).toString()).append("\n").append(expectedResults.get(i).toString());
+            builder.append(tasks.get(i).serialize()).append("\n").append(expectedResults.get(i).toString()).append("\n");
         }
         return builder.toString();
     }
 
-    public String generateCSVHeader() {
-        ArrayList<String> fullList = new ArrayList<>();
-        fullList.add("Path");
-        fullList.add("Authors");
-        fullList.add("Solution");
-        fullList.addAll(this.getTagNames());
-        fullList.add("#Success");
-        fullList.add("ErrorMsg");
-        return fullList.stream()
-                .collect(Collectors.joining("\", \"",
-                        "\"",
-                        "\""));
-    }
 
     public void evaluate(ResultStorage store,
                          DataSource source,
                          SQLScript resetScript,
                          Submission submission,
-                         boolean verbose) {
-        try {
-            resetScript.execute(source);
-        } catch (SQLException e) {
-            //TODO RESET FAILED;
-            System.err.println("ERROR FAILED");
-        }
-        List<SQLResultDiff> diff = new ArrayList<>();
-        List<SQLResult> results = new ArrayList<>();
+                         boolean verbose) throws SQLException {
+        store.setCharset(submission.getCharset());
+        resetScript.execute(source);
+
+
+        List<SQLResultDiff> diffs = new ArrayList<>();
+        List<SQLData> results = new ArrayList<>();
         int subTask = 0;
         for (int i = 0; i < this.getTasks().size(); i++) {
             Task t = this.getTasks().get(i);
-            SQLResult expectedResult = this.getExpectedResults().get(i);
-            SQLResult actualResult;
+            SQLData expectedResult = this.getExpectedResults().get(i);
+            SQLData actualResult;
             if (t.isStatic()) {
                 actualResult = t.execute(source);
             } else {
                 actualResult = submission.getTasks().get(subTask++).execute(source);
             }
             results.add(actualResult);
-            final SQLResultDiff diff1 = SQLResultDiffer.diff(expectedResult, actualResult);
+            SQLResultDiff diff = SQLResultDiffer.diff(expectedResult, actualResult);
+            diffs.add(diff);
+            if (verbose) {
+                String s = t.getTag().getName() + ": " + diff.getMessage();
+                System.out.println(s);
+            }
         }
-        store.setSqlResults(results);
-
+        store.setSqlData(results);
+        store.setDiffs(diffs);
     }
 
     public Submission tryToFixTagsFor(Submission sub) {

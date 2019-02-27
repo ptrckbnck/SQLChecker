@@ -14,6 +14,10 @@ public class Report {
     }
 
 
+    public List<String> getCSV() {
+        return getCSV(this.defaultCSVCreator());
+    }
+
     public List<String> getCSV(CSVCreator csvCreator) {
         List<String> list = new ArrayList<>();
         list.add(csvCreator.createCSVHeader());
@@ -21,13 +25,19 @@ public class Report {
         return list;
     }
 
-    public void add(ResultStorage resultStorage) {
-        this.resultStorages.add(resultStorage);
+    public CSVCreator defaultCSVCreator() {
+        return new CSVCreator(this).useSubmissionPath()
+                .useAuthors()
+                .useMatrikelNr()
+                .useSolutionName()
+                .useAllStatus()
+                .useSuccess()
+                .useEncoding()
+                .useErrorMsg();
     }
 
-    //Feedback for last added storage TODO
-    public String lastFeedback() {
-        return "FEEDBACK";
+    public void add(ResultStorage resultStorage) {
+        this.resultStorages.add(resultStorage);
     }
 
     public void addAll(List<ResultStorage> curStorages) {

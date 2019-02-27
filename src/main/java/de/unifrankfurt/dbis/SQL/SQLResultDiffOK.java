@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis.SQL;
 
-class SQLResultOK implements SQLResultDiff {
+class SQLResultDiffOK implements SQLResultDiff {
     @Override
     public String getMessage() {
         return "ok";

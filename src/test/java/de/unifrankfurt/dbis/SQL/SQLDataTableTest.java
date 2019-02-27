@@ -6,11 +6,11 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SQLResultTableTest {
+public class SQLDataTableTest {
 
     @Test
     public void toStringTest() {
-        SQLResultTable rt = new SQLResultTable(
+        SQLDataTable rt = new SQLDataTable(
                 List.of("a", "b", "c"),
                 List.of("String", "String", "String"),
                 List.of(
