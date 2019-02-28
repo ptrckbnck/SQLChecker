@@ -1,7 +1,7 @@
 package de.unifrankfurt.dbis.IO;
 
-import de.unifrankfurt.dbis.GUI.Assignment;
 import de.unifrankfurt.dbis.Inner.*;
+import de.unifrankfurt.dbis.StudentGUI.Assignment;
 import de.unifrankfurt.dbis.config.GUIConfig;
 
 import java.nio.charset.StandardCharsets;

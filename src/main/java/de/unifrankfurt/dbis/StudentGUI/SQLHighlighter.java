@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.fxmisc.richtext.model.StyleSpans;

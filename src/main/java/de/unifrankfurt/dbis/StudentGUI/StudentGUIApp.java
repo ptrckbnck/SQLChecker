@@ -1,7 +1,6 @@
-package de.unifrankfurt.dbis;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import de.unifrankfurt.dbis.GUI.ExceptionAlert;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -17,13 +16,13 @@ import java.net.URL;
 import java.util.List;
 
 
-public class GUIApp extends Application {
+public class StudentGUIApp extends Application {
+    private static PrintStream sysOut;
+    private static List<String> parameters;
     private static Stage primaryStage;
     private static HostServices hostServices;
-    private static List<String> parameters;
-    private static PrintStream sysOut;
 
-    private static void showError(Thread t, Throwable e) {
+    public static void showError(Thread t, Throwable e) {
         if (Platform.isFxApplicationThread()) {
             ExceptionAlert alert = new ExceptionAlert(e);
             e.printStackTrace(sysOut);
@@ -34,30 +33,28 @@ public class GUIApp extends Application {
         }
     }
 
+    public static Stage getPrimaryStage() {
+        return StudentGUIApp.primaryStage;
+    }
+
     @Override
     public void start(Stage primaryStage) throws IOException {
-        GUIApp.sysOut = System.out;
-        GUIApp.primaryStage = primaryStage;
-        GUIApp.parameters = getParameters().getRaw();
-        GUIApp.hostServices = getHostServices();
-        Thread.currentThread().setUncaughtExceptionHandler(GUIApp::showError);
+        StudentGUIApp.sysOut = System.out;
+        StudentGUIApp.primaryStage = primaryStage;
+        StudentGUIApp.parameters = getParameters().getRaw();
+        StudentGUIApp.hostServices = getHostServices();
+        Thread.currentThread().setUncaughtExceptionHandler(StudentGUIApp::showError);
 
 
-        URL fxml = getClass().getResource("/mainPane.fxml");
+        URL fxml = getClass().getResource("/StudentGUIMain.fxml");
         Parent root = FXMLLoader.load(fxml);
-
         Scene scene = new Scene(root);
-
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(
                 new Image(
                         getClass().getResourceAsStream("/images/sql-icon.png")));
 
         primaryStage.show();
-    }
-
-    public static Stage getPrimaryStage() {
-        return GUIApp.primaryStage;
     }
 
     public static HostServices getHostServicesStatic() {

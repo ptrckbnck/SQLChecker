@@ -27,6 +27,7 @@ public class ResultStorage {
     private Submission submission;
     private Solution solution;
     private Path submissionPath;
+    private Boolean valid;
 
     public static Comparator<? super ResultStorage> resultComperator() {
         return Comparator.comparingInt(o -> (o.score.stream().reduce(0, Integer::sum)));
@@ -77,6 +78,18 @@ public class ResultStorage {
         return this;
     }
 
+    public List<SQLResultDiff> getDiffs() {
+        return diffs;
+    }
+
+    public Boolean getValid() {
+        return valid;
+    }
+
+    public ResultStorage setValid(Boolean valid) {
+        this.valid = valid;
+        return this;
+    }
 
     public Charset getCharset() {
         return charset;
@@ -164,4 +177,8 @@ public class ResultStorage {
                 '}';
     }
 
+    public SubmissionInfo getSubmissionInfo() {
+        return new SubmissionInfo(submissionPath, "TODO", this.charset, this.authors, this.valid);
+
+    }
 }

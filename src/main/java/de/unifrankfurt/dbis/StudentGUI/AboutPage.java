@@ -1,6 +1,5 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
-import de.unifrankfurt.dbis.GUIApp;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
@@ -30,7 +29,7 @@ public class AboutPage {
         String text33 = "einreichen.";
         String text5 = "Viel Erfolg beim Nutzen der Software.";
         Hyperlink hyperlink = new Hyperlink("SQLChecker");
-        hyperlink.setOnAction(event -> GUIApp.getHostServicesStatic()
+        hyperlink.setOnAction(event -> StudentGUIApp.getHostServicesStatic()
                 .showDocument("https://github.com/ptrckbnck/SQLChecker"));
 
         List<Node> nodes1 = List.of(text.split(" ")).stream().map(Label::new).collect(Collectors.toList());

@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import de.unifrankfurt.dbis.Inner.SQLScript;
 import de.unifrankfurt.dbis.config.GUIConfig;

@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Creates and shows ErrorAlert for given exception.
- * An ExceptionAlert Object is created for every unhandled Exception in GUI.
+ * An ExceptionAlert Object is created for every unhandled Exception in StudentGUI.
  */
 public class ExceptionAlert extends Alert {
 

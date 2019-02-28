@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;/*
+package de.unifrankfurt.dbis.StudentGUI;/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -7,7 +7,6 @@ package de.unifrankfurt.dbis.GUI;/*
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.GUIApp;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
 import de.unifrankfurt.dbis.Inner.SQLScript;
@@ -49,14 +48,14 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static de.unifrankfurt.dbis.GUI.SQLHighlighter.computeHighlighting;
+import static de.unifrankfurt.dbis.StudentGUI.SQLHighlighter.computeHighlighting;
 
 
 /**
  * @author oXCToo
  */
 
-public class HomeController implements Initializable {
+public class StudentGUIController implements Initializable {
 
     @FXML
     public MenuItem saveMenuItem;
@@ -150,70 +149,8 @@ public class HomeController implements Initializable {
     private PrintStream sysOut = System.out;
     private boolean verbose;
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-        System.setOut(new PrintStreamCapturer(console, System.out, "> "));
-        System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
-        console.setFont(Font.font("monospaced"));
-
-        //init tasks
-        CODEPANE.getStylesheets().add("/sql.css");
-        codeAreas = new ArrayList<>();
-        taskListView.setEditable(false);
-        taskListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        //
-
-        version.setText("Version " + Runner.getVersion());
-
-        initConfig(null);
-        updateMenu();
-
-
-        //Config Fields listener
-
-        ChangeListener<Boolean> configChangeListener = (obs, unfocused, focused) ->
-        {
-            if (unfocused) {
-                this.updateConfig();
-            }
-        };
-
-        for (Control control : List.of(databaseTextField,
-                usernameTextField,
-                passwordTextField,
-                hostTextField,
-                portTextField,
-                resetScriptPathTextField,
-                nameStudentTextField,
-                matNrTextField,
-                emailTextField,
-                gemeinschaftsabgabenCheckBox,
-                namePartnerTextField,
-                matNrPartnerTextField,
-                emailPartnerTextField,
-                timezoneTextField)) {
-            control.focusedProperty().addListener(configChangeListener);
-        }
-
-
-        ContextMenu cm = new ContextMenu();
-        MenuItem mi = new MenuItem("löschen");
-        mi.setOnAction((x) -> console.setText(""));
-        cm.getItems().add(mi);
-
-
-        console.setContextMenu(cm);
-
-        List<String> paras = GUIApp.getRunnerParameters();
-        if (paras.contains("s")) {
-            this.loadProject(Paths.get(paras.get(paras.indexOf("s") + 1)));
-        }
-        if (paras.contains("c")) {
-            this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
-        }
-        this.verbose = paras.contains("v");
-
+    public static Stage getPrimaryStage() {
+        return StudentGUIApp.getPrimaryStage();
     }
 
     /**
@@ -362,8 +299,70 @@ public class HomeController implements Initializable {
         emailPartnerTextField.setDisable(bool);
     }
 
-    public static Stage getPrimaryStage() {
-        return GUIApp.getPrimaryStage();
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+
+        System.setOut(new PrintStreamCapturer(console, System.out, "> "));
+        System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
+        console.setFont(Font.font("monospaced"));
+
+        //init tasks
+        CODEPANE.getStylesheets().add("/sql.css");
+        codeAreas = new ArrayList<>();
+        taskListView.setEditable(false);
+        taskListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        //
+
+        version.setText("Version " + Runner.getVersion());
+
+        initConfig(null);
+        updateMenu();
+
+
+        //Config Fields listener
+
+        ChangeListener<Boolean> configChangeListener = (obs, unfocused, focused) ->
+        {
+            if (unfocused) {
+                this.updateConfig();
+            }
+        };
+
+        for (Control control : List.of(databaseTextField,
+                usernameTextField,
+                passwordTextField,
+                hostTextField,
+                portTextField,
+                resetScriptPathTextField,
+                nameStudentTextField,
+                matNrTextField,
+                emailTextField,
+                gemeinschaftsabgabenCheckBox,
+                namePartnerTextField,
+                matNrPartnerTextField,
+                emailPartnerTextField,
+                timezoneTextField)) {
+            control.focusedProperty().addListener(configChangeListener);
+        }
+
+
+        ContextMenu cm = new ContextMenu();
+        MenuItem mi = new MenuItem("löschen");
+        mi.setOnAction((x) -> console.setText(""));
+        cm.getItems().add(mi);
+
+
+        console.setContextMenu(cm);
+
+        List<String> paras = StudentGUIApp.getRunnerParameters();
+        if (paras.contains("s")) {
+            this.loadProject(Paths.get(paras.get(paras.indexOf("s") + 1)));
+        }
+        if (paras.contains("c")) {
+            this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
+        }
+        this.verbose = paras.contains("v");
+
     }
 
     /**

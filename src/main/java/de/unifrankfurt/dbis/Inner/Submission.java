@@ -193,4 +193,9 @@ public class Submission extends CheckerFrame {
     public Solution generateSolution(DataSource dataSource, SQLScript resetScript) {
         return Solution.createSolution(this.tasks, this.name, this.charset, resetScript, dataSource);
     }
+
+    //TODO make better
+    public SubmissionInfo getSubmissionInfo() {
+        return new SubmissionInfo(this.path, this.name, this.charset, this.authors, true);
+    }
 }

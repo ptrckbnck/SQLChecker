@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;

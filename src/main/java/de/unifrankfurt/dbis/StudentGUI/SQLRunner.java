@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import de.unifrankfurt.dbis.SQL.SQLData;
 import de.unifrankfurt.dbis.SQL.SQLDataTable;

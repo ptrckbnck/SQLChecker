@@ -1,4 +1,4 @@
-package de.unifrankfurt.dbis.GUI;
+package de.unifrankfurt.dbis.StudentGUI;
 
 import de.unifrankfurt.dbis.Inner.Submission;
 import de.unifrankfurt.dbis.Inner.Task;
@@ -25,7 +25,7 @@ public class Assignment {
     }
 
     /**
-     * creates Assignment from Inner. While representing nearly the same Assignment is only used in GUI and
+     * creates Assignment from Inner. While representing nearly the same Assignment is only used in StudentGUI and
      * Inner in everything related to DBFIT.
      *
      * @param submission Inner

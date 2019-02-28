@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * This class represents the Config state for GUI. Provides DataSource.
+ * This class represents the Config state for StudentGUI. Provides DataSource.
  */
 public class GUIConfig {
     //database

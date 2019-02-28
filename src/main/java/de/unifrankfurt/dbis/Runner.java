@@ -1,9 +1,11 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.unifrankfurt.dbis.EvalGUI.EvalGUIApp;
 import de.unifrankfurt.dbis.Inner.Report;
 import de.unifrankfurt.dbis.Inner.Solution;
 import de.unifrankfurt.dbis.Inner.SubmissionParseException;
+import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
 
@@ -52,6 +54,11 @@ public class Runner {
             return;
         }
 
+        //TODO REMOVE
+        Application.launch(EvalGUIApp.class);
+        if (!commandLine.hasOption("NICHTS")) {
+            return;
+        }
 
         if (!commandLine.hasOption("e")) {
             List<String> newargs = new ArrayList<>();
@@ -67,7 +74,7 @@ public class Runner {
             if (commandLine.hasOption("v")) {
                 newargs.add("v");
             }
-            Application.launch(GUIApp.class, newargs.toArray(new String[0]));
+            Application.launch(StudentGUIApp.class, newargs.toArray(new String[0]));
             return;
         }
 
@@ -192,7 +199,7 @@ public class Runner {
         OptionGroup optStart = new OptionGroup();
         optStart.addOption(Option.builder("s")
                 .longOpt("start")
-                .desc("runs SQLChecker-GUI. This parameter can be omitted. " +
+                .desc("runs SQLChecker-StudentGUI. This parameter can be omitted. " +
                         "Use this if you want to solve an exercise.\n" +
                         "You can directly load a project file via argument Path.")
                 .hasArg(true)
@@ -207,7 +214,7 @@ public class Runner {
 
         options.addOption(Option.builder("c")
                 .longOpt("config")
-                .desc("Path to config file. (*.ini) or (*.conf), depends if you run Evaluation or GUI.")
+                .desc("Path to config file. (*.ini) or (*.conf), depends if you run Evaluation or StudentGUI.")
                 .hasArg()
                 .optionalArg(true)
                 .argName("Path")

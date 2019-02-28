@@ -45,8 +45,8 @@ public class Evaluator {
     }
 
 
-    public List<Solution> createSolutions() throws SQLException {
-        sols = new ArrayList<>();
+    public static List<Solution> createSolutions(EvalConfig config, SQLScript resetScript, List<Submission> samples, DataSource source) throws SQLException {
+        List<Solution> sols = new ArrayList<>();
         for (Submission s : samples) {
             try {
                 resetScript.execute(source);
@@ -60,21 +60,13 @@ public class Evaluator {
         return sols;
     }
 
-    public boolean haveAllSameScheme(List<Submission> subs) {
-        assert Objects.nonNull(samples);
-        assert !samples.isEmpty();
-        int size = samples.size();
-        if (size == 1) return true;
-        Submission submission = subs.get(0);
-        return submission.sameSchema(samples.subList(1,size));
-    }
-
-
-    public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
-        Report report = new Report();
-        report.setRootPath(submissionsPath);
-        report.setSolutionMetadata(sols.get(0).getMetaData());
-        List<Submission> subs = loadSubmissions(submissionsPath, report, null);
+    public static void runEachEvaluation(List<Solution> sols,
+                                         DataSource source,
+                                         SQLScript resetScript,
+                                         boolean verbose,
+                                         boolean csvOnlyBest,
+                                         Report report,
+                                         List<Submission> subs) {
         int i = 1;
         int count_digits = ((int) Math.log10(subs.size())) + 1;
         for (Submission sub : subs) {
@@ -83,13 +75,26 @@ public class Evaluator {
                 System.err.flush();
                 System.out.flush();
             }
-            runSubmissionEvaluation(sub, report, verbose, csvOnlyBest);
+            runSubmissionEvaluation(sols, source, resetScript, sub, report, verbose, csvOnlyBest);
         }
-        return report;
     }
 
+    public boolean haveAllSameScheme(List<Submission> subs) {
+        assert Objects.nonNull(samples);
+        assert !samples.isEmpty();
+        int size = samples.size();
+        if (size == 1) return true;
+        Submission submission = subs.get(0);
+        return submission.sameSchema(samples.subList(1, size));
+    }
 
-    public void runSubmissionEvaluation(Submission sub, Report report, boolean verbose, boolean csvOnlyBest) {
+    public static void runSubmissionEvaluation(List<Solution> sols,
+                                               DataSource source,
+                                               SQLScript resetScript,
+                                               Submission sub,
+                                               Report report,
+                                               boolean verbose,
+                                               boolean csvOnlyBest) {
         if(verbose) {
             System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
         }
@@ -109,12 +114,15 @@ public class Evaluator {
         }
 
         //run evaluation for every given solution
-        for (Solution sol : this.sols){
+        for (Solution sol : sols) {
             ResultStorage resultStorage = new ResultStorage();
+            resultStorage.setValid(true);
             try {
                 sol.evaluate(resultStorage, source, resetScript, sub, verbose);
             } catch (Exception e) {
-                resultStorage.setSubmission(sub).setSolution(sol).setException(e);
+                resultStorage.setSubmission(sub)
+                        .setSolution(sol)
+                        .setException(e);
                 System.out.println(errorMsg(sol, sub, e.getMessage()));
 
             }
@@ -127,19 +135,19 @@ public class Evaluator {
         }
     }
 
-    private String errorMsg(Solution sol, Submission sub, String message) {
+    private static String errorMsg(Solution sol, Submission sub, String message) {
         if (Objects.isNull(sol))
             return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors() + " ErrorMsg:" + message;
         return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors()
                 + " Solution:" + sol.getName() + " ErrorMsg:" + message;
     }
 
-    private ResultStorage onlyBest(List<ResultStorage> storages) {
+    private static ResultStorage onlyBest(List<ResultStorage> storages) {
         storages.sort(ResultStorage.resultComperator());
         return storages.get(0);
     }
 
-    private List<Submission> loadSubmissions(Path root, Report report, Function<Submission, Boolean> filter) {
+    public static List<Submission> loadSubmissions(Path root, Report report, Function<Submission, Boolean> filter) {
         int depth = 0;
         if (Files.isDirectory(root)) {
             depth = 2;
@@ -156,7 +164,7 @@ public class Evaluator {
         return loadSubmissions(pathes, report, filter);
     }
 
-    private List<Submission> loadSubmissions(Collection<Path> submissionPaths, Report report, Function<Submission, Boolean> filter) {
+    public static List<Submission> loadSubmissions(Collection<Path> submissionPaths, Report report, Function<Submission, Boolean> filter) {
         List<Submission> list = new ArrayList<>();
         for (Path p : submissionPaths) {
             try {
@@ -166,10 +174,23 @@ public class Evaluator {
                 }
 
             } catch (IOException e) {
-                report.add(new ResultStorage().setSubmissionPath(p).setException(e));
+                report.add(new ResultStorage().setSubmissionPath(p).setException(e).setValid(false));
             }
         }
         return list;
+    }
+
+    public List<Solution> createSolutions() throws SQLException {
+        return Evaluator.createSolutions(config, resetScript, samples, source);
+    }
+
+    public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
+        Report report = new Report();
+        report.setRootPath(submissionsPath);
+        report.setSolutionMetadata(sols.get(0).getMetaData());
+        List<Submission> subs = loadSubmissions(submissionsPath, report, null);
+        runEachEvaluation(sols, source, resetScript, verbose, csvOnlyBest, report, subs);
+        return report;
     }
 
 
