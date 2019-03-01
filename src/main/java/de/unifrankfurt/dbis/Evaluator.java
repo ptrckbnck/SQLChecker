@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 
 public class Evaluator {
@@ -104,7 +103,7 @@ public class Evaluator {
         if (!sub.isSubmissionFor(sols.get(0))) {
             Submission fixedSub = sols.get(0).tryToFixTagsFor(sub);
             if (Objects.isNull(fixedSub)) {
-                report.add(new ResultStorage().setErrorMsg("no valid submission"));
+                report.add(new ResultStorage(sub.getPath()).setErrorMsg("no valid submission"));
                 System.out.println(errorMsg(null,
                         sub,
                         "Submissions tags do not match with solution"));
@@ -115,8 +114,16 @@ public class Evaluator {
 
         //run evaluation for every given solution
         for (Solution sol : sols) {
-            ResultStorage resultStorage = new ResultStorage();
+            if (sub.getPath() == null) {
+                System.err.println("is null");
+                System.err.println(sol.getName());
+            }
+            ResultStorage resultStorage = new ResultStorage(sub.getPath());
             resultStorage.setValid(true);
+            resultStorage.setCharset(sub.getCharset());
+            resultStorage.setAuthors(sub.getAuthors());
+            resultStorage.setSolution(sol);
+            resultStorage.setSolutionName(sol.getName());
             try {
                 sol.evaluate(resultStorage, source, resetScript, sub, verbose);
             } catch (Exception e) {
@@ -147,7 +154,7 @@ public class Evaluator {
         return storages.get(0);
     }
 
-    public static List<Submission> loadSubmissions(Path root, Report report, Function<Submission, Boolean> filter) {
+    public static List<Submission> loadSubmissions(Path root, Report report) {
         int depth = 0;
         if (Files.isDirectory(root)) {
             depth = 2;
@@ -161,20 +168,18 @@ public class Evaluator {
         } catch (IOException e) {
             System.err.println("root path is no valid File nor Directory.");
         }
-        return loadSubmissions(pathes, report, filter);
+        return loadSubmissions(pathes, report);
     }
 
-    public static List<Submission> loadSubmissions(Collection<Path> submissionPaths, Report report, Function<Submission, Boolean> filter) {
+    public static List<Submission> loadSubmissions(Collection<Path> submissionPaths, Report report) {
         List<Submission> list = new ArrayList<>();
         for (Path p : submissionPaths) {
             try {
                 Submission sub = Submission.fromPath(p);
-                if (Objects.isNull(filter) || filter.apply(sub)) {
-                    list.add(sub);
-                }
+                list.add(sub);
 
             } catch (IOException e) {
-                report.add(new ResultStorage().setSubmissionPath(p).setException(e).setValid(false));
+                report.add(new ResultStorage(p).setException(e).setValid(false));
             }
         }
         return list;
@@ -188,7 +193,7 @@ public class Evaluator {
         Report report = new Report();
         report.setRootPath(submissionsPath);
         report.setSolutionMetadata(sols.get(0).getMetaData());
-        List<Submission> subs = loadSubmissions(submissionsPath, report, null);
+        List<Submission> subs = loadSubmissions(submissionsPath, report);
         runEachEvaluation(sols, source, resetScript, verbose, csvOnlyBest, report, subs);
         return report;
     }

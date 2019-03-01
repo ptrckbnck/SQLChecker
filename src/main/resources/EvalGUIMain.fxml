@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="344.0" prefWidth="589.0"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="510.0" prefWidth="589.0"
             xmlns="http://javafx.com/javafx/10.0.1" fx:controller="de.unifrankfurt.dbis.EvalGUI.EvalGUIController">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
@@ -54,15 +54,36 @@
                         <BorderPane prefHeight="282.0" prefWidth="947.0" AnchorPane.bottomAnchor="0.0"
                                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                             <top>
-                                <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                                    <items>
-                                        <Button fx:id="LoadSubmissionsButton" mnemonicParsing="false"
-                                                onAction="#loadSubmissions" text="Load Submissions"/>
-                                        <Button mnemonicParsing="false" onAction="#run" text="Run"/>
-                                        <Label text="Filter:"/>
-                                        <TextField minWidth="-Infinity" prefHeight="26.0" prefWidth="259.0"/>
-                                    </items>
-                                </ToolBar>
+                                <VBox BorderPane.alignment="CENTER">
+                                    <children>
+                                        <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                            <items>
+                                                <Button fx:id="LoadSubmissionsButton" mnemonicParsing="false"
+                                                        onAction="#loadSubmissions" text="Load Submissions"/>
+                                                <Button fx:id="runButton" minWidth="-Infinity" mnemonicParsing="false"
+                                                        onAction="#run" prefWidth="60.0" text="Run"/>
+                                                <Button fx:id="filterButton" mnemonicParsing="false" onAction="#filter"
+                                                        prefHeight="26.0" prefWidth="57.0" text="Filter"/>
+                                            </items>
+                                        </ToolBar>
+                                        <HBox alignment="CENTER_LEFT" minHeight="-Infinity" prefHeight="40.0"
+                                              spacing="5.0">
+                                            <children>
+                                                <Label alignment="CENTER" contentDisplay="CENTER" minWidth="-Infinity"
+                                                       prefWidth="40.0" text="Filter:"/>
+                                                <TextField fx:id="filterTextField" prefHeight="26.0" prefWidth="500.0"/>
+                                            </children>
+                                        </HBox>
+                                        <HBox alignment="CENTER_LEFT" minHeight="-Infinity" prefHeight="40.0"
+                                              spacing="5.0">
+                                            <children>
+                                                <Label alignment="CENTER" contentDisplay="CENTER" minWidth="-Infinity"
+                                                       prefWidth="40.0" text="CSV"/>
+                                                <TextField prefHeight="26.0" prefWidth="500.0"/>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
                             </top>
                             <center>
                                 <TableView fx:id="submissionTable" prefHeight="200.0" prefWidth="200.0"

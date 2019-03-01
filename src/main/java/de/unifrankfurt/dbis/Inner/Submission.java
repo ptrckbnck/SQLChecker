@@ -40,6 +40,7 @@ public class Submission extends CheckerFrame {
         this.authors = authors;
     }
 
+
     /**
      * Creates a Inner from a serialized Inner stored in file.
      *
@@ -194,8 +195,4 @@ public class Submission extends CheckerFrame {
         return Solution.createSolution(this.tasks, this.name, this.charset, resetScript, dataSource);
     }
 
-    //TODO make better
-    public SubmissionInfo getSubmissionInfo() {
-        return new SubmissionInfo(this.path, this.name, this.charset, this.authors, true);
-    }
 }

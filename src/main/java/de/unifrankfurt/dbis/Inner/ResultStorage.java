@@ -26,8 +26,13 @@ public class ResultStorage {
     private Exception exception;
     private Submission submission;
     private Solution solution;
-    private Path submissionPath;
+    final private Path submissionPath;
     private Boolean valid;
+
+    public ResultStorage(Path submissionPath) {
+        this.submissionPath = submissionPath;
+
+    }
 
     public static Comparator<? super ResultStorage> resultComperator() {
         return Comparator.comparingInt(o -> (o.score.stream().reduce(0, Integer::sum)));
@@ -155,11 +160,6 @@ public class ResultStorage {
         return (submissionPath != null ? submissionPath : submission.getPath());
     }
 
-    public ResultStorage setSubmissionPath(Path p) {
-        this.submissionPath = p;
-        return this;
-    }
-
     @Override
     public String toString() {
         return "ResultStorage{" +
@@ -177,8 +177,5 @@ public class ResultStorage {
                 '}';
     }
 
-    public SubmissionInfo getSubmissionInfo() {
-        return new SubmissionInfo(submissionPath, "TODO", this.charset, this.authors, this.valid);
 
-    }
 }

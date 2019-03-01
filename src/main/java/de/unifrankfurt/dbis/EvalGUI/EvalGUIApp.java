@@ -1,5 +1,6 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
+import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -49,5 +50,9 @@ public class EvalGUIApp extends Application {
 
         primaryStage.show();
 
+    }
+
+    public void stop() {
+        AbandonedConnectionCleanupThread.checkedShutdown();
     }
 }

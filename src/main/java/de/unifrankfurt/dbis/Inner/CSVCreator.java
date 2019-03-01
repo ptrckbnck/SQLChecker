@@ -75,7 +75,7 @@ public class CSVCreator {
         for (int i = 0; i < size; i++) {
             final int finalI = i;
             Function<ResultStorage, String> f = x -> {
-                if (size != x.getDiff().size()) {
+                if (Objects.isNull(x.getDiff()) || size != x.getDiff().size()) {
                     return "";
                 } else {
                     return x.getDiff().get(finalI).isOk().toString();
@@ -105,7 +105,14 @@ public class CSVCreator {
     }
 
     public CSVCreator useSuccess() {
-        Function<ResultStorage, String> f = x -> String.valueOf(x.getDiff().stream().map(SQLResultDiff::isOk).filter(i -> i).count());
+        Function<ResultStorage, String> f = x -> {
+            List<SQLResultDiff> diff = x.getDiff();
+            if (Objects.isNull(diff)) {
+                return "";
+            } else {
+                return String.valueOf(x.getDiff().stream().map(SQLResultDiff::isOk).filter(i -> i).count());
+            }
+        };
         this.functions.add(f);
         this.header.add("#Success");
         return this;
