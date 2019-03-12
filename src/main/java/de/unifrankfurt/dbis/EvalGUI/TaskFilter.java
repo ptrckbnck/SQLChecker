@@ -13,10 +13,12 @@ import java.util.Objects;
 public class TaskFilter extends Task<Integer> {
     private final ObservableList<SubmissionInfo> observableList;
     private final String filterTerm;
+    private final ObservableList<List<SubmissionInfo>> history;
 
-    public TaskFilter(ObservableList<SubmissionInfo> observableList, String filterTerm) {
+    public TaskFilter(ObservableList<SubmissionInfo> observableList, ObservableList<List<SubmissionInfo>> history, String filterTerm) {
         this.observableList = observableList;
         this.filterTerm = filterTerm;
+        this.history = history;
     }
 
 
@@ -29,7 +31,12 @@ public class TaskFilter extends Task<Integer> {
                 newSubs.add(info);
             }
         }
-        Platform.runLater(() -> observableList.retainAll(newSubs));
+        if (newSubs.size() == observableList.size()) return 0;
+        Platform.runLater(() -> {
+            history.add(new ArrayList<>(observableList));
+            observableList.setAll(newSubs);
+        });
+
         return 0;
     }
 }

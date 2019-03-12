@@ -30,6 +30,11 @@ public class EvalGUIApp extends Application {
         StudentGUIApp.showError(thread, throwable); //TODO maybe inline
     }
 
+
+    public static HostServices hostServices() {
+        return hostServices;
+    }
+
     @Override
     public void start(Stage stage) throws Exception {
 

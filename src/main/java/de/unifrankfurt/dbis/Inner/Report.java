@@ -13,6 +13,9 @@ public class Report {
         this.resultStorages = new ArrayList<>();
     }
 
+    public void clearStorages() {
+        this.resultStorages.clear();
+    }
 
     public List<String> getCSV() {
         return getCSV(this.defaultCSVCreator());

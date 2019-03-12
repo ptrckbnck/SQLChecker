@@ -99,7 +99,7 @@ public class EvalConfig {
         try{
             return new Gson().fromJson(conf, EvalConfig.class);
         }catch(JsonSyntaxException e){
-            throw new IOException("Could not parseLines Config (" + path + "): " + e.getMessage(), e);
+            return EvalConfig.parseINI(conf);
         }
 
     }
@@ -125,7 +125,7 @@ public class EvalConfig {
                 password,
                 database,
                 false,
-                null);
+                "+01:00");
     }
 
 

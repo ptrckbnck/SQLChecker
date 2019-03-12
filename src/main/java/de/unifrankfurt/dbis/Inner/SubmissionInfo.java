@@ -11,28 +11,21 @@ public class SubmissionInfo {
     protected final List<Student> authors;
     protected final Boolean valid;
     protected final Submission submission;
+    protected final Integer id;
 
-    private SubmissionInfo(Path path, String name, Charset charset, List<Student> authors, Boolean valid, Submission submission) {
+    private SubmissionInfo(Path path, String name, Charset charset, List<Student> authors, Boolean valid, Submission submission, Integer id) {
         this.path = path;
         this.name = name;
         this.charset = charset;
         this.authors = authors;
         this.valid = valid;
         this.submission = submission;
+        this.id = id;
     }
 
 
-    public SubmissionInfo(Path path, String name, Charset charset, List<Student> authors) {
-        this.path = path;
-        this.name = name;
-        this.charset = charset;
-        this.authors = authors;
-        this.valid = false;
-        this.submission = null;
-    }
-
-    public static SubmissionInfo of(Submission submission) {
-        return new SubmissionInfo(submission.getPath(), submission.getName(), submission.getCharset(), submission.getAuthors(), true, submission);
+    public static SubmissionInfo of(Submission submission, Integer id) {
+        return new SubmissionInfo(submission.getPath(), submission.getName(), submission.getCharset(), submission.getAuthors(), true, submission, id);
     }
 
     public Path getPath() {
@@ -58,4 +51,22 @@ public class SubmissionInfo {
     public Boolean getValid() {
         return valid;
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "SubmissionInfo{" + "path=" + path +
+                ", name='" + name + '\'' +
+                ", charset=" + charset +
+                ", authors=" + authors +
+                ", valid=" + valid +
+                ", submission=" + submission +
+                ", id=" + id +
+                '}';
+    }
 }
+
+
