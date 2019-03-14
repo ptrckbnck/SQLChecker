@@ -9,8 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
+import de.unifrankfurt.dbis.Inner.Base;
 import de.unifrankfurt.dbis.Inner.SQLScript;
-import de.unifrankfurt.dbis.Inner.Submission;
 import de.unifrankfurt.dbis.Runner;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
@@ -405,10 +405,10 @@ public class StudentGUIController implements Initializable {
     /**
      * Initialize Assignment from Inner.
      *
-     * @param submission
+     * @param base
      */
-    public void initAssignment(Submission submission) {
-        initAssignment(Assignment.fromSubmission(submission));
+    public void initAssignment(Base base) {
+        initAssignment(Assignment.fromSubmission(base));
     }
 
     /**
@@ -722,9 +722,9 @@ public class StudentGUIController implements Initializable {
         fileChooserOpenSetInitDir(templateChooser);
         File template = templateChooser.showOpenDialog(getPrimaryStage());
         if (template == null) return;
-        Submission submission;
+        Base base;
         try {
-            submission = Submission.fromPath(template.toPath());
+            base = Base.fromPath(template.toPath());
 
         } catch (IOException e) {
             System.err.println("Fehler beim Öffnen der Aufgabe.");
@@ -735,7 +735,7 @@ public class StudentGUIController implements Initializable {
         FileChooser projectChooser = new FileChooser();
         projectChooser.setTitle("Lege Speicherort des neuen Projekts fest");
         projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        projectChooser.setInitialFileName(submission.getName() + ".sqlc");
+        projectChooser.setInitialFileName(base.getName() + ".sqlc");
         projectChooser.setInitialDirectory(template.getParentFile());
         Stage stageProject = new Stage();
         File project = projectChooser.showSaveDialog(stageProject);
@@ -743,7 +743,7 @@ public class StudentGUIController implements Initializable {
         try {
             createEmptyFile(project.toPath());
             setProjectPath(project.toPath());
-            this.initAssignment(submission);
+            this.initAssignment(base);
             loadConfigImplicit();
             loadResetImplicit();
             saveProject(project.toPath());

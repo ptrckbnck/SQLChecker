@@ -1,13 +1,11 @@
 package de.unifrankfurt.dbis.IO;
 
-import de.unifrankfurt.dbis.Inner.*;
+import de.unifrankfurt.dbis.Inner.Base;
+import de.unifrankfurt.dbis.Inner.Student;
 import de.unifrankfurt.dbis.StudentGUI.Assignment;
 import de.unifrankfurt.dbis.config.GUIConfig;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * class for maintaining all data in of serialising for a project.
@@ -57,16 +55,18 @@ public class SQLCheckerProject {
      *
      * @return
      */
-    public Submission createSubmission() {
-        List<String> codes = assignment.getCodes();
+    public Base createSubmission() {
+        /*List<String> codes = assignment.getCodes();
         List<String> tasks = assignment.getTasks();
-        List<Task> list = IntStream.range(0, tasks.size())
+        List<TaskInterface> list = IntStream.range(0, tasks.size())
                 .mapToObj(i -> Task.parseToken(
                         new SubmissionTokenBuilder().
                                 setTag(new Tag(tasks.get(i)))
                                 .setBody(codes.get(i))
                                 .createSubmissionToken()))
                 .collect(Collectors.toList());
-        return new Submission(studentList(), list, assignment.getName(), StandardCharsets.UTF_8);
+        return new Base(studentList(), list, assignment.getName(), StandardCharsets.UTF_8, baseType);*///TODO fix
+        return null;
     }
+
 }

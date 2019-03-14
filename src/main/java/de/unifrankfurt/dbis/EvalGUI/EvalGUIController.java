@@ -1,9 +1,9 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
 import de.unifrankfurt.dbis.Evaluator;
+import de.unifrankfurt.dbis.Inner.Base;
 import de.unifrankfurt.dbis.Inner.Report;
 import de.unifrankfurt.dbis.Inner.Student;
-import de.unifrankfurt.dbis.Inner.Submission;
 import de.unifrankfurt.dbis.Inner.SubmissionInfo;
 import de.unifrankfurt.dbis.config.EvalConfig;
 import javafx.collections.FXCollections;
@@ -62,9 +62,9 @@ public class EvalGUIController implements Initializable {
     private ObservableList<List<SubmissionInfo>> filterHistory;
     private PrintStream out;
 
-    public List<Submission> getSubmissions() {
+    public List<Base> getSubmissions() {
         return this.subInfos.stream()
-                .map(SubmissionInfo::getSubmission)
+                .map(SubmissionInfo::getBase)
                 .filter(x -> !Objects.isNull(x))
                 .collect(Collectors.toList());
     }
@@ -203,7 +203,7 @@ public class EvalGUIController implements Initializable {
         report = new Report();
         report.setRootPath(this.getSubmissionsPath());
         subInfos.clear();
-        List<Submission> subs = Evaluator.loadSubmissions(submissionsPath, report);
+        List<Base> subs = Evaluator.loadSubmissions(submissionsPath, report);
         List<SubmissionInfo> infos = IntStream.range(0, subs.size())
                 .mapToObj(x -> SubmissionInfo.of(subs.get(x), x))
                 .collect(Collectors.toList());

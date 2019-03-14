@@ -4,7 +4,6 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.EvalGUI.EvalGUIApp;
 import de.unifrankfurt.dbis.Inner.Report;
 import de.unifrankfurt.dbis.Inner.Solution;
-import de.unifrankfurt.dbis.Inner.SubmissionParseException;
 import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
@@ -144,7 +143,7 @@ public class Runner {
                 }
 
 
-            } catch (IOException | SQLException | SubmissionParseException e) {
+            } catch (IOException | SQLException e) {
 
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();

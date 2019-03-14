@@ -1,17 +1,16 @@
 package de.unifrankfurt.dbis.Inner;
 
 import de.unifrankfurt.dbis.IO.FileIO;
+import de.unifrankfurt.dbis.Inner.Parser.*;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.file.Files.readAllLines;
 
@@ -22,44 +21,47 @@ import static java.nio.file.Files.readAllLines;
  * Then you can check if any Inner Object satisfies created Solution.
  */
 
-public class Submission extends CheckerFrame {
+public class Base extends CheckerFrame {
 
     /**
      * authors of this document.
      */
-    private final List<Student> authors;
+    private final Authors authors;
+    private final Path path;
+    private final BaseType baseType;
 
-    private Path path = null;
 
-    public Submission(List<Task> tasks, String name, Charset charset) {
-        this(List.of(), tasks, name, charset);
-    }
-
-    public Submission(List<Student> authors, List<Task> tasks, String name, Charset charset) {
+    protected Base(String name, Charset charset, BaseType baseType, List<Student> authors, List<TaskInterface> tasks, Path path) {
         super(tasks, name, charset);
-        this.authors = authors;
+        this.authors = new Authors(authors);
+        this.baseType = baseType;
+        this.path = path;
     }
 
 
     /**
      * Creates a Inner from a serialized Inner stored in file.
      *
-     * @param submissionPath that should be read from.
+     * @param path that should be read from.
      * @return newly created Inner
      * @throws IOException              from File IO
      */
-    public static Submission fromPath(Path submissionPath) throws IOException {
-        Submission sub;
+    public static Base fromPath(Path path) throws IOException {
+        BaseParser bp = new BaseParser();
+        bp.registerSubTokenCreator(SubTokenHead::fromRawToken);
+        bp.registerSubTokenCreator(SubTokenStatic::fromRawToken);
+        bp.registerSubTokenCreator(SubTokenTask::fromRawToken);
+        BaseBuilder bb;
         try {
             //using readAllLines to allow \n & \r\n
-            List<String> toParse = readAllLines(submissionPath, StandardCharsets.UTF_8);
-            sub = SubmissionParser.parseLines(toParse, StandardCharsets.UTF_8);
+            List<String> toParse = readAllLines(path, StandardCharsets.UTF_8);
+            bb = bp.parse(toParse).setCharset(StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            List<String> toParse = readAllLines(submissionPath, StandardCharsets.ISO_8859_1);
-            sub = SubmissionParser.parseLines(toParse, StandardCharsets.ISO_8859_1);
+            List<String> toParse = readAllLines(path, StandardCharsets.ISO_8859_1);
+            bb = bp.parse(toParse).setCharset(StandardCharsets.ISO_8859_1);
         }
-        sub.setPath(submissionPath);
-        return sub;
+        bb.setPath(path);
+        return bb.build();
     }
 
 
@@ -68,22 +70,6 @@ public class Submission extends CheckerFrame {
         return authors;
     }
 
-
-    /**
-     * create a serialized version of authors section.
-     *
-     * @throws IOException from writer
-     */
-    private List<String> serializeAuthor() {
-        List<String> lines = new ArrayList<>();
-        if (authors.size() == 0) return lines;
-        lines.add(Tag.TAG_PREFIX + Tag.AUTHORTAG + Tag.TAG_SUFFIX);
-        for (Student student : authors) {
-            lines.add(student.serialize());
-        }
-        lines.add("");
-        return lines;
-    }
 
 
     /**
@@ -97,33 +83,13 @@ public class Submission extends CheckerFrame {
         FileIO.saveText(submissionPath, serialize());
     }
 
-    /**
-     * List of every Tag.
-     *
-     * @return List<Tag>
-     */
-    public List<Tag> getTags() {
-        ArrayList<Tag> tags = new ArrayList<>();
-        for (Task task : tasks) tags.add(task.getTag());
-        return tags;
-    }
 
-    /**
-     * Writes every serialized Task to writer.
-     */
-    private List<String> serializeTasks() {
-        List<String> lines = new ArrayList<>();
-        for (Task task : tasks) {
-            lines.add(task.serialize());
-        }
-        return lines;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Submission that = (Submission) o;
+        Base that = (Base) o;
         return Objects.equals(authors, that.authors) &&
                 Objects.equals(tasks, that.tasks);
     }
@@ -136,31 +102,27 @@ public class Submission extends CheckerFrame {
 
     @Override
     public String toString() {
-        return this.serialize();
+        return String.join(System.getProperty("line.separator"), this.serialize());
     }
 
     public String serialize() {
-        return Stream.concat(serializeAuthor().stream(), serializeTasks().stream())
-                .collect(Collectors.joining("\n"));
+        return new SubTokenHead(this.baseType, this.name, authors).serialize() +
+                this.tasks.stream().map(TaskInterface::serialize).collect(Collectors.joining("\n"));
     }
 
 
-    public Submission setPath(Path path) {
-        this.path = path;
-        return this;
-    }
 
     public Path getPath(){
         return path;
     }
 
-    public boolean sameSchema(List<Submission> others) {
+    public boolean sameSchema(List<Base> others) {
         return others
                 .stream()
                 .allMatch(this::sameSchema);
     }
 
-    public boolean sameSchema(Submission other) {
+    public boolean sameSchema(Base other) {
         return this.getTags().equals(other.getTags());
     }
 
@@ -173,9 +135,6 @@ public class Submission extends CheckerFrame {
 
 
 
-    public List<String> getTagStrings() {
-        return this.getTags().stream().map(Tag::getName).collect(Collectors.toList());
-    }
 
 
     public List<List<String>> getPredefinedSchemata() {
@@ -183,7 +142,7 @@ public class Submission extends CheckerFrame {
                 .stream()
                 .map(x -> {
                     if (TaskSQL.class.isAssignableFrom(x.getClass())) {
-                        return ((TaskSQL) x).getSchema();
+                        return ((TaskSQL) x).getScheme();
                     } else {
                         return null;
                     }

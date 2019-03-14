@@ -5,10 +5,10 @@ import java.util.List;
 public class SolutionMetadata {
 
     private final String name;
-    private final List<Tag> tags;
-    private final List<Tag> nonStaticTags;
+    private final List<String> tags;
+    private final List<String> nonStaticTags;
 
-    public SolutionMetadata(String name, List<Tag> tags, List<Tag> nonStaticTags) {
+    public SolutionMetadata(String name, List<String> tags, List<String> nonStaticTags) {
         this.name = name;
         this.tags = tags;
         this.nonStaticTags = nonStaticTags;
@@ -19,11 +19,11 @@ public class SolutionMetadata {
         return name;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public List<Tag> getNonStaticTags() {
+    public List<String> getNonStaticTags() {
         return nonStaticTags;
     }
 

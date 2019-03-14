@@ -1,7 +1,7 @@
 package de.unifrankfurt.dbis.StudentGUI;
 
-import de.unifrankfurt.dbis.Inner.Submission;
-import de.unifrankfurt.dbis.Inner.Task;
+import de.unifrankfurt.dbis.Inner.Base;
+import de.unifrankfurt.dbis.Inner.Parser.TaskInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,15 +28,15 @@ public class Assignment {
      * creates Assignment from Inner. While representing nearly the same Assignment is only used in StudentGUI and
      * Inner in everything related to DBFIT.
      *
-     * @param submission Inner
+     * @param base Inner
      * @return Assignment
      */
-    public static Assignment fromSubmission(Submission submission) {
+    public static Assignment fromSubmission(Base base) {
         return new Assignment(
-                submission.getName(),
-                submission.getTagStrings(),
-                submission.getTasks().stream().map(Task::getSql).collect(Collectors.toList()),
-                submission.getPredefinedSchemata());
+                base.getName(),
+                base.getTags(),
+                base.getTasks().stream().map(TaskInterface::getSQL).collect(Collectors.toList()),
+                base.getPredefinedSchemata());
     }
 
     public List<String> getTasks() {

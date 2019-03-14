@@ -1,5 +1,8 @@
 package de.unifrankfurt.dbis.Inner;
 
+import de.unifrankfurt.dbis.Inner.Parser.TaskInterface;
+import de.unifrankfurt.dbis.Inner.Parser.TaskSQL;
+
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,7 +13,7 @@ public abstract class CheckerFrame {
     /**
      * defined Tasks
      */
-    protected final List<Task> tasks;
+    protected final List<TaskInterface> tasks;
 
     /**
      * Name of this Inner.
@@ -19,13 +22,13 @@ public abstract class CheckerFrame {
     protected final String name;
     protected final Charset charset;
 
-    protected CheckerFrame(List<Task> tasks, String name, Charset charset) {
+    protected CheckerFrame(List<TaskInterface> tasks, String name, Charset charset) {
         this.tasks = tasks;
         this.name = name;
         this.charset = charset;
     }
 
-    public List<Task> getTasks() {
+    public List<TaskInterface> getTasks() {
         return tasks;
     }
 
@@ -37,32 +40,19 @@ public abstract class CheckerFrame {
         return charset;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return this.getTasks()
                 .stream()
-                .map(Task::getTag)
+                .map(TaskInterface::getName)
                 .collect(Collectors.toList());
     }
 
-    public List<Tag> getNonStaticTags() {
+    public List<String> getNonStaticTags() {
         return this.getTasks()
                 .stream()
-                .map(Task::getTag)
-                .filter(x -> !x.isStatic())
+                .filter(x -> x.getClass().isAssignableFrom(TaskSQL.class))
+                .map(TaskInterface::getName)
                 .collect(Collectors.toList());
     }
 
-    protected List<Task> getTasksByTag(Tag curTag) {
-        return this.getTasks()
-                .stream()
-                .filter(x -> x.getTag().equals(curTag))
-                .collect(Collectors.toList());
-    }
-
-    protected List<String> getTagNames() {
-        return this.getTasks()
-                .stream()
-                .map(x -> x.getTag().getName())
-                .collect(Collectors.toList());
-    }
 }

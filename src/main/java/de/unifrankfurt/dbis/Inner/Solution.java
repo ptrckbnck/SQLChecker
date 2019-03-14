@@ -1,26 +1,29 @@
 package de.unifrankfurt.dbis.Inner;
 
 
+import de.unifrankfurt.dbis.Inner.Parser.TaskInterface;
 import de.unifrankfurt.dbis.SQL.*;
 import de.unifrankfurt.dbis.config.DataSource;
 
 import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
-import static de.unifrankfurt.dbis.Inner.Task.parseSchema;
 
 public class Solution extends CheckerFrame {
     private final List<SQLData> expectedResults;
 
-    protected Solution(List<Task> tasks, String name, Charset charset, List<SQLData> sqlData) {
+    protected Solution(List<TaskInterface> tasks, String name, Charset charset, List<SQLData> sqlData) {
         super(tasks, name, charset);
         this.expectedResults = sqlData;
     }
 
-    public static Solution createSolution(List<Task> tasks, String name, Charset charset, SQLScript resetScript, DataSource datasource) {
+    public static Solution createSolution(Base base, SQLScript resetScript, DataSource datasource) {
+        return createSolution(base.getTasks(), base.getName(), base.getCharset(), resetScript, datasource);
+    }
+
+    public static Solution createSolution(List<TaskInterface> tasks, String name, Charset charset, SQLScript resetScript, DataSource datasource) {
         try {
             resetScript.execute(datasource);
         } catch (SQLException e) {
@@ -28,8 +31,8 @@ public class Solution extends CheckerFrame {
             return null;
         }
         List<SQLData> expectedResults = new ArrayList<>();
-        for (Task t : tasks) {
-            String sql = t.getSql();
+        for (TaskInterface t : tasks) {
+            String sql = t.getSQL();
             SQLData result = SQLResults.execute(datasource, sql);
             if (result instanceof SQLDataFail) {
                 //TODO
@@ -47,22 +50,22 @@ public class Solution extends CheckerFrame {
      * @param tags
      * @param faultyTags
      * @return
-     */
-    protected static List<Task> fixedTaskList(Submission sub, List<Tag> tags, List<Tag> faultyTags) {
+     *//*
+    protected static List<Task> fixedTaskList(Base sub, List<String> tags, List<String> faultyTags) {
         List<Task> tasks = new ArrayList<>();
         for (int i = 0; i < tags.size(); i++) {
             Tag curTag = tags.get(i);
             Task newTask;
-            List<Task> posTasks = sub.getTasksByTag(curTag);
+            List<Task> posTasks = sub.getNonStaticTask();
             if (!posTasks.isEmpty()) {
                 newTask = posTasks.get(0);
             } else {
-                newTask = new TaskSQL(curTag, parseSchema(tags.get(i).getAddition()), "tag missing");
+                //TODO newTask = new TaskSQL(curTag, parseSchema(tags.get(i).getAddition()), "tag missing");
             }
             tasks.add(newTask);
         }
         return tasks;
-    }
+    }*/
 
     /**
      * checks if sublist is a subList of list, gaps allowed.
@@ -103,9 +106,9 @@ public class Solution extends CheckerFrame {
     public void evaluate(ResultStorage store,
                          DataSource source,
                          SQLScript resetScript,
-                         Submission submission,
+                         Base base,
                          boolean verbose) throws SQLException {
-        store.setCharset(submission.getCharset());
+        store.setCharset(base.getCharset());
         resetScript.execute(source);
 
 
@@ -113,19 +116,19 @@ public class Solution extends CheckerFrame {
         List<SQLData> results = new ArrayList<>();
         int subTask = 0;
         for (int i = 0; i < this.getTasks().size(); i++) {
-            Task t = this.getTasks().get(i);
+            TaskInterface t = this.getTasks().get(i);
             SQLData expectedResult = this.getExpectedResults().get(i);
             SQLData actualResult;
             if (t.isStatic()) {
                 actualResult = t.execute(source);
             } else {
-                actualResult = submission.getTasks().get(subTask++).execute(source);
+                actualResult = base.getTasks().get(subTask++).execute(source);
             }
             results.add(actualResult);
             SQLResultDiff diff = SQLResultDiffer.diff(expectedResult, actualResult);
             diffs.add(diff);
             if (verbose) {
-                String s = t.getTag().getName() + ": " + diff.getMessage();
+                String s = t.getName() + ": " + diff.getMessage();
                 System.out.println(s);
             }
         }
@@ -133,16 +136,16 @@ public class Solution extends CheckerFrame {
         store.setDiffs(diffs);
     }
 
-    public Submission tryToFixTagsFor(Submission sub) {
-        List<Tag> tags = getNonStaticTags();
-        List<Tag> faultyTags = sub.getNonStaticTags();
+    public Base tryToFixTagsFor(Base base) {
+        /*List<String> tags = getNonStaticTags();
+        List<String> faultyTags = sub.getNonStaticTags();
         if (faultyTags.isEmpty()) return null; //no tags at all
         if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
         if (!isSublistWithGaps(tags, faultyTags)) return null;
         List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
-        Submission newSub = new Submission(sub.getAuthors(), tasks, sub.getName(), sub.getCharset());
-        newSub.setPath(sub.getPath());
-        return newSub;
+        Base newSub = new Base(sub.getAuthors(), tasks, sub.getName(), sub.getCharset(), baseType);
+        newSub.setPath(sub.getPath());*/ //TODO
+        return base;
     }
 
 

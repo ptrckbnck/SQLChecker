@@ -1,7 +1,10 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
 import de.unifrankfurt.dbis.Evaluator;
-import de.unifrankfurt.dbis.Inner.*;
+import de.unifrankfurt.dbis.Inner.Base;
+import de.unifrankfurt.dbis.Inner.Report;
+import de.unifrankfurt.dbis.Inner.SQLScript;
+import de.unifrankfurt.dbis.Inner.Solution;
 import de.unifrankfurt.dbis.config.DataSource;
 import de.unifrankfurt.dbis.config.EvalConfig;
 import javafx.application.Platform;
@@ -20,14 +23,14 @@ import java.util.Objects;
 
 public class TaskEvaluation extends Task<Integer> {
     private final Report report;
-    private final List<Submission> subs;
+    private final List<Base> subs;
     private final Stage stage;
     private final EvalConfig config;
     private final PrintStream out;
     private final Path csvOut;
 
 
-    public TaskEvaluation(EvalConfig config, Report report, List<Submission> subs, Stage stage, Button runButton, PrintStream out, Path csvOut) {
+    public TaskEvaluation(EvalConfig config, Report report, List<Base> subs, Stage stage, Button runButton, PrintStream out, Path csvOut) {
         this.report = report;
         this.subs = subs;
         this.stage = stage;
@@ -79,10 +82,10 @@ public class TaskEvaluation extends Task<Integer> {
         if (this.isCancelled()) {
             return 0;
         }
-        List<Submission> samples;
+        List<Base> samples;
         try {
             samples = config.getSolutions();
-        } catch (IOException | SubmissionParseException e) {
+        } catch (IOException e) {
             Platform.runLater(() -> {
                 alert("loading Solutions failed:\n" + e.getMessage());
             });
@@ -113,7 +116,7 @@ public class TaskEvaluation extends Task<Integer> {
 
         int i = 1;
         int count_digits = ((int) Math.log10(subs.size())) + 1;
-        for (Submission sub : subs) {
+        for (Base sub : subs) {
             if (this.isCancelled()) {
                 return 0;
             }

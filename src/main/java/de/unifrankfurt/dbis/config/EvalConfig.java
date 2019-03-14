@@ -4,9 +4,8 @@ package de.unifrankfurt.dbis.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import de.unifrankfurt.dbis.Inner.Base;
 import de.unifrankfurt.dbis.Inner.SQLScript;
-import de.unifrankfurt.dbis.Inner.Submission;
-import de.unifrankfurt.dbis.Inner.SubmissionParseException;
 import org.ini4j.Ini;
 
 import java.io.IOException;
@@ -144,13 +143,13 @@ public class EvalConfig {
     }
 
 
-    public List<Submission> getSolutions() throws IOException, SubmissionParseException {
+    public List<Base> getSolutions() throws IOException {
         String[] pathes = this.solutionPaths.split(",");
-        List<Submission> submissions = new ArrayList<>();
+        List<Base> bases = new ArrayList<>();
         for (String path : pathes){
-            submissions.add(Submission.fromPath(Paths.get(path)));
+            bases.add(Base.fromPath(Paths.get(path)));
         }
-        return submissions;
+        return bases;
     }
 
 

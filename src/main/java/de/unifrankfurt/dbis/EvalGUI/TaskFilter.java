@@ -1,6 +1,6 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
-import de.unifrankfurt.dbis.Inner.Submission;
+import de.unifrankfurt.dbis.Inner.Base;
 import de.unifrankfurt.dbis.Inner.SubmissionInfo;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -26,8 +26,8 @@ public class TaskFilter extends Task<Integer> {
     protected Integer call() throws Exception {
         List<SubmissionInfo> newSubs = new ArrayList<>();
         for (SubmissionInfo info : observableList) {
-            final Submission submission = info.getSubmission();
-            if (!Objects.isNull(submission) && submission.serialize().contains(filterTerm)) {
+            final Base base = info.getBase();
+            if (!Objects.isNull(base) && base.serialize().contains(filterTerm)) {
                 newSubs.add(info);
             }
         }

@@ -24,7 +24,7 @@ public class ResultStorage {
     private Charset charset;
     private List<SQLData> sqlData;
     private Exception exception;
-    private Submission submission;
+    private Base base;
     private Solution solution;
     final private Path submissionPath;
     private Boolean valid;
@@ -138,12 +138,12 @@ public class ResultStorage {
         return this;
     }
 
-    public Submission getSubmission() {
-        return submission;
+    public Base getBase() {
+        return base;
     }
 
-    public ResultStorage setSubmission(Submission sub) {
-        this.submission = sub;
+    public ResultStorage setBase(Base sub) {
+        this.base = sub;
         return this;
     }
 
@@ -157,7 +157,7 @@ public class ResultStorage {
     }
 
     public Path getSubmissionPath() {
-        return (submissionPath != null ? submissionPath : submission.getPath());
+        return (submissionPath != null ? submissionPath : base.getPath());
     }
 
     @Override
@@ -171,7 +171,7 @@ public class ResultStorage {
                 ", charset=" + charset +
                 ", sqlResults=" + sqlData +
                 ", exception=" + exception +
-                ", submission=" + submission +
+                ", submission=" + base +
                 ", solution=" + solution +
                 ", submissionPath=" + submissionPath +
                 '}';

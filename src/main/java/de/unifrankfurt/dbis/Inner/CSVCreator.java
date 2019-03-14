@@ -70,7 +70,7 @@ public class CSVCreator {
     }
 
     public CSVCreator useAllStatus() {
-        final List<Tag> tags = report.getSolutionMetadata().getTags();
+        final List<String> tags = report.getSolutionMetadata().getTags();
         int size = tags.size();
         for (int i = 0; i < size; i++) {
             final int finalI = i;
@@ -83,7 +83,7 @@ public class CSVCreator {
             };
             this.functions.add(f);
 
-            this.header.add(tags.get(i).getName());
+            this.header.add(tags.get(i));
         }
         return this;
     }

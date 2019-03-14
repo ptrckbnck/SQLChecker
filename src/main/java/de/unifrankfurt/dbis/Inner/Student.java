@@ -2,6 +2,7 @@ package de.unifrankfurt.dbis.Inner;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -36,8 +37,8 @@ public class Student {
      */
     public Student(String name, String emailAddress, String matriculationNumber) {
         this.name = name;
-        this.matriculationNumber = matriculationNumber;
         this.emailAddress = emailAddress;
+        this.matriculationNumber = matriculationNumber;
     }
 
     /**
@@ -141,6 +142,18 @@ public class Student {
 
     public String serialize() {
         return name + ";" + emailAddress + ";" + matriculationNumber;
+    }
+
+    public static Student parse(List<String> strings) {
+        if (strings.size() < 3) return null;
+        String name = strings.get(0);
+        String emailAddress = strings.get(1);
+        String matriculationNumber = strings.get(2);
+        return new Student(name, emailAddress, matriculationNumber);
+    }
+
+    public List<String> toStringList() {
+        return List.of(this.name, this.emailAddress, this.matriculationNumber);
     }
 }
 

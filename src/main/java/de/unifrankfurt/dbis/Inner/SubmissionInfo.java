@@ -10,22 +10,22 @@ public class SubmissionInfo {
     protected final Charset charset;
     protected final List<Student> authors;
     protected final Boolean valid;
-    protected final Submission submission;
+    protected final Base base;
     protected final Integer id;
 
-    private SubmissionInfo(Path path, String name, Charset charset, List<Student> authors, Boolean valid, Submission submission, Integer id) {
+    private SubmissionInfo(Path path, String name, Charset charset, List<Student> authors, Boolean valid, Base base, Integer id) {
         this.path = path;
         this.name = name;
         this.charset = charset;
         this.authors = authors;
         this.valid = valid;
-        this.submission = submission;
+        this.base = base;
         this.id = id;
     }
 
 
-    public static SubmissionInfo of(Submission submission, Integer id) {
-        return new SubmissionInfo(submission.getPath(), submission.getName(), submission.getCharset(), submission.getAuthors(), true, submission, id);
+    public static SubmissionInfo of(Base base, Integer id) {
+        return new SubmissionInfo(base.getPath(), base.getName(), base.getCharset(), base.getAuthors(), true, base, id);
     }
 
     public Path getPath() {
@@ -44,8 +44,8 @@ public class SubmissionInfo {
         return authors;
     }
 
-    public Submission getSubmission() {
-        return submission;
+    public Base getBase() {
+        return base;
     }
 
     public Boolean getValid() {
@@ -63,7 +63,7 @@ public class SubmissionInfo {
                 ", charset=" + charset +
                 ", authors=" + authors +
                 ", valid=" + valid +
-                ", submission=" + submission +
+                ", submission=" + base +
                 ", id=" + id +
                 '}';
     }
