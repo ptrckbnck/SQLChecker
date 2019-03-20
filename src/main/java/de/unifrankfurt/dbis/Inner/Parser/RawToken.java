@@ -1,18 +1,20 @@
 package de.unifrankfurt.dbis.Inner.Parser;
 
+import java.util.StringJoiner;
+
 public class RawToken {
-    private final String name;
+    private final String type;
     private final String addition;
     private final String body;
 
-    public RawToken(String name, String addition, String body) {
-        this.name = name;
+    public RawToken(String type, String addition, String body) {
+        this.type = type;
         this.addition = addition;
         this.body = body;
     }
 
-    public String getName() {
-        return name;
+    public String getType() {
+        return type;
     }
 
     public String getAddition() {
@@ -25,9 +27,10 @@ public class RawToken {
 
     @Override
     public String toString() {
-        return "Token{" + "name='" + name + '\'' +
-                ", addition='" + addition + '\'' +
-                ", body='" + body + '\'' +
-                '}';
+        return new StringJoiner(", ", RawToken.class.getSimpleName() + "[", "]")
+                .add("type='" + type + "'")
+                .add("addition='" + addition + "'")
+                .add("body='" + body + "'")
+                .toString();
     }
 }

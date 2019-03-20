@@ -1,6 +1,5 @@
 package de.unifrankfurt.dbis.Inner;
 
-import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -68,27 +67,6 @@ public class Student {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * This functions checks if name satisfies requirements.
-     * So far the only requirement is not to be empty.
-     *
-     * @return true if name fulfils requirements.
-     */
-    public boolean checkName() {
-        return !this.name.isEmpty() && !this.name.contains(";");
-    }
-
-    /**
-     * This functions checks if MatriculationNumber satisfies requirements.
-     * MatriculationNumber should be numeric and not empty
-     *
-     * @return true if MatriculationNumber fulfils requirements.
-     */
-    public boolean checkMatriculationNumber() {
-        return (StringUtils.isNumeric(this.matriculationNumber)
-                && !this.matriculationNumber.isEmpty());
     }
 
     /**

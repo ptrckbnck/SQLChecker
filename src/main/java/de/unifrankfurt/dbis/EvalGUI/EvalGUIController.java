@@ -51,6 +51,7 @@ public class EvalGUIController implements Initializable {
     public TextField filterTextField;
     private static Method columnToFitMethod;
     public Button undoFilterButton;
+    public CheckBox useRegEx;
     private ObservableList<BaseInfo> subInfos;
     private Report report;
     private Task<Integer> running;
@@ -308,7 +309,7 @@ public class EvalGUIController implements Initializable {
         if (!Objects.isNull(running)) {
             running.cancel();
         }
-        this.running = new TaskFilter(this.subInfos, this.filterHistory, this.getFilterTerm());
+        this.running = new TaskFilter(this.subInfos, this.filterHistory, this.getFilterTerm(), useRegEx.isSelected());
         Thread t = new Thread(this.running);
         t.setDaemon(true);
         t.start();

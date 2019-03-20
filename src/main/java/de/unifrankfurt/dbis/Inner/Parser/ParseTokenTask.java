@@ -8,48 +8,75 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+
+/**
+ * \/*%%task%%<Name>.<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
+ * <Body>
+ * <p>
+ * \/*%%<Name>%%<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
+ * <Body>
+ */
 public class ParseTokenTask implements ParseToken {
     public static String id = "task";
     public static String delimiter = ".";
     private final String name;
-    private final List<String> head;
+    private final Integer score;
+    private final String group;
+    private final List<String> schema;
     private final List<Integer> order;
     private final String body;
 
-    public ParseTokenTask(String name, List<String> head, List<Integer> order, String body) {
+    public ParseTokenTask(String name, Integer score, String group, List<String> schema, List<Integer> order, String body) {
         this.name = name;
-        this.head = head;
+        this.score = score;
+        this.group = group;
+        this.schema = schema;
         this.order = order;
         this.body = body;
     }
 
-    public static ParseToken fromRawToken(RawToken rawToken) {
-        List<String> splitted = List.of(rawToken.getAddition().split("\\" + (delimiter)));
+    public static ParseTokenTask fromRawToken(RawToken rawToken) {
+
+        final String type = rawToken.getType();
+        if (Objects.isNull(type)) {
+            return null;
+        }
+        String addition = rawToken.getAddition();
+        if (Objects.isNull(addition)) {
+            addition = "";
+        }
+        String body = rawToken.getBody();
+        if (Objects.isNull(rawToken.getBody())) {
+            body = "";
+        }
+
+        List<String> splitted = Arrays.asList(rawToken.getAddition().split("\\" + (delimiter)));
+        if (!Objects.equals(type, id)) {
+            splitted.add(0, type);
+        }
         String name = null;
+        Integer score = null;
+        String group = null;
         List<String> head = null;
         List<Integer> order = null;
-        if (rawToken.getName().equals(id)) {
-            if (splitted.size() > 0) {
-                name = splitted.get(0);
-            }
-            if (splitted.size() > 1) {
-                head = parseHead(splitted.get(1));
-            }
-            if (splitted.size() > 2) {
-                order = parseOrder(splitted.get(2));
-            }
 
-        } else {
-            //catch all other ids
-            name = rawToken.getName();
-            if (splitted.size() > 0) {
-                head = parseHead(splitted.get(0));
-            }
-            if (splitted.size() > 1) {
-                order = parseOrder(splitted.get(1));
-            }
+        final int size = splitted.size();
+        if (size > 0) {
+            name = splitted.get(0);
         }
-        return new ParseTokenTask(name, head, order, rawToken.getBody());
+        if (size > 1) {
+            score = Integer.valueOf(splitted.get(1));
+        }
+        if (size > 2) {
+            group = splitted.get(2);
+        }
+        if (size > 3) {
+            parseSchema(splitted.get(3));
+        }
+        if (size > 4) {
+            order = parseOrder(splitted.get(2));
+        }
+        return new ParseTokenTask(name, score, group, head, order, body);
     }
 
     public static List<Integer> parseOrder(String s) {
@@ -78,7 +105,7 @@ public class ParseTokenTask implements ParseToken {
 
     }
 
-    private static List<String> parseHead(String s) {
+    private static List<String> parseSchema(String s) {
         List<String> splitted = split(s);
         if (Objects.isNull(splitted)) return null;
         return splitted.stream().map(x -> {
@@ -94,8 +121,8 @@ public class ParseTokenTask implements ParseToken {
     }
 
     private String serializedSchema() {
-        if (Objects.isNull(this.head)) return "";
-        return "[\"" + String.join("\", \"", this.head) + "\"]";
+        if (Objects.isNull(this.schema)) return "";
+        return "[\"" + String.join("\", \"", this.schema) + "\"]";
     }
 
     private String serializedOrder() {
@@ -107,8 +134,8 @@ public class ParseTokenTask implements ParseToken {
         return name;
     }
 
-    public List<String> getHead() {
-        return head;
+    public List<String> getSchema() {
+        return schema;
     }
 
     public List<Integer> getOrder() {
@@ -123,7 +150,9 @@ public class ParseTokenTask implements ParseToken {
     public String toString() {
         return new StringJoiner(", ", ParseTokenTask.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
-                .add("head=" + head)
+                .add("score=" + score)
+                .add("group='" + group + "'")
+                .add("schema=" + schema)
                 .add("order=" + order)
                 .add("body='" + body + "'")
                 .toString();
@@ -131,7 +160,7 @@ public class ParseTokenTask implements ParseToken {
 
     @Override
     public void build(BaseBuilder bb) {
-        bb.addTask(new TaskSQL(name, head, order, body));
+        bb.addTask(new TaskSQL(name, schema, order, body));
     }
 
     public String serialize() {

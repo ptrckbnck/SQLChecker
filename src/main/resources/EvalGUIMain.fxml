@@ -76,6 +76,8 @@
                                                 <Button mnemonicParsing="false" onAction="#openCSVPath"
                                                         text="Öffnen ..." GridPane.columnIndex="2"
                                                         GridPane.rowIndex="1"/>
+                                                <CheckBox fx:id="useRegEx" mnemonicParsing="false" text="RegEx"
+                                                          GridPane.columnIndex="2"/>
                                             </children>
                                             <padding>
                                                 <Insets bottom="2.0" left="2.0" right="2.0" top="2.0"/>

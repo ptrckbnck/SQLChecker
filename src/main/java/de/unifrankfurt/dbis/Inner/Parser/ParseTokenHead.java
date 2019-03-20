@@ -35,7 +35,8 @@ public class ParseTokenHead implements ParseToken {
         } else {
             students = head.getStudents()
                     .stream()
-                    .map(Student::parse).collect(Collectors.toCollection(Authors::new));
+                    .map(Student::parse)
+                    .collect(Collectors.toCollection(Authors::new));
         }
 
         BaseType type;
