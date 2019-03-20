@@ -36,8 +36,8 @@ class BaseParserTest {
                         "}\n" +
                         "%%*/\n";
         BaseParser spn = new BaseParser();
-        spn.registerSubTokenCreator(SubTokenHead::fromRawToken);
-        List<SubToken> a = spn.analyzeTokens(BaseParser.tokenizer(h));
+        spn.registerSubTokenCreator(ParseTokenHead::fromRawToken);
+        List<ParseToken> a = spn.analyzeTokens(BaseParser.tokenizer(h));
         System.err.println(a);
     }
 
@@ -63,10 +63,10 @@ class BaseParserTest {
                         "%%*/\n" +
                         "Select * from test2;";
         BaseParser spn = new BaseParser();
-        spn.registerSubTokenCreator(SubTokenHead::fromRawToken);
-        spn.registerSubTokenCreator(SubTokenTask::fromRawToken);
+        spn.registerSubTokenCreator(ParseTokenHead::fromRawToken);
+        spn.registerSubTokenCreator(ParseTokenTask::fromRawToken);
         List<RawToken> tokenized = BaseParser.tokenizer(h);
-        List<SubToken> a = spn.analyzeTokens(tokenized);
+        List<ParseToken> a = spn.analyzeTokens(tokenized);
         System.err.println(a);
     }
 
@@ -74,7 +74,7 @@ class BaseParserTest {
     void test3() {
         String h =
                 "/*%%head%%\n" +
-                        "{\"type\": \"submission\",\n" +
+                        "{\"type\": \"solution\",\n" +
                         "\"name\": \"test\",\n" +
                         "\"authors\": [[\"Yusuf Baran\",\"yusufbaran66@yahoo.de\",\"6364384\"]" +
                         ",[\"Angelos Ioannou\",\"angelos.ioannou@gmx.de\",\"6081379\"]]\n" +
@@ -82,7 +82,7 @@ class BaseParserTest {
                         "%%*/\n" +
                         "\n" +
                         "/*%%1a%%" +
-                        "[\"a\",\"b\",\"c\"].[1,2,3] %%*/\n" +
+                        "[\"a\",\"b\",\"c\"].[1,2,3].2 %%*/\n" +
                         "Select * from test;\n" +
                         "\n" +
                         "/*%%task%%" +
@@ -90,7 +90,13 @@ class BaseParserTest {
                         ".[\"a\",\"b\",\"c\"]" +
                         ".[1,2,3]" +
                         "%%*/\n" +
-                        "Select * from test2;";
+                        "Select * from test2;" +
+                        "\n" +
+                        "/*%%static%%" +
+                        "s" +
+                        ".[1,2,3]" +
+                        "%%*/\n" +
+                        "Select * from test3;";
         BaseBuilder a = BaseParser.parseDefault(h);
         System.err.println(a);
         System.err.println(a.build());

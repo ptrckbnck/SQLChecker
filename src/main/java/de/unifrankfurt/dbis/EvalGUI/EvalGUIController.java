@@ -1,10 +1,7 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
-import de.unifrankfurt.dbis.Evaluator;
-import de.unifrankfurt.dbis.Inner.Base;
-import de.unifrankfurt.dbis.Inner.Report;
-import de.unifrankfurt.dbis.Inner.Student;
-import de.unifrankfurt.dbis.Inner.SubmissionInfo;
+import de.unifrankfurt.dbis.Inner.*;
+import de.unifrankfurt.dbis.Inner.Parser.BaseType;
 import de.unifrankfurt.dbis.config.EvalConfig;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -34,11 +31,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class EvalGUIController implements Initializable {
 
-    public TableView<SubmissionInfo> submissionTable;
+    public TableView<BaseInfo> submissionTable;
     public TextField databaseTextField;
     public TextField usernameTextField;
     public TextField hostTextField;
@@ -55,16 +51,16 @@ public class EvalGUIController implements Initializable {
     public TextField filterTextField;
     private static Method columnToFitMethod;
     public Button undoFilterButton;
-    private ObservableList<SubmissionInfo> subInfos;
+    private ObservableList<BaseInfo> subInfos;
     private Report report;
     private Task<Integer> running;
     public TextField csvPathTextField;
-    private ObservableList<List<SubmissionInfo>> filterHistory;
+    private ObservableList<List<BaseInfo>> filterHistory;
     private PrintStream out;
 
     public List<Base> getSubmissions() {
         return this.subInfos.stream()
-                .map(SubmissionInfo::getBase)
+                .map(BaseInfo::getBase)
                 .filter(x -> !Objects.isNull(x))
                 .collect(Collectors.toList());
     }
@@ -79,7 +75,7 @@ public class EvalGUIController implements Initializable {
         this.runButton.setDisable(true);
         submissionTable.setItems(subInfos);
 
-        subInfos.addListener((ListChangeListener<SubmissionInfo>) change -> {
+        subInfos.addListener((ListChangeListener<BaseInfo>) change -> {
             if (this.subInfos.isEmpty())
                 this.runButton.setDisable(true);
             else {
@@ -87,7 +83,7 @@ public class EvalGUIController implements Initializable {
             }
         });
 
-        filterHistory.addListener((ListChangeListener<List<SubmissionInfo>>) change -> {
+        filterHistory.addListener((ListChangeListener<List<BaseInfo>>) change -> {
             if (filterHistory.isEmpty()) {
                 this.undoFilterButton.setDisable(true);
 
@@ -103,30 +99,39 @@ public class EvalGUIController implements Initializable {
 
     public void initTable() {
 
-        TableColumn<SubmissionInfo, Path> pathColumn = new TableColumn<>("Path");
+        TableColumn<BaseInfo, Path> pathColumn = new TableColumn<>("Path");
         pathColumn.setCellValueFactory(new PropertyValueFactory<>("path"));
 
-        TableColumn<SubmissionInfo, String> nameColumn = new TableColumn<>("Submission");
+        TableColumn<BaseInfo, String> nameColumn = new TableColumn<>("Submission");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        TableColumn<SubmissionInfo, Charset> charsetColumn = new TableColumn<>("Charset");
+        TableColumn<BaseInfo, Charset> charsetColumn = new TableColumn<>("Charset");
         charsetColumn.setCellValueFactory(new PropertyValueFactory<>("charset"));
 
-        TableColumn<SubmissionInfo, List<Student>> authorsColumn = new TableColumn<>("Authors");
+        TableColumn<BaseInfo, List<Student>> authorsColumn = new TableColumn<>("Authors");
         authorsColumn.setCellValueFactory(new PropertyValueFactory<>("authors"));
 
-        TableColumn<SubmissionInfo, Boolean> validColumn = new TableColumn<>("Valid");
+        TableColumn<BaseInfo, Boolean> validColumn = new TableColumn<>("Valid");
         validColumn.setCellValueFactory(new PropertyValueFactory<>("valid"));
 
-        TableColumn<SubmissionInfo, Integer> idColumn = new TableColumn<>("#");
+        TableColumn<BaseInfo, Integer> idColumn = new TableColumn<>("#");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
 
+        TableColumn<BaseInfo, String> errorColumn = new TableColumn<>("Error");
+        errorColumn.setCellValueFactory(new PropertyValueFactory<>("error"));
+
+        TableColumn<BaseInfo, BaseType> typeColumn = new TableColumn<>("Type");
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("baseType"));
+
+
         submissionTable.getColumns().add(idColumn);
+        submissionTable.getColumns().add(typeColumn);
         submissionTable.getColumns().add(pathColumn);
         submissionTable.getColumns().add(nameColumn);
         submissionTable.getColumns().add(charsetColumn);
         submissionTable.getColumns().add(authorsColumn);
-        //submissionTable.getColumns().add(validColumn); //needs better definition what valid means
+        submissionTable.getColumns().add(validColumn); //todo needs better definition what valid means
+        submissionTable.getColumns().add(errorColumn);
     }
 
     /***
@@ -192,22 +197,33 @@ public class EvalGUIController implements Initializable {
     }
 
     public void loadSubmissions(ActionEvent actionEvent) {
-        Path submissionsPath = getSubmissionsPath();
-        if (Objects.isNull(submissionsPath)) {
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setContentText("No Submissions defined");
-            a.showAndWait();
-            return;
+        try {
+            Path submissionsPath = getSubmissionsPath();
+            if (Objects.isNull(submissionsPath)) {
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setContentText("No Submissions defined");
+                a.showAndWait();
+                return;
+            }
+            System.err.println(submissionsPath);
+            report = new Report();
+            report.setRootPath(this.getSubmissionsPath());
+            subInfos.clear();
+            List<BaseInfo> infos;
+            try {
+                infos = Bases.loadBaseInfos(submissionsPath);
+            } catch (IOException e) {
+                Alert a = new Alert(Alert.AlertType.INFORMATION);
+                a.setContentText("Laden der Submissions fehlgeschlagen\n" + e.getMessage());
+                a.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                a.showAndWait();
+                return;
+            }
+
+            subInfos.addAll(infos);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.err.println(submissionsPath);
-        report = new Report();
-        report.setRootPath(this.getSubmissionsPath());
-        subInfos.clear();
-        List<Base> subs = Evaluator.loadSubmissions(submissionsPath, report);
-        List<SubmissionInfo> infos = IntStream.range(0, subs.size())
-                .mapToObj(x -> SubmissionInfo.of(subs.get(x), x))
-                .collect(Collectors.toList());
-        subInfos.addAll(infos);
     }
 
 
@@ -275,7 +291,6 @@ public class EvalGUIController implements Initializable {
         Thread t = new Thread(this.running);
         t.setDaemon(true);
         t.start();
-
     }
 
     private Path getCSVOut() {
@@ -305,7 +320,7 @@ public class EvalGUIController implements Initializable {
 
     public void undoFilter(ActionEvent actionEvent) {
         if (filterHistory.isEmpty()) return;
-        List<SubmissionInfo> filtered = this.filterHistory.remove(filterHistory.size() - 1);
+        List<BaseInfo> filtered = this.filterHistory.remove(filterHistory.size() - 1);
         this.subInfos.setAll(filtered);
     }
 

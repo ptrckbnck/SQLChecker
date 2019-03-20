@@ -10,12 +10,9 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *  The class SQLScript is a container for a list of SQL-statements, a script.
@@ -39,38 +36,7 @@ public class SQLScript {
     }
 
     private static SQLScript fromList(List<String> lines){
-        String delimiter = Tag.TAG_PREFIX + Tag.STATIC + Tag.TAG_SUFFIX;
-        StringBuilder sb = null;
-        ArrayList<String> queryList = new ArrayList<>();
-
-        for (String line : lines) {
-            line = line.trim();
-            if (!line.isEmpty()) {
-                if (line.equals(delimiter)) {
-                    if (sb != null) {
-                        String query = sb.toString().trim();
-                        if (!query.isEmpty()) {
-                            queryList.add(query);
-                        }
-                    }
-                    sb = new StringBuilder();
-                } else {
-                    if (sb == null) {
-                        return fromListWithoutStatic(lines); //try non static version
-                    } else {
-                        sb.append(line).append("\n");
-                    }
-                }
-            }
-        }
-        if (sb != null) {
-            String query = sb.toString().trim();
-            if (!query.isEmpty()) {
-                queryList.add(query);
-            }
-        }
-
-        return new SQLScript(queryList);
+        return fromListWithoutStatic(lines);
     }
     private static SQLScript fromListWithoutStatic(List<String> lines) {
         String script = String.join("\n", lines).trim();
@@ -78,15 +44,6 @@ public class SQLScript {
         return new SQLScript(list);
     }
 
-
-    public void storeInPath(Path path) throws IOException {
-        Stream<String> stream = this.queryList.stream().map(
-                x -> Tag.TAG_PREFIX + Tag.STATIC + Tag.TAG_SUFFIX + "\n" + x);
-        Files.write(
-                path,
-                stream.collect(Collectors.toList()),
-                StandardCharsets.UTF_8);
-    }
 
     public void execute(Statement statement) throws SQLException {
         for (String sql : this.queryList) {

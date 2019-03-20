@@ -39,7 +39,7 @@ public class TaskSQL implements TaskInterface {
 
     @Override
     public String serialize() {
-        return new SubTokenTask(name, scheme, order, sql).serialize();
+        return new ParseTokenTask(name, scheme, order, sql).serialize();
     }
 
     @Override

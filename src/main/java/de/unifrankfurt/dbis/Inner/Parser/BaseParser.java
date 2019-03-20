@@ -9,12 +9,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BaseParser {
-    private List<Function<RawToken, SubToken>> createSubTokenList = new ArrayList<>();
+    private List<Function<RawToken, ParseToken>> createSubTokenList = new ArrayList<>();
 
     public static BaseBuilder parseDefault(String text) {
-        return new BaseParser().registerSubTokenCreator(SubTokenHead::fromRawToken)
-                .registerSubTokenCreator(SubTokenStatic::fromRawToken)
-                .registerSubTokenCreator(SubTokenTask::fromRawToken).parse(text);
+        return new BaseParser()
+                .registerSubTokenCreator(ParseTokenHead::fromRawToken)
+                .registerSubTokenCreator(ParseTokenStatic::fromRawToken)
+                .registerSubTokenCreator(ParseTokenTask::fromRawToken)
+                .parse(text);
     }
 
     public static List<RawToken> tokenizer(String toParse) {
@@ -70,26 +72,26 @@ public class BaseParser {
 
     public BaseBuilder parse(String text) {
         List<RawToken> tokenized = tokenizer(text);
-        List<SubToken> analyzed = analyzeTokens(tokenized);
+        List<ParseToken> analyzed = analyzeTokens(tokenized);
         BaseBuilder bb = new BaseBuilder();
         analyzed.forEach(x -> x.build(bb));
         return bb;
     }
 
-    public BaseParser registerSubTokenCreator(Function<RawToken, SubToken> func) {
+    public BaseParser registerSubTokenCreator(Function<RawToken, ParseToken> func) {
         this.createSubTokenList.add(func);
         return this;
     }
 
-    public SubToken analyzeToken(RawToken rawToken) {
-        for (Function<RawToken, SubToken> func : createSubTokenList) {
-            SubToken subToken = func.apply(rawToken);
-            if (!Objects.isNull(subToken)) return subToken;
+    public ParseToken analyzeToken(RawToken rawToken) {
+        for (Function<RawToken, ParseToken> func : createSubTokenList) {
+            ParseToken parseToken = func.apply(rawToken);
+            if (!Objects.isNull(parseToken)) return parseToken;
         }
         return null;
     }
 
-    public List<SubToken> analyzeTokens(List<RawToken> tokens) {
+    public List<ParseToken> analyzeTokens(List<RawToken> tokens) {
         return tokens.stream().map(this::analyzeToken).collect(Collectors.toList());
     }
 

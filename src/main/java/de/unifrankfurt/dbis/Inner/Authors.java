@@ -15,6 +15,6 @@ public class Authors extends ArrayList<Student> {
     }
 
     public List<List<String>> toStringList() {
-        return this.stream().map(x -> x.toStringList()).collect(Collectors.toList());
+        return this.stream().map(Student::toStringList).collect(Collectors.toList());
     }
 }

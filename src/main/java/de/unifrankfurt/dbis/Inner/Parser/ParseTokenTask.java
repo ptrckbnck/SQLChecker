@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-public class SubTokenTask implements SubToken {
+public class ParseTokenTask implements ParseToken {
     public static String id = "task";
     public static String delimiter = ".";
     private final String name;
@@ -16,14 +16,14 @@ public class SubTokenTask implements SubToken {
     private final List<Integer> order;
     private final String body;
 
-    public SubTokenTask(String name, List<String> head, List<Integer> order, String body) {
+    public ParseTokenTask(String name, List<String> head, List<Integer> order, String body) {
         this.name = name;
         this.head = head;
         this.order = order;
         this.body = body;
     }
 
-    public static SubToken fromRawToken(RawToken rawToken) {
+    public static ParseToken fromRawToken(RawToken rawToken) {
         List<String> splitted = List.of(rawToken.getAddition().split("\\" + (delimiter)));
         String name = null;
         List<String> head = null;
@@ -49,7 +49,7 @@ public class SubTokenTask implements SubToken {
                 order = parseOrder(splitted.get(1));
             }
         }
-        return new SubTokenTask(name, head, order, rawToken.getBody());
+        return new ParseTokenTask(name, head, order, rawToken.getBody());
     }
 
     public static List<Integer> parseOrder(String s) {
@@ -71,7 +71,6 @@ public class SubTokenTask implements SubToken {
     }
 
     private static List<String> split(String s) {
-        //System.err.println(s);
         s = s.trim();
         if (!s.startsWith("[") && !s.endsWith("]")) return null;
         s = s.substring(1, s.length() - 1);
@@ -91,14 +90,16 @@ public class SubTokenTask implements SubToken {
     }
 
     private String serializedHead() {
-        return this.name + "." + this.serializedSheme() + "." + this.serializedOrder();
+        return this.name + "." + this.serializedSchema() + "." + this.serializedOrder();
     }
 
-    private String serializedSheme() {
+    private String serializedSchema() {
+        if (Objects.isNull(this.head)) return "";
         return "[\"" + String.join("\", \"", this.head) + "\"]";
     }
 
     private String serializedOrder() {
+        if (Objects.isNull(order)) return "";
         return "[" + this.order.stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
     }
 
@@ -120,7 +121,7 @@ public class SubTokenTask implements SubToken {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", SubTokenTask.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ParseTokenTask.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("head=" + head)
                 .add("order=" + order)
@@ -134,6 +135,6 @@ public class SubTokenTask implements SubToken {
     }
 
     public String serialize() {
-        return "/*%%" + id + "%%" + this.serializedHead() + "\n" + this.body;
+        return "/*%%" + id + "%%" + this.serializedHead() + "%%*/\n" + this.body;
     }
 }

@@ -10,33 +10,41 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-public class SubTokenHead implements SubToken {
+public class ParseTokenHead implements ParseToken {
     public final static String id = "head";
     private final BaseType type;
     private final String name;
     private final Authors students;
 
-    public SubTokenHead(BaseType type, String name, Authors students) {
+    public ParseTokenHead(BaseType type, String name, Authors students) {
         this.type = type;
         this.name = name;
         this.students = students;
     }
 
-    public static SubTokenHead fromRawToken(RawToken rawToken) {
+    public static ParseTokenHead fromRawToken(RawToken rawToken) {
         if (!rawToken.getName().equals(id)) return null;
         String addition = rawToken.getAddition();
         AdditionHead head = parseAddition(addition);
         if (Objects.isNull(head)) return null;
-        Authors students = head.getStudents()
-                .stream()
-                .map(Student::parse).collect(Collectors.toCollection(Authors::new));
+        List<List<String>> headStudents = head.getStudents();
+
+        Authors students;
+        if (Objects.isNull(headStudents)) {
+            students = new Authors();
+        } else {
+            students = head.getStudents()
+                    .stream()
+                    .map(Student::parse).collect(Collectors.toCollection(Authors::new));
+        }
+
         BaseType type;
         try {
             type = BaseType.valueOf(head.getType());
         } catch (IllegalArgumentException e) {
             type = null;
         }
-        return new SubTokenHead(type, head.getSubmission_name(), students);
+        return new ParseTokenHead(type, head.getSubmission_name(), students);
     }
 
     private static AdditionHead parseAddition(String addition) {
@@ -74,7 +82,7 @@ public class SubTokenHead implements SubToken {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", SubTokenHead.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ParseTokenHead.class.getSimpleName() + "[", "]")
                 .add("type='" + type + "'")
                 .add("name='" + name + "'")
                 .add("students=" + students)

@@ -3,26 +3,27 @@ package de.unifrankfurt.dbis.Inner.Parser;
 import de.unifrankfurt.dbis.Inner.BaseBuilder;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
-import static de.unifrankfurt.dbis.Inner.Parser.SubTokenTask.parseOrder;
+import static de.unifrankfurt.dbis.Inner.Parser.ParseTokenTask.parseOrder;
 
 
-public class SubTokenStatic implements SubToken {
+public class ParseTokenStatic implements ParseToken {
     public static String id = "static";
     public static String delimiter = ".";
     private final String name;
     private final List<Integer> ordering;
     private final String body;
 
-    public SubTokenStatic(String name, List<Integer> ordering, String body) {
+    public ParseTokenStatic(String name, List<Integer> ordering, String body) {
         this.name = name;
         this.ordering = ordering;
         this.body = body;
     }
 
-
-    public static SubToken fromRawToken(RawToken rawToken) {
+    public static ParseToken fromRawToken(RawToken rawToken) {
         if (!rawToken.getName().equals(id)) return null;
         List<String> splitted = List.of(rawToken.getAddition().split("\\" + (delimiter)));
         String name = null;
@@ -34,7 +35,12 @@ public class SubTokenStatic implements SubToken {
             order = parseOrder(splitted.get(1));
         }
 
-        return new SubTokenStatic(name, order, rawToken.getBody());
+        return new ParseTokenStatic(name, order, rawToken.getBody());
+    }
+
+    private String serializedOrder() {
+        if (Objects.isNull(ordering)) return "";
+        return "[" + this.ordering.stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
     }
 
     public String getName() {
@@ -49,9 +55,17 @@ public class SubTokenStatic implements SubToken {
         return body;
     }
 
+    public String serialize() {
+        return "/*%%" + id + "%%" + serializedHead() + "%%*/\n" + this.body;
+    }
+
+    private String serializedHead() {
+        return this.name + delimiter + this.serializedOrder();
+    }
+
     @Override
     public String toString() {
-        return new StringJoiner(", ", SubTokenStatic.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", ParseTokenStatic.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
                 .add("ordering=" + ordering)
                 .add("body='" + body + "'")

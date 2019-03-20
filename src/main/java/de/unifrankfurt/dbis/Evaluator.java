@@ -124,6 +124,7 @@ public class Evaluator {
                 + " Solution:" + sol.getName() + " ErrorMsg:" + message;
     }
 
+
     public static List<Base> loadSubmissions(Path root, Report report) {
         int depth = 0;
         if (Files.isDirectory(root)) {

@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static java.nio.file.Files.readAllLines;
@@ -47,18 +48,14 @@ public class Base extends CheckerFrame {
      * @throws IOException              from File IO
      */
     public static Base fromPath(Path path) throws IOException {
-        BaseParser bp = new BaseParser();
-        bp.registerSubTokenCreator(SubTokenHead::fromRawToken);
-        bp.registerSubTokenCreator(SubTokenStatic::fromRawToken);
-        bp.registerSubTokenCreator(SubTokenTask::fromRawToken);
+
         BaseBuilder bb;
         try {
-            //using readAllLines to allow \n & \r\n
-            List<String> toParse = readAllLines(path, StandardCharsets.UTF_8);
-            bb = bp.parse(toParse).setCharset(StandardCharsets.UTF_8);
+            String toParse = String.join("\n", readAllLines(path, StandardCharsets.UTF_8));
+            bb = BaseParser.parseDefault(String.join("\n", toParse)).setCharset(StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            List<String> toParse = readAllLines(path, StandardCharsets.ISO_8859_1);
-            bb = bp.parse(toParse).setCharset(StandardCharsets.ISO_8859_1);
+            String toParse = String.join("\n", readAllLines(path, StandardCharsets.ISO_8859_1));
+            bb = BaseParser.parseDefault(toParse).setCharset(StandardCharsets.ISO_8859_1);
         }
         bb.setPath(path);
         return bb.build();
@@ -102,11 +99,18 @@ public class Base extends CheckerFrame {
 
     @Override
     public String toString() {
-        return String.join(System.getProperty("line.separator"), this.serialize());
+        return new StringJoiner(", ", Base.class.getSimpleName() + "[", "]")
+                .add("authors=" + authors)
+                .add("path=" + path)
+                .add("baseType=" + baseType)
+                .add("tasks=" + tasks)
+                .add("name='" + name + "'")
+                .add("charset=" + charset)
+                .toString();
     }
 
     public String serialize() {
-        return new SubTokenHead(this.baseType, this.name, authors).serialize() +
+        return new ParseTokenHead(this.baseType, this.name, authors).serialize() +
                 this.tasks.stream().map(TaskInterface::serialize).collect(Collectors.joining("\n"));
     }
 
@@ -154,4 +158,7 @@ public class Base extends CheckerFrame {
         return Solution.createSolution(this.tasks, this.name, this.charset, resetScript, dataSource);
     }
 
+    public BaseType getType() {
+        return this.baseType;
+    }
 }

@@ -2,7 +2,7 @@ package de.unifrankfurt.dbis.Inner.Parser;
 
 import de.unifrankfurt.dbis.Inner.BaseBuilder;
 
-public interface SubToken {
+public interface ParseToken {
     /**
      * each SubToken should implement this method to check if SubToken can becreated of given rawToken.
      *
@@ -20,7 +20,7 @@ public interface SubToken {
      * @param <T>
      * @return Subtoken if no problem occured, null otherwise
      */
-    static <T extends SubToken> T createOf(RawToken rawToken) {
+    static <T extends ParseToken> T createOf(RawToken rawToken) {
         return null;
     }
 

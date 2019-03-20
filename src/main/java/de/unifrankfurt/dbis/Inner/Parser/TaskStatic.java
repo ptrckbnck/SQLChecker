@@ -34,7 +34,7 @@ public class TaskStatic implements TaskInterface {
 
     @Override
     public String serialize() {
-        return null;
+        return new ParseTokenStatic(name, order, sql).serialize();
     }
 
     @Override
