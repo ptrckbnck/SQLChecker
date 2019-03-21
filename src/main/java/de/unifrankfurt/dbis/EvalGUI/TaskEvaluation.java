@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -64,6 +65,7 @@ public class TaskEvaluation extends Task<Integer> {
         alert.setTitle("Error");
         alert.setHeaderText("Error during Evaluation");
         alert.setContentText(msg);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.showAndWait();
     }
 

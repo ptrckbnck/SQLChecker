@@ -7,8 +7,8 @@ import de.unifrankfurt.dbis.config.DataSource;
 
 import java.nio.charset.Charset;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Solution extends CheckerFrame {
@@ -32,11 +32,11 @@ public class Solution extends CheckerFrame {
         }
         List<SQLData> expectedResults = new ArrayList<>();
         for (TaskInterface t : tasks) {
-            String sql = t.getSQL();
+            String sql = t.getSql();
             SQLData result = SQLResults.execute(datasource, sql);
             if (result instanceof SQLDataFail) {
-                //TODO
                 System.err.println("WARNING: error while running task: " + t + "\n" + result);
+                return null;
             }
             expectedResults.add(result);
         }
@@ -102,6 +102,11 @@ public class Solution extends CheckerFrame {
         return builder.toString();
     }
 
+    public ScoreGroup getScoreGroup() {
+        ScoreGroup group = new ScoreGroup();
+        this.tasks.forEach(group::addTask);
+        return group;
+    }
 
     public void evaluate(ResultStorage store,
                          DataSource source,
@@ -111,7 +116,7 @@ public class Solution extends CheckerFrame {
         store.setCharset(base.getCharset());
         resetScript.execute(source);
 
-
+        ScoreGroup group = getScoreGroup();
         List<SQLResultDiff> diffs = new ArrayList<>();
         List<SQLData> results = new ArrayList<>();
         int subTask = 0;
@@ -132,8 +137,14 @@ public class Solution extends CheckerFrame {
                 System.out.println(s);
             }
         }
+
+        store.setScore(group.analyseDiffs(diffs));
         store.setSqlData(results);
         store.setDiffs(diffs);
+    }
+
+    public SolutionMetadata getMetaData() {
+        return new SolutionMetadata(this.name, this.getTags(), this.getNonStaticTags(), getScoreGroup());
     }
 
     public Base tryToFixTagsFor(Base base) {
@@ -148,9 +159,72 @@ public class Solution extends CheckerFrame {
         return base;
     }
 
+    public class ScoreGroup {
+        List<String> groups;
+        Map<String, Integer> mapGroupScore;
+        Map<String, List<String>> mapGroupTask;
 
-    public SolutionMetadata getMetaData() {
-        return new SolutionMetadata(this.name, this.getTags(), this.getNonStaticTags());
+        private ScoreGroup() {
+            groups = new ArrayList<>();
+            mapGroupScore = new HashMap<>();
+            mapGroupTask = new HashMap<>();
+        }
+
+        private void addTask(TaskInterface task) {
+            String group = Objects.requireNonNullElse(task.getGroup(), task.getName()); //if no group given, default to name;
+            Integer score = task.getScore();
+            if (groups.contains(group)) {
+                mapGroupTask.get(group).add(task.getName());
+            } else {
+                groups.add(group);
+                mapGroupTask.put(group, new ArrayList<>(List.of(task.getName())));
+            }
+            if (Objects.nonNull(score)) {
+                mapGroupScore.putIfAbsent(group, task.getScore());
+            }
+        }
+
+        public List<String> getGroups() {
+            return groups;
+        }
+
+        public Integer getScore(String group) {
+            return groups.contains(group) ? this.mapGroupScore.getOrDefault(group, 1) : null;
+        }
+
+        public List<String> getMember(String group) {
+            return groups.contains(group) ? this.mapGroupTask.get(group) : null;
+        }
+
+        public List<Integer> analyseDiffs(List<SQLResultDiff> diffs) {
+            assert Solution.this.tasks.size() == diffs.size();
+            HashMap<String, Boolean> map = new HashMap<>();
+            for (int i = 0; i < Solution.this.tasks.size(); i++) {
+                String task = tasks.get(i).getName();
+                Boolean bool = diffs.get(i).isOk();
+                map.put(task, bool);
+            }
+            List<Integer> scores = new ArrayList<>();
+            for (String group : groups) {
+                List<String> groupTasks = getMember(group);
+                List<Boolean> l = groupTasks.stream().map(map::get).collect(Collectors.toList());
+                if (l.contains(false)) {
+                    scores.add(0);
+                } else {
+                    scores.add(getScore(group));
+                }
+            }
+            return scores;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", ScoreGroup.class.getSimpleName() + "[", "]")
+                    .add("groups=" + groups)
+                    .add("mapGroupScore=" + mapGroupScore)
+                    .add("mapGroupTask=" + mapGroupTask)
+                    .toString();
+        }
     }
 
     @Override

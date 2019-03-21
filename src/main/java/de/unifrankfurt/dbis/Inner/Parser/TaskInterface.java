@@ -6,9 +6,13 @@ import de.unifrankfurt.dbis.config.DataSource;
 public interface TaskInterface {
     String getName();
 
-    String getSQL();
+    String getSql();
 
     String serialize();
+
+    Integer getScore();
+
+    String getGroup();
 
     boolean isStatic();
 

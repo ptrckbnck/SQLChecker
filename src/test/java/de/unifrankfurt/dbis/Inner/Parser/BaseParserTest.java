@@ -98,4 +98,45 @@ class BaseParserTest {
         assertEquals("1b", task2.getName());
         assertEquals("s", task3.getName());
     }
+
+    @Test
+    void tokenizerTask() {
+        String h =
+                "/*%%1a%%\n" +
+                        "task%%\n" +
+                        "2.eins.[\"a\",\"b\",\"c\"].[1,2,3]%%*/\n" +
+                        "Select * from test;\n" +
+                        "\n" +
+                        "/*%%task2%%%%*/\n" +
+                        "Select * from test2;" +
+                        "\n" +
+                        "/*%%task3%%" +
+                        "type%%" +
+                        "addition%%*/\n" +
+                        "Select * from test3;" +
+                        "\n" +
+                        "/*%%task4%%*/\n" +
+                        "Select * from test4";
+        List<RawToken> tokenized = BaseParser.tokenizer(h);
+        System.err.println(tokenized);
+    }
+
+    @Test
+    void tokenizerStatic() {
+        String h =
+                "/*%%1a%%\n" +
+                        "static%%\n" +
+                        "2.eins.[1,2,3]%%*/\n" +
+                        "Select * from test;\n" +
+                        "\n" +
+                        "/*%%static2%%static%%*/\n" +
+                        "Select * from test2;" +
+                        "\n" +
+                        "/*%%static3%%" +
+                        "static%%" +
+                        "addition%%*/\n" +
+                        "Select * from test3;";
+        List<RawToken> tokenized = BaseParser.tokenizer(h);
+        System.err.println(tokenized);
+    }
 }

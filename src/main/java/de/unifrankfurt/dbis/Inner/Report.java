@@ -34,7 +34,8 @@ public class Report {
                 .useMatrikelNr()
                 .useSolutionName()
                 .useAllStatus()
-                .useSuccess()
+                .useAllGroups()
+                .useSumScore()
                 .useEncoding()
                 .useErrorMsg();
     }

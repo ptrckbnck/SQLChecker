@@ -31,7 +31,6 @@ public class Base extends CheckerFrame {
     private final Path path;
     private final BaseType baseType;
 
-
     protected Base(String name, Charset charset, BaseType baseType, List<Student> authors, List<TaskInterface> tasks, Path path) {
         super(tasks, name, charset);
         this.authors = new Authors(authors);
@@ -146,7 +145,7 @@ public class Base extends CheckerFrame {
                 .stream()
                 .map(x -> {
                     if (TaskSQL.class.isAssignableFrom(x.getClass())) {
-                        return ((TaskSQL) x).getScheme();
+                        return ((TaskSQL) x).getSchema();
                     } else {
                         return null;
                     }
@@ -161,4 +160,6 @@ public class Base extends CheckerFrame {
     public BaseType getType() {
         return this.baseType;
     }
+
+
 }

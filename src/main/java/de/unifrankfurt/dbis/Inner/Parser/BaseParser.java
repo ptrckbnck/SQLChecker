@@ -8,6 +8,16 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
+/**
+ * All tokens have one of the following style:
+ * \/*%%<Name>%%<Type>%%<Addition>%%*\/
+ * <Body>
+ * \/*%%<Name>%%<Addition>%%*\/
+ * <Body>
+ * \/*%%<Name>%%*\/
+ * <Body>
+ */
 public class BaseParser {
     private List<Function<RawToken, ParseToken>> createSubTokenList = new ArrayList<>();
 
@@ -16,6 +26,7 @@ public class BaseParser {
                 .registerSubTokenCreator(ParseTokenHead::fromRawToken)
                 .registerSubTokenCreator(ParseTokenStatic::fromRawToken)
                 .registerSubTokenCreator(ParseTokenTask::fromRawToken)
+                .registerSubTokenCreator(ParseTokenUnknown::fromRawToken)
                 .parse(text);
     }
 
@@ -24,21 +35,14 @@ public class BaseParser {
         List<String> stringList = splitTags(toParse);
         for (String string : stringList) {
             final int endTag = string.indexOf("%%*/");
-            final String tag = string.substring(4, endTag);
-            final int split = tag.indexOf("%%");
-            String name;
-            String addition;
-            String body;
-            if (split != -1) {
-                name = tag.substring(0, split).trim();
-                addition = tag.substring(split + 2).trim();
-            } else {
-                name = tag.trim();
-                addition = "";
-
-            }
-            body = string.substring(endTag + 4).trim();
-            rawTokenList.add(new RawToken(name, addition, body));
+            final String head = string.substring(4, endTag);
+            final List<String> split = List.of(head.split("%%"));
+            final int size = split.size();
+            final String name = split.get(0).isBlank() ? null : split.get(0).trim();
+            final String type = (size > 1 && !split.get(1).isBlank()) ? split.get(1).trim() : null;
+            final String addition = (size > 2 && !split.get(2).isBlank()) ? split.get(2).trim() : null;
+            final String body = string.substring(endTag + 4).trim();
+            rawTokenList.add(new RawToken(name, type, addition, body));
         }
         return rawTokenList;
     }
@@ -74,7 +78,11 @@ public class BaseParser {
         List<RawToken> tokenized = tokenizer(text);
         List<ParseToken> analyzed = analyzeTokens(tokenized);
         BaseBuilder bb = new BaseBuilder();
-        analyzed.forEach(x -> x.build(bb));
+        analyzed.forEach(x -> {
+            if (Objects.nonNull(x)) {
+                x.build(bb);
+            }
+        });
         return bb;
     }
 
@@ -84,15 +92,17 @@ public class BaseParser {
     }
 
     public ParseToken analyzeToken(RawToken rawToken) {
-        for (Function<RawToken, ParseToken> func : createSubTokenList) {
-            ParseToken parseToken = func.apply(rawToken);
-            if (!Objects.isNull(parseToken)) return parseToken;
-        }
-        return null;
+        return createSubTokenList.stream()
+                .map(x -> x.apply(rawToken))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     public List<ParseToken> analyzeTokens(List<RawToken> tokens) {
-        return tokens.stream().map(this::analyzeToken).collect(Collectors.toList());
+        return tokens.stream()
+                .map(this::analyzeToken)
+                .collect(Collectors.toList());
     }
 
 

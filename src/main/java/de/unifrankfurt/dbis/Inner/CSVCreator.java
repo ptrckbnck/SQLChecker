@@ -88,6 +88,27 @@ public class CSVCreator {
         return this;
     }
 
+    public CSVCreator useAllGroups() {
+        final List<String> groups = report.getSolutionMetadata().getScoreGroup().getGroups();
+        System.err.println(groups); //TODO remove
+        int size = groups.size();
+        for (int i = 0; i < size; i++) {
+            final int finalI = i;
+            Function<ResultStorage, String> f = x -> x.getScore().get(finalI).toString();
+            this.functions.add(f);
+
+            this.header.add(groups.get(i));
+        }
+        return this;
+    }
+
+    public CSVCreator useSumScore() {
+        Function<ResultStorage, String> f = x -> x.getSumScore().toString();
+        this.functions.add(f);
+        this.header.add("sum");
+        return this;
+    }
+
 
 
     public CSVCreator useErrorMsg() {

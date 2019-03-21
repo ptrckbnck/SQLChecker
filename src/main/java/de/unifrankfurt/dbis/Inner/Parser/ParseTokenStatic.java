@@ -2,78 +2,83 @@ package de.unifrankfurt.dbis.Inner.Parser;
 
 import de.unifrankfurt.dbis.Inner.BaseBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
-import static de.unifrankfurt.dbis.Inner.Parser.ParseTokenTask.parseOrder;
 
 
-public class ParseTokenStatic implements ParseToken {
+public class ParseTokenStatic extends ParseTokenTask implements ParseToken {
     public static String id = "static";
     public static String delimiter = ".";
-    private final String name;
-    private final List<Integer> ordering;
-    private final String body;
 
-    public ParseTokenStatic(String name, List<Integer> ordering, String body) {
-        this.name = name;
-        this.ordering = ordering;
-        this.body = body;
+
+    public ParseTokenStatic(String name, Integer score, String group, List<Integer> order, String body) {
+        super(name, score, group, null, order, body);
     }
 
-    public static ParseToken fromRawToken(RawToken rawToken) {
-        if (!rawToken.getName().equals(id)) return null;
-        List<String> splitted = List.of(rawToken.getAddition().split("\\" + (delimiter)));
-        String name = null;
-        List<Integer> order = null;
-        if (splitted.size() > 0) {
-            name = splitted.get(0);
-        }
-        if (splitted.size() > 1) {
-            order = parseOrder(splitted.get(1));
+    /**
+     * this the default Token. Any not known id will be interpreted as task.
+     *
+     * @param rawToken
+     * @return
+     */
+    public static ParseTokenStatic fromRawToken(RawToken rawToken) {
+        final String name = rawToken.getName(); //should not be null
+        if (Objects.isNull(name)) {
+            return null;
         }
 
-        return new ParseTokenStatic(name, order, rawToken.getBody());
+        final String type = rawToken.getType();
+        if (!Objects.equals(type, id)) {
+            return null;
+        }
+        final String addition = Objects.requireNonNullElse(rawToken.getAddition(), "");
+        final String body = Objects.requireNonNullElse(rawToken.getBody(), "");
+
+        final List<String> splitted = Arrays.asList(addition.split("\\" + (delimiter)));
+        final int size = splitted.size();
+
+        Integer score;
+        try {
+            score = Integer.valueOf(splitted.get(0));
+        } catch (NumberFormatException ignored) {
+            score = null;
+        }
+        String group = (size > 1) ? splitted.get(1) : null;
+        List<Integer> order = (size > 2) ? parseOrder(splitted.get(2)) : null;
+
+        return new ParseTokenStatic(name, score, group, order, body);
     }
 
-    private String serializedOrder() {
-        if (Objects.isNull(ordering)) return "";
-        return "[" + this.ordering.stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<Integer> getOrdering() {
-        return ordering;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String serialize() {
-        return "/*%%" + id + "%%" + serializedHead() + "%%*/\n" + this.body;
-    }
-
-    private String serializedHead() {
-        return this.name + delimiter + this.serializedOrder();
+    @Override
+    protected String serializedHead() {
+        return getScore()
+                + getDelimiter()
+                + getGroup()
+                + getDelimiter()
+                + serializedOrder();
     }
 
     @Override
     public String toString() {
         return new StringJoiner(", ", ParseTokenStatic.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
-                .add("ordering=" + ordering)
+                .add("score=" + score)
+                .add("group='" + group + "'")
+                .add("schema=" + schema)
+                .add("order=" + order)
                 .add("body='" + body + "'")
                 .toString();
     }
 
     @Override
+    protected String getID() {
+        return ParseTokenStatic.id;
+    }
+
+    @Override
     public void build(BaseBuilder bb) {
-        bb.addTask(new TaskStatic(name, ordering, body));
+        bb.addTask(new TaskStatic(getName(), getScore(), getGroup(), getOrder(), getBody()));
     }
 }

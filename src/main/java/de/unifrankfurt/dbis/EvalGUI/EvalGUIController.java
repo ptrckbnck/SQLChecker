@@ -206,7 +206,6 @@ public class EvalGUIController implements Initializable {
                 a.showAndWait();
                 return;
             }
-            System.err.println(submissionsPath);
             report = new Report();
             report.setRootPath(this.getSubmissionsPath());
             subInfos.clear();
@@ -269,7 +268,6 @@ public class EvalGUIController implements Initializable {
         runButton.setText("Stop");
         getPrimaryStage().setTitle("Running ...");
         EvalConfig config = new EvalConfig(this.databaseTextField.getText(), this.usernameTextField.getText(), this.passwordTextField.getText(), this.hostTextField.getText(), this.portTextField.getText(), this.resetScriptPathTextField.getText(), this.solutionPathTextField.getText(), this.submissionsPathTextField.getText());
-        System.err.println("test1"); //TODO remove
         try (Connection c = config.getDataSource().getConnection()) {
         } catch (Exception e) {
             Alert a = new Alert(Alert.AlertType.INFORMATION);

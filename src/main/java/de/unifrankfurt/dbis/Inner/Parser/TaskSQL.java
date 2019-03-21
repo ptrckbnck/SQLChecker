@@ -9,27 +9,20 @@ import java.util.StringJoiner;
 
 public class TaskSQL implements TaskInterface {
     private final String name;
-    private final List<String> scheme;
+    private final Integer score;
+    private final String group;
+    private final List<String> schema;
     private final List<Integer> order;
     private final String sql;
 
-    public TaskSQL(String name, List<String> scheme, List<Integer> order, String sql) {
+
+    public TaskSQL(String name, Integer score, String group, List<String> schema, List<Integer> order, String sql) {
         this.name = name;
-        this.scheme = scheme;
+        this.score = score;
+        this.group = group;
+        this.schema = schema;
         this.order = order;
         this.sql = sql;
-    }
-
-    public List<String> getScheme() {
-        return scheme;
-    }
-
-    public List<Integer> getOrder() {
-        return order;
-    }
-
-    public String getSQL() {
-        return sql;
     }
 
     @Override
@@ -38,8 +31,30 @@ public class TaskSQL implements TaskInterface {
     }
 
     @Override
+    public String getSql() {
+        return sql;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public List<String> getSchema() {
+        return schema;
+    }
+
+    public List<Integer> getOrder() {
+        return order;
+    }
+
+
+    @Override
     public String serialize() {
-        return new ParseTokenTask(name, scheme, order, sql).serialize();
+        return new ParseTokenTask(name, score, group, schema, order, sql).serialize();
     }
 
     @Override
@@ -56,7 +71,9 @@ public class TaskSQL implements TaskInterface {
     public String toString() {
         return new StringJoiner(", ", TaskSQL.class.getSimpleName() + "[", "]")
                 .add("name='" + name + "'")
-                .add("scheme=" + scheme)
+                .add("score=" + score)
+                .add("group='" + group + "'")
+                .add("schema=" + schema)
                 .add("order=" + order)
                 .add("sql='" + sql + "'")
                 .toString();

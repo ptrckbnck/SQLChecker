@@ -10,21 +10,21 @@ import java.util.stream.Collectors;
 
 
 /**
- * \/*%%task%%<Name>.<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
+ * \/*%%Name%%<Type>.<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
  * <Body>
  * <p>
  * \/*%%<Name>%%<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
  * <Body>
  */
 public class ParseTokenTask implements ParseToken {
-    public static String id = "task";
-    public static String delimiter = ".";
-    private final String name;
-    private final Integer score;
-    private final String group;
-    private final List<String> schema;
-    private final List<Integer> order;
-    private final String body;
+    public static final String id = "task";
+    public static final String delimiter = ".";
+    protected final String name;
+    protected final Integer score;
+    protected final String group;
+    protected final List<String> schema;
+    protected final List<Integer> order;
+    protected final String body;
 
     public ParseTokenTask(String name, Integer score, String group, List<String> schema, List<Integer> order, String body) {
         this.name = name;
@@ -35,48 +35,38 @@ public class ParseTokenTask implements ParseToken {
         this.body = body;
     }
 
+    /**
+     * this the default Token. Any not known id will be interpreted as task.
+     *
+     * @param rawToken
+     * @return
+     */
     public static ParseTokenTask fromRawToken(RawToken rawToken) {
-
-        final String type = rawToken.getType();
-        if (Objects.isNull(type)) {
+        final String name = rawToken.getName(); //should not be null
+        if (Objects.isNull(name)) {
             return null;
         }
-        String addition = rawToken.getAddition();
-        if (Objects.isNull(addition)) {
-            addition = "";
+        final String type = rawToken.getType();
+        if (!Objects.isNull(type) && !type.equals(id)){
+            return null;
         }
-        String body = rawToken.getBody();
-        if (Objects.isNull(rawToken.getBody())) {
-            body = "";
-        }
+        final String addition = Objects.requireNonNullElse(rawToken.getAddition(), "");
+        final String body = Objects.requireNonNullElse(rawToken.getBody(), "");
 
-        List<String> splitted = Arrays.asList(rawToken.getAddition().split("\\" + (delimiter)));
-        if (!Objects.equals(type, id)) {
-            splitted.add(0, type);
-        }
-        String name = null;
-        Integer score = null;
-        String group = null;
-        List<String> head = null;
-        List<Integer> order = null;
-
+        final List<String> splitted = Arrays.asList(addition.split("\\" + (delimiter)));
         final int size = splitted.size();
-        if (size > 0) {
-            name = splitted.get(0);
+
+        Integer score;
+        try {
+            score = Integer.valueOf(splitted.get(0));
+        } catch (NumberFormatException ignored) {
+            score = null;
         }
-        if (size > 1) {
-            score = Integer.valueOf(splitted.get(1));
-        }
-        if (size > 2) {
-            group = splitted.get(2);
-        }
-        if (size > 3) {
-            parseSchema(splitted.get(3));
-        }
-        if (size > 4) {
-            order = parseOrder(splitted.get(2));
-        }
-        return new ParseTokenTask(name, score, group, head, order, body);
+        String group = (size > 1) ? splitted.get(1) : null;
+        List<String> schema = (size > 2) ? parseSchema(splitted.get(2)) : null;
+        List<Integer> order = (size > 3) ? parseOrder(splitted.get(3)) : null;
+
+        return new ParseTokenTask(name, score, group, schema, order, body);
     }
 
     public static List<Integer> parseOrder(String s) {
@@ -105,7 +95,7 @@ public class ParseTokenTask implements ParseToken {
 
     }
 
-    private static List<String> parseSchema(String s) {
+    static List<String> parseSchema(String s) {
         List<String> splitted = split(s);
         if (Objects.isNull(splitted)) return null;
         return splitted.stream().map(x -> {
@@ -116,22 +106,44 @@ public class ParseTokenTask implements ParseToken {
         }).collect(Collectors.toList());
     }
 
-    private String serializedHead() {
-        return this.name + "." + this.serializedSchema() + "." + this.serializedOrder();
+    public static String getDelimiter() {
+        return ParseTokenTask.delimiter;
     }
 
-    private String serializedSchema() {
+    protected String serializedHead() {
+        return getScore()
+                + getDelimiter()
+                + getGroup()
+                + getDelimiter()
+                + serializedSchema()
+                + getDelimiter()
+                + serializedOrder();
+    }
+
+    protected String serializedSchema() {
         if (Objects.isNull(this.schema)) return "";
         return "[\"" + String.join("\", \"", this.schema) + "\"]";
     }
 
-    private String serializedOrder() {
+    protected String serializedOrder() {
         if (Objects.isNull(order)) return "";
-        return "[" + this.order.stream().map(String::valueOf).collect(Collectors.joining(",")) + "]";
+        return "[" + this.order
+                .stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
     }
+
 
     public String getName() {
         return name;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public String getGroup() {
+        return group;
     }
 
     public List<String> getSchema() {
@@ -145,6 +157,7 @@ public class ParseTokenTask implements ParseToken {
     public String getBody() {
         return body;
     }
+
 
     @Override
     public String toString() {
@@ -160,10 +173,15 @@ public class ParseTokenTask implements ParseToken {
 
     @Override
     public void build(BaseBuilder bb) {
-        bb.addTask(new TaskSQL(name, schema, order, body));
+        bb.addTask(new TaskSQL(name, score, group, schema, order, body));
     }
 
+
     public String serialize() {
-        return "/*%%" + id + "%%" + this.serializedHead() + "%%*/\n" + this.body;
+        return "/*%%" + getName() + "%%" + getID() + "%%" + serializedHead() + "%%*/\n" + body;
+    }
+
+    protected String getID() {
+        return ParseTokenTask.id;
     }
 }

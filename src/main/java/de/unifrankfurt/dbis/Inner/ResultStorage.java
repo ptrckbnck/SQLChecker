@@ -35,8 +35,9 @@ public class ResultStorage {
     }
 
     public static Comparator<? super ResultStorage> resultComperator() {
-        return Comparator.comparingInt(o -> (o.score.stream().reduce(0, Integer::sum)));
+        return Comparator.comparingInt(ResultStorage::getSumScore);
     }
+
 
     public List<Student> getAuthors() {
         return authors;
@@ -74,13 +75,14 @@ public class ResultStorage {
         return this;
     }
 
-    public List<Integer> getScore() {
-        return score;
-    }
 
     public ResultStorage setScore(List<Integer> score) {
         this.score = score;
         return this;
+    }
+
+    public List<Integer> getScore() {
+        return score;
     }
 
     public List<SQLResultDiff> getDiffs() {
@@ -114,6 +116,9 @@ public class ResultStorage {
         return this;
     }
 
+    public Integer getSumScore() {
+        return this.score.stream().reduce(Integer::sum).orElse(0);
+    }
 
     public String csv(CSVCreator csvc) {
         return csvc.create(this);

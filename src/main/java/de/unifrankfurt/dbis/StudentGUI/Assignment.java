@@ -35,7 +35,7 @@ public class Assignment {
         return new Assignment(
                 base.getName(),
                 base.getTags(),
-                base.getTasks().stream().map(TaskInterface::getSQL).collect(Collectors.toList()),
+                base.getTasks().stream().map(TaskInterface::getSql).collect(Collectors.toList()),
                 base.getPredefinedSchemata());
     }
 

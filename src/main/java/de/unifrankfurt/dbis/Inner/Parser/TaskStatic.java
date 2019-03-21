@@ -9,11 +9,15 @@ import java.util.StringJoiner;
 
 public class TaskStatic implements TaskInterface {
     private final String name;
+    private final Integer score;
+    private final String group;
     private final List<Integer> order;
     private final String sql;
 
-    public TaskStatic(String name, List<Integer> order, String sql) {
+    public TaskStatic(String name, Integer score, String group, List<Integer> order, String sql) {
         this.name = name;
+        this.score = score;
+        this.group = group;
         this.order = order;
         this.sql = sql;
     }
@@ -28,13 +32,22 @@ public class TaskStatic implements TaskInterface {
     }
 
     @Override
-    public String getSQL() {
+    public String getSql() {
         return sql;
     }
 
+    public Integer getScore() {
+        return score;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+
     @Override
     public String serialize() {
-        return new ParseTokenStatic(name, order, sql).serialize();
+        return new ParseTokenStatic(name, score, group, order, sql).serialize();
     }
 
     @Override

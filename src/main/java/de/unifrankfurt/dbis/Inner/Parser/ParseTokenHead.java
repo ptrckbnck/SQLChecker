@@ -13,17 +13,18 @@ import java.util.stream.Collectors;
 public class ParseTokenHead implements ParseToken {
     public final static String id = "head";
     private final BaseType type;
-    private final String name;
+    private final String baseName;
     private final Authors students;
 
-    public ParseTokenHead(BaseType type, String name, Authors students) {
+    public ParseTokenHead(BaseType type, String baseName, Authors students) {
         this.type = type;
-        this.name = name;
+        this.baseName = baseName;
         this.students = students;
     }
 
     public static ParseTokenHead fromRawToken(RawToken rawToken) {
-        if (!rawToken.getName().equals(id)) return null;
+        if (!Objects.equals(rawToken.getType(), id)) return null;
+        //getName is ignored
         String addition = rawToken.getAddition();
         AdditionHead head = parseAddition(addition);
         if (Objects.isNull(head)) return null;
@@ -40,11 +41,16 @@ public class ParseTokenHead implements ParseToken {
         }
 
         BaseType type;
-        try {
-            type = BaseType.valueOf(head.getType());
-        } catch (IllegalArgumentException e) {
-            type = null;
+        if (Objects.isNull(head.getType())) {
+            type = BaseType.unknown;
+        } else {
+            try {
+                type = BaseType.valueOf(head.getType());
+            } catch (IllegalArgumentException e) {
+                type = BaseType.unknown;
+            }
         }
+
         return new ParseTokenHead(type, head.getSubmission_name(), students);
     }
 
@@ -58,23 +64,23 @@ public class ParseTokenHead implements ParseToken {
 
     @Override
     public void build(BaseBuilder bb) {
-        bb.setName(name)
+        bb.setName(baseName)
                 .setType(type)
                 .setStudents(students);
 
     }
 
     public String serialize() {
-        AdditionHead head = new AdditionHead(this.type.name(), this.name, this.students.toStringList());
-        return "/*%%head%%" + new Gson().toJson(head) + "%%*/\n";
+        AdditionHead head = new AdditionHead(this.type.name(), this.baseName, this.students.toStringList());
+        return "/*%%%%head%%" + new Gson().toJson(head) + "%%*/\n";
     }
 
     public BaseType getType() {
         return type;
     }
 
-    public String getName() {
-        return name;
+    public String getBaseName() {
+        return baseName;
     }
 
     public List<Student> getStudents() {
@@ -85,7 +91,7 @@ public class ParseTokenHead implements ParseToken {
     public String toString() {
         return new StringJoiner(", ", ParseTokenHead.class.getSimpleName() + "[", "]")
                 .add("type='" + type + "'")
-                .add("name='" + name + "'")
+                .add("baseName='" + baseName + "'")
                 .add("students=" + students)
                 .toString();
     }

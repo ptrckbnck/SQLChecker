@@ -1,18 +1,23 @@
 package de.unifrankfurt.dbis.Inner;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 public class SolutionMetadata {
 
     private final String name;
     private final List<String> tags;
     private final List<String> nonStaticTags;
+    private final Solution.ScoreGroup scoreGroup;
 
-    public SolutionMetadata(String name, List<String> tags, List<String> nonStaticTags) {
+    public SolutionMetadata(String name, List<String> tags, List<String> nonStaticTags, Solution.ScoreGroup scoreGroup) {
         this.name = name;
         this.tags = tags;
         this.nonStaticTags = nonStaticTags;
+        this.scoreGroup = scoreGroup;
+        System.err.println(this); //TODO REMOVE
     }
+
 
 
     public String getName() {
@@ -27,13 +32,19 @@ public class SolutionMetadata {
         return nonStaticTags;
     }
 
+    public Solution.ScoreGroup getScoreGroup() {
+        return scoreGroup;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SolutionMetadata{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", tags=").append(tags);
-        sb.append(", nonStaticTags=").append(nonStaticTags);
-        sb.append('}');
-        return sb.toString();
+        return new StringJoiner(", ", SolutionMetadata.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("tags=" + tags)
+                .add("nonStaticTags=" + nonStaticTags)
+                .add("scoreGroup=" + scoreGroup)
+                .toString();
     }
+
+
 }
