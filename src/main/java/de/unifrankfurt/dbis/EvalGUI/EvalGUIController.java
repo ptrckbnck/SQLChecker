@@ -68,6 +68,8 @@ public class EvalGUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        getPrimaryStage().setMinHeight(300);
+        getPrimaryStage().setMinWidth(400);
         initTable();
         this.timezoneTextField.setText("+01:00");
         this.subInfos = FXCollections.observableArrayList();
@@ -93,12 +95,21 @@ public class EvalGUIController implements Initializable {
             }
 
         });
+        this.out = EvalGUIApp.getSysOut();
+        List<String> paras = EvalGUIApp.getRunnerParameters();
+        if (paras.size() > 0 && Objects.nonNull(paras.get(0))) {
+            try {
+                EvalConfig config = EvalConfig.fromPath(Paths.get(paras.get(0)));
+                iniConfig(config);
+            } catch (IOException e) {
+                System.err.println("invalid config path " + paras.get(0) + " ignored");
+            }
+        }
 
-        this.out = System.out; //TODO maybe set outstream
 
     }
 
-    public void initTable() {
+    private void initTable() {
 
         TableColumn<BaseInfo, Path> pathColumn = new TableColumn<>("Path");
         pathColumn.setCellValueFactory(new PropertyValueFactory<>("path"));
@@ -131,7 +142,7 @@ public class EvalGUIController implements Initializable {
         submissionTable.getColumns().add(nameColumn);
         submissionTable.getColumns().add(charsetColumn);
         submissionTable.getColumns().add(authorsColumn);
-        submissionTable.getColumns().add(validColumn); //todo needs better definition what valid means
+        submissionTable.getColumns().add(validColumn);
         submissionTable.getColumns().add(errorColumn);
     }
 
@@ -268,7 +279,8 @@ public class EvalGUIController implements Initializable {
         runButton.setText("Stop");
         getPrimaryStage().setTitle("Running ...");
         EvalConfig config = new EvalConfig(this.databaseTextField.getText(), this.usernameTextField.getText(), this.passwordTextField.getText(), this.hostTextField.getText(), this.portTextField.getText(), this.resetScriptPathTextField.getText(), this.solutionPathTextField.getText(), this.submissionsPathTextField.getText());
-        try (Connection c = config.getDataSource().getConnection()) {
+        try (Connection ignored = config.getDataSource().getConnection()) {
+            //empty
         } catch (Exception e) {
             Alert a = new Alert(Alert.AlertType.INFORMATION);
             a.setContentText("Verbindung zur Datenbank konnte nicht hergestellt werden.\n" + e.getMessage());

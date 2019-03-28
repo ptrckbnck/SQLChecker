@@ -90,7 +90,6 @@ public class CSVCreator {
 
     public CSVCreator useAllGroups() {
         final List<String> groups = report.getSolutionMetadata().getScoreGroup().getGroups();
-        System.err.println(groups); //TODO remove
         int size = groups.size();
         for (int i = 0; i < size; i++) {
             final int finalI = i;

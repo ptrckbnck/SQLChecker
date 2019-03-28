@@ -43,51 +43,7 @@ public class Solution extends CheckerFrame {
         return new Solution(tasks, name, charset, expectedResults);
     }
 
-    /**
-     * TODO test
-     *
-     * @param sub
-     * @param tags
-     * @param faultyTags
-     * @return
-     *//*
-    protected static List<Task> fixedTaskList(Base sub, List<String> tags, List<String> faultyTags) {
-        List<Task> tasks = new ArrayList<>();
-        for (int i = 0; i < tags.size(); i++) {
-            Tag curTag = tags.get(i);
-            Task newTask;
-            List<Task> posTasks = sub.getNonStaticTask();
-            if (!posTasks.isEmpty()) {
-                newTask = posTasks.get(0);
-            } else {
-                //TODO newTask = new TaskSQL(curTag, parseSchema(tags.get(i).getAddition()), "tag missing");
-            }
-            tasks.add(newTask);
-        }
-        return tasks;
-    }*/
 
-    /**
-     * checks if sublist is a subList of list, gaps allowed.
-     * [A,B,D] isSublistWithGaps of [A,B,C,D]
-     * conditions: list & sublist have unique items
-     *
-     * @param list
-     * @param sublist
-     * @param <T>
-     * @return
-     */
-    public static <T> Boolean isSublistWithGaps(List<T> list, List<T> sublist) {
-        int cur = 0;
-        for (int i = 0; i < sublist.size(); i++) {
-            T item = sublist.get(i);
-            if (!list.contains(item)) return false;
-            int pos = list.indexOf(item);
-            if (pos < cur) return false;
-            cur = pos;
-        }
-        return true;
-    }
 
 
     public List<SQLData> getExpectedResults() {
@@ -145,18 +101,6 @@ public class Solution extends CheckerFrame {
 
     public SolutionMetadata getMetaData() {
         return new SolutionMetadata(this.name, this.getTags(), this.getNonStaticTags(), getScoreGroup());
-    }
-
-    public Base tryToFixTagsFor(Base base) {
-        /*List<String> tags = getNonStaticTags();
-        List<String> faultyTags = sub.getNonStaticTags();
-        if (faultyTags.isEmpty()) return null; //no tags at all
-        if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
-        if (!isSublistWithGaps(tags, faultyTags)) return null;
-        List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
-        Base newSub = new Base(sub.getAuthors(), tasks, sub.getName(), sub.getCharset(), baseType);
-        newSub.setPath(sub.getPath());*/ //TODO
-        return base;
     }
 
     public class ScoreGroup {

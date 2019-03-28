@@ -3,7 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="510.0" prefWidth="589.0"
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="500.0" prefWidth="600.0"
             xmlns="http://javafx.com/javafx/10.0.1" fx:controller="de.unifrankfurt.dbis.EvalGUI.EvalGUIController">
     <top>
         <MenuBar BorderPane.alignment="CENTER">

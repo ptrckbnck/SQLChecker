@@ -53,11 +53,7 @@ public class Runner {
             return;
         }
 
-        //TODO REMOVE
-        Application.launch(EvalGUIApp.class);
-        if (!commandLine.hasOption("NICHTS")) {
-            return;
-        }
+
 
         if (!commandLine.hasOption("e")) {
             List<String> newargs = new ArrayList<>();
@@ -78,10 +74,17 @@ public class Runner {
         }
 
         if (commandLine.hasOption("e")){
-            String configPath;
+            String configPath = null;
             if (commandLine.hasOption("c")) {
                 configPath = commandLine.getOptionValue("c");
-            } else {
+            }
+            if (!commandLine.hasOption("noGui")) {
+                List<String> newArgs = new ArrayList<>();
+                newArgs.add(configPath);
+                Application.launch(EvalGUIApp.class, newArgs.toArray(new String[0]));
+                return;
+            }
+            if (Objects.isNull(configPath)) {
                 System.out.println("no config defined.");
                 return;
             }
@@ -207,9 +210,14 @@ public class Runner {
                 .build());
         optStart.addOption(Option.builder("e")
                 .longOpt("evaluate")
-                .desc("starts the evaluation process of submissions. You need to set up a correct config-file.")
+                .desc("starts the evaluation process of submissions.")
                 .build());
         options.addOptionGroup(optStart);
+
+        options.addOption(Option.builder("noGui")
+                .longOpt("noGui")
+                .desc("Evaluation without GUI. You need to define a valid config file").build());
+
 
         options.addOption(Option.builder("c")
                 .longOpt("config")

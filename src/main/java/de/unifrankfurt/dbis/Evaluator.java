@@ -76,7 +76,15 @@ public class Evaluator {
 
         //try to fix sub, if possible
         if (!sub.isSubmissionFor(sols.get(0))) {
-            Base fixedSub = sols.get(0).tryToFixTagsFor(sub);
+            /*List<String> tags = getNonStaticTags();
+            List<String> faultyTags = sub.getNonStaticTags();
+            if (faultyTags.isEmpty()) return null; //no tags at all
+            if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
+            if (!isSublistWithGaps(tags, faultyTags)) return null;
+            List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
+            Base newSub = new Base(sub.getAuthors(), tasks, sub.getName(), sub.getCharset(), baseType);
+            newSub.setPath(sub.getPath());*/ //TODO
+            Base fixedSub = sub;
             if (Objects.isNull(fixedSub)) {
                 report.add(new ResultStorage(sub.getPath()).setErrorMsg("no valid submission"));
                 System.out.println(errorMsg(null,

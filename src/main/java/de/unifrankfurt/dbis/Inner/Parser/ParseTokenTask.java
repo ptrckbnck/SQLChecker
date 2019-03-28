@@ -89,7 +89,9 @@ public class ParseTokenTask implements ParseToken {
 
     private static List<String> split(String s) {
         s = s.trim();
-        if (!s.startsWith("[") && !s.endsWith("]")) return null;
+        if (!s.startsWith("[") && !s.endsWith("]")) {
+            return null;
+        }
         s = s.substring(1, s.length() - 1);
         return Arrays.stream(s.split(",")).map(String::trim).collect(Collectors.toList());
 
@@ -97,7 +99,9 @@ public class ParseTokenTask implements ParseToken {
 
     static List<String> parseSchema(String s) {
         List<String> splitted = split(s);
-        if (Objects.isNull(splitted)) return null;
+        if (Objects.isNull(splitted)) {
+            return null;
+        }
         return splitted.stream().map(x -> {
             if (x.length() > 1 && x.startsWith("\"") && x.endsWith("\"")) {
                 return x.substring(1, x.length() - 1);
@@ -121,12 +125,16 @@ public class ParseTokenTask implements ParseToken {
     }
 
     protected String serializedSchema() {
-        if (Objects.isNull(this.schema)) return "";
+        if (Objects.isNull(this.schema)) {
+            return "";
+        }
         return "[\"" + String.join("\", \"", this.schema) + "\"]";
     }
 
     protected String serializedOrder() {
-        if (Objects.isNull(order)) return "";
+        if (Objects.isNull(order)) {
+            return "";
+        }
         return "[" + this.order
                 .stream()
                 .map(String::valueOf)

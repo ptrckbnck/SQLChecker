@@ -26,13 +26,21 @@ public class EvalGUIApp extends Application {
         return EvalGUIApp.primaryStage;
     }
 
-    private static void showError(Thread thread, Throwable throwable) {
-        StudentGUIApp.showError(thread, throwable); //TODO maybe inline
-    }
-
 
     public static HostServices hostServices() {
         return hostServices;
+    }
+
+    public static PrintStream getSysOut() {
+        return sysOut;
+    }
+
+    public static HostServices getHostServicesStatic() {
+        return hostServices;
+    }
+
+    public static List<String> getRunnerParameters() {
+        return parameters;
     }
 
     @Override
@@ -42,7 +50,7 @@ public class EvalGUIApp extends Application {
         EvalGUIApp.primaryStage = stage;
         EvalGUIApp.parameters = getParameters().getRaw();
         EvalGUIApp.hostServices = getHostServices();
-        Thread.currentThread().setUncaughtExceptionHandler(EvalGUIApp::showError);
+        Thread.currentThread().setUncaughtExceptionHandler(StudentGUIApp::showError);
 
 
         URL fxml = getClass().getResource("/EvalGUIMain.fxml");
