@@ -175,7 +175,10 @@ public class Solution extends CheckerFrame {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < this.tasks.size(); i++) {
-            stringBuilder.append(this.tasks.get(i).serialize()).append("\n").append(this.expectedResults.get(i)).append("\n");
+            stringBuilder.append(this.tasks.get(i).serialize())
+                    .append("\n")
+                    .append(this.expectedResults.get(i))
+                    .append("\n");
         }
         return "Solution{\n" +
                 ", name='" + name + '\n' +

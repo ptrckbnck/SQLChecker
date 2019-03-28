@@ -15,7 +15,6 @@ public class SolutionMetadata {
         this.tags = tags;
         this.nonStaticTags = nonStaticTags;
         this.scoreGroup = scoreGroup;
-        System.err.println(this); //TODO REMOVE
     }
 
 

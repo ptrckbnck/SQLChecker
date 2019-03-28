@@ -19,7 +19,6 @@ public class Evaluator {
     private List<Base> samples;
     private String configPath;
     private EvalConfig config;
-    private List<Solution> sols;
     private Path submissionsPath;
     private SQLScript resetScript;
     private DataSource source;
@@ -54,8 +53,7 @@ public class Evaluator {
         int count_digits = ((int) Math.log10(subs.size())) + 1;
         for (Base sub : subs) {
             if (verbose) {
-                System.err.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
-                System.err.flush();
+                System.out.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
                 System.out.flush();
             }
             runSubmissionEvaluation(sols, source, resetScript, sub, report, verbose, csvOnlyBest);
@@ -75,31 +73,12 @@ public class Evaluator {
         List<ResultStorage> curStorages = new ArrayList<>();
 
         //try to fix sub, if possible
-        if (!sub.isSubmissionFor(sols.get(0))) {
-            /*List<String> tags = getNonStaticTags();
-            List<String> faultyTags = sub.getNonStaticTags();
-            if (faultyTags.isEmpty()) return null; //no tags at all
-            if (new HashSet<>(faultyTags).size() != faultyTags.size()) return null; //duplicate keys
-            if (!isSublistWithGaps(tags, faultyTags)) return null;
-            List<Task> tasks = fixedTaskList(sub, tags, faultyTags);
-            Base newSub = new Base(sub.getAuthors(), tasks, sub.getName(), sub.getCharset(), baseType);
-            newSub.setPath(sub.getPath());*/ //TODO
-            Base fixedSub = sub;
-            if (Objects.isNull(fixedSub)) {
-                report.add(new ResultStorage(sub.getPath()).setErrorMsg("no valid submission"));
-                System.out.println(errorMsg(null,
-                        sub,
-                        "Submissions tags do not match with solution"));
-                return;
-            }
-            sub = fixedSub;
-        }
+        sub.isSubmissionFor(sols.get(0));
 
         //run evaluation for every given solution
         for (Solution sol : sols) {
             if (sub.getPath() == null) {
-                System.err.println("is null");
-                System.err.println(sol.getName());
+                System.err.println(sol.getName() + " is null");
             }
             ResultStorage resultStorage = new ResultStorage(sub.getPath());
             resultStorage.setValid(true);
@@ -113,7 +92,7 @@ public class Evaluator {
                 resultStorage.setBase(sub)
                         .setSolution(sol)
                         .setException(e);
-                System.out.println(errorMsg(sol, sub, e.getMessage()));
+                System.err.println(errorMsg(sol, sub, e.getMessage()));
 
             }
             curStorages.add(resultStorage);
@@ -158,7 +137,9 @@ public class Evaluator {
                 list.add(sub);
 
             } catch (IOException e) {
-                report.add(new ResultStorage(p).setException(e).setValid(false));
+                report.add(new ResultStorage(p)
+                        .setException(e)
+                        .setValid(false));
             }
         }
         return list;
@@ -197,10 +178,10 @@ public class Evaluator {
         return Evaluator.createSolutions(config, resetScript, samples, source);
     }
 
-    public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
+    public Report runEvaluation(boolean verbose, boolean csvOnlyBest, SolutionMetadata metadata, List<Solution> sols) {
         Report report = new Report();
         report.setRootPath(submissionsPath);
-        report.setSolutionMetadata(sols.get(0).getMetaData());
+        report.setSolutionMetadata(metadata);
         List<Base> subs = loadSubmissions(submissionsPath, report);
         runEachEvaluation(sols, source, resetScript, verbose, csvOnlyBest, report, subs);
         return report;

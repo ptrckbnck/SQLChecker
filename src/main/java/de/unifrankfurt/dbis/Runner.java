@@ -125,11 +125,16 @@ public class Runner {
                         System.out.println(s.getExpectedResultPrintable());
                     }
                 }
-                if (verbose) System.out.println("run Evaluation----------------------------");
-
-
-                Report report = evaluator.runEvaluation(verbose, commandLine.hasOption("onlyBest"));
-
+                if (verbose) {
+                    System.out.println("run Evaluation----------------------------");
+                }
+                Report report = evaluator.runEvaluation(verbose,
+                        commandLine.hasOption("onlyBest"),
+                        sol.get(0).getMetaData(),
+                        sol);
+                if (verbose) {
+                    System.out.println("create csv----------------------------");
+                }
                 if (doCsv){
                     final List<String> csv = report.getCSV();
                     if (Objects.isNull(saveCSV)) {
@@ -150,7 +155,9 @@ public class Runner {
 
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
-                } else System.err.println(e.toString());
+                } else {
+                    System.err.println(e.toString());
+                }
 
             }
             AbandonedConnectionCleanupThread.checkedShutdown();
