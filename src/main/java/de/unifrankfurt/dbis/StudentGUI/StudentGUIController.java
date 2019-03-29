@@ -27,6 +27,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -996,6 +997,18 @@ public class StudentGUIController implements Initializable {
      * @param actionEvent
      */
     public void handleExportOlat(ActionEvent actionEvent) {
+        if (!mandatoryFieldsOk()) {
+            Alert a = new Alert(Alert.AlertType.WARNING,
+                    "Bitte geben Sie Vor- und Zuname, Matrikelnummer und E-Mail-Adresse mindestens eines Studenten an.",
+                    ButtonType.OK,
+                    new ButtonType("Ignore")
+            );
+            a.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            Optional<ButtonType> result = a.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                return;
+            }
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Erzeuge Abgabe-Datei für Olat");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Datei (*.txt)", "*.txt"));
@@ -1015,5 +1028,12 @@ public class StudentGUIController implements Initializable {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }
 
+    }
+
+    private boolean mandatoryFieldsOk() {
+        return !(this.emailTextField.getText().isBlank() ||
+                this.nameStudentTextField.getText().isBlank() ||
+                this.emailTextField.getText().isBlank()
+        );
     }
 }
