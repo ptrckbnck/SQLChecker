@@ -14,15 +14,14 @@ import de.unifrankfurt.dbis.Inner.SQLScript;
 import de.unifrankfurt.dbis.Runner;
 import de.unifrankfurt.dbis.config.GUIConfig;
 import de.unifrankfurt.dbis.config.GUIConfigBuilder;
+import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -149,9 +148,12 @@ public class StudentGUIController implements Initializable {
 
     private PrintStream sysOut = System.out;
     private boolean verbose;
+    private Application.Parameters parameters;
+    private HostServices hostServies;
+    private Stage primaryStage;
 
-    public static Stage getPrimaryStage() {
-        return StudentGUIApp.getPrimaryStage();
+    public Stage getPrimaryStage() {
+        return primaryStage;
     }
 
     /**
@@ -300,6 +302,10 @@ public class StudentGUIController implements Initializable {
         emailPartnerTextField.setDisable(bool);
     }
 
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -317,7 +323,7 @@ public class StudentGUIController implements Initializable {
         version.setText("Version " + Runner.getVersion());
 
         initConfig(null);
-        updateMenu();
+        //updateMenu(); //TODo
 
 
         //Config Fields listener
@@ -355,16 +361,10 @@ public class StudentGUIController implements Initializable {
 
         console.setContextMenu(cm);
 
-        List<String> paras = StudentGUIApp.getRunnerParameters();
-        if (paras.contains("s")) {
-            this.loadProject(Paths.get(paras.get(paras.indexOf("s") + 1)));
-        }
-        if (paras.contains("c")) {
-            this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
-        }
-        this.verbose = paras.contains("v");
 
     }
+
+
 
     /**
      * Initializes current assignment with given assignment. Null means there is currently no assignment.
@@ -858,23 +858,17 @@ public class StudentGUIController implements Initializable {
         updateMenu();
     }
 
-    /**
-     * shows about-page.
-     * @param actionEvent
-     */
-    public void aboutPage(ActionEvent actionEvent) {
-        Parent root;
-        try {
-            URL fxml = getClass().getResource("/aboutPage.fxml");
-            root = FXMLLoader.load(fxml);
-            Stage stage = new Stage();
-            stage.setTitle("Über SQLChecker");
-            stage.setScene(new Scene(root, 400, 300));
-            stage.setResizable(false);
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void start() {
+        updateMenu();
+
+        List<String> paras = parameters.getRaw();
+        if (paras.contains("s")) {
+            this.loadProject(Paths.get(paras.get(paras.indexOf("s") + 1)));
         }
+        if (paras.contains("c")) {
+            this.loadConfig(Paths.get(paras.get(paras.indexOf("c") + 1)));
+        }
+        this.verbose = paras.contains("v");
     }
 
     /**
@@ -1036,4 +1030,26 @@ public class StudentGUIController implements Initializable {
                 this.emailTextField.getText().isBlank()
         );
     }
+
+    /**
+     * shows about-page.
+     *
+     * @param actionEvent
+     */
+    public void aboutPage(ActionEvent actionEvent) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setHeaderText("About");
+        a.getDialogPane().contentProperty().set(AboutPage.getPane(hostServies));
+        a.showAndWait();
+    }
+
+    public void setParameters(Application.Parameters parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setHostServices(HostServices hostServices) {
+        this.hostServies = hostServices;
+    }
+
+
 }

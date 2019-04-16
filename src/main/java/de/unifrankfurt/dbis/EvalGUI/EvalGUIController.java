@@ -3,6 +3,8 @@ package de.unifrankfurt.dbis.EvalGUI;
 import de.unifrankfurt.dbis.Inner.*;
 import de.unifrankfurt.dbis.Inner.Parser.BaseType;
 import de.unifrankfurt.dbis.config.EvalConfig;
+import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -20,7 +22,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -49,7 +50,6 @@ public class EvalGUIController implements Initializable {
     public Button runButton;
     public Button filterButton;
     public TextField filterTextField;
-    private static Method columnToFitMethod;
     public Button undoFilterButton;
     public CheckBox useRegEx;
     private ObservableList<BaseInfo> subInfos;
@@ -58,6 +58,10 @@ public class EvalGUIController implements Initializable {
     public TextField csvPathTextField;
     private ObservableList<List<BaseInfo>> filterHistory;
     private PrintStream out;
+
+    private Stage primaryStage;
+    private Application.Parameters parameters;
+    private HostServices hostServices;
 
     public List<Base> getSubmissions() {
         return this.subInfos.stream()
@@ -68,8 +72,6 @@ public class EvalGUIController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        getPrimaryStage().setMinHeight(300);
-        getPrimaryStage().setMinWidth(400);
         initTable();
         this.timezoneTextField.setText("+01:00");
         this.subInfos = FXCollections.observableArrayList();
@@ -95,8 +97,18 @@ public class EvalGUIController implements Initializable {
             }
 
         });
-        this.out = EvalGUIApp.getSysOut();
-        List<String> paras = EvalGUIApp.getRunnerParameters();
+        this.out = System.out; // change if needed
+    }
+
+    /**
+     * run by EvalGUIApp after instance of Controller is initialized.
+     * parameters, hostservices & primarystage are not available during initialize.
+     */
+    public void start() {
+        getPrimaryStage().setMinHeight(300);
+        getPrimaryStage().setMinWidth(400);
+
+        List<String> paras = parameters.getRaw();
         if (paras.size() > 0 && Objects.nonNull(paras.get(0))) {
             try {
                 EvalConfig config = EvalConfig.fromPath(Paths.get(paras.get(0)));
@@ -105,8 +117,6 @@ public class EvalGUIController implements Initializable {
                 System.err.println("invalid config path " + paras.get(0) + " ignored");
             }
         }
-
-
     }
 
     private void initTable() {
@@ -167,7 +177,7 @@ public class EvalGUIController implements Initializable {
     }
 
     private Stage getPrimaryStage() {
-        return EvalGUIApp.getPrimaryStage();
+        return primaryStage;
     }
 
     /***
@@ -402,15 +412,27 @@ public class EvalGUIController implements Initializable {
                 this.submissionsPathTextField.getText());
     }
 
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
+
     public void doAbout(ActionEvent actionEvent) {
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText("About");
         FlowPane fp = new FlowPane();
         Label lbl = new Label("Github: ");
         Hyperlink link = new Hyperlink("https://github.com/ptrckbnck/SQLChecker");
-        link.setOnAction((x) -> EvalGUIApp.hostServices().showDocument("https://github.com/ptrckbnck/SQLChecker"));
+        link.setOnAction((x) -> hostServices.showDocument("https://github.com/ptrckbnck/SQLChecker"));
         fp.getChildren().addAll(lbl, link);
         a.getDialogPane().contentProperty().set(fp);
         a.showAndWait();
+    }
+
+    public void setParameters(Application.Parameters parameters) {
+        this.parameters = parameters;
+    }
+
+    public void setHostServices(HostServices hostServices) {
+        this.hostServices = hostServices;
     }
 }

@@ -2,7 +2,6 @@ package de.unifrankfurt.dbis.StudentGUI;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import javafx.application.Application;
-import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,21 +10,14 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.net.URL;
-import java.util.List;
 
 
 public class StudentGUIApp extends Application {
-    private static PrintStream sysOut;
-    private static List<String> parameters;
-    private static Stage primaryStage;
-    private static HostServices hostServices;
 
     public static void showError(Thread t, Throwable e) {
         if (Platform.isFxApplicationThread()) {
             ExceptionAlert alert = new ExceptionAlert(e);
-            e.printStackTrace(sysOut);
+            e.printStackTrace(System.out);
             alert.showAndWait();
         } else {
             e.printStackTrace();
@@ -33,37 +25,27 @@ public class StudentGUIApp extends Application {
         }
     }
 
-    public static Stage getPrimaryStage() {
-        return StudentGUIApp.primaryStage;
-    }
-
     @Override
-    public void start(Stage primaryStage) throws IOException {
-        StudentGUIApp.sysOut = System.out;
-        StudentGUIApp.primaryStage = primaryStage;
-        StudentGUIApp.parameters = getParameters().getRaw();
-        StudentGUIApp.hostServices = getHostServices();
+    public void start(Stage stage) throws IOException {
         Thread.currentThread().setUncaughtExceptionHandler(StudentGUIApp::showError);
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/StudentGUIMain.fxml"));
 
+        Parent root = fxmlLoader.load();
+        StudentGUIController controller = fxmlLoader.getController();
+        controller.setParameters(this.getParameters());
+        controller.setHostServices(this.getHostServices());
+        controller.setPrimaryStage(stage);
+        controller.start();
 
-        URL fxml = getClass().getResource("/StudentGUIMain.fxml");
-        Parent root = FXMLLoader.load(fxml);
         Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
-        primaryStage.getIcons().add(
+        stage.setScene(scene);
+        stage.getIcons().add(
                 new Image(
                         getClass().getResourceAsStream("/images/sql-icon.png")));
 
-        primaryStage.show();
+        stage.show();
     }
 
-    public static HostServices getHostServicesStatic() {
-        return hostServices;
-    }
-
-    public static List<String> getRunnerParameters() {
-        return parameters;
-    }
 
     public void stop() {
         AbandonedConnectionCleanupThread.checkedShutdown();

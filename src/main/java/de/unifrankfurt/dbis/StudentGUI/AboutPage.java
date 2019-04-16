@@ -1,10 +1,12 @@
 package de.unifrankfurt.dbis.StudentGUI;
 
+import javafx.application.HostServices;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public class AboutPage {
      *
      * @param vbox VBox which will be filled with Text.
      */
-    public static void setText(VBox vbox) {
+    public static void setText(VBox vbox, HostServices hostServices) {
 
         String text = "Dieses Programm wurde zur Unterstützung von Datenbanken-Vorlesungen an der Goethe Universität " +
                 "Frankfurt entwickelt. Es soll das Einreichen von SQL-bezogenen Aufgaben erleichtern.";
@@ -29,7 +31,7 @@ public class AboutPage {
         String text33 = "einreichen.";
         String text5 = "Viel Erfolg beim Nutzen der Software.";
         Hyperlink hyperlink = new Hyperlink("SQLChecker");
-        hyperlink.setOnAction(event -> StudentGUIApp.getHostServicesStatic()
+        hyperlink.setOnAction(event -> hostServices
                 .showDocument("https://github.com/ptrckbnck/SQLChecker"));
 
         List<Node> nodes1 = List.of(text.split(" ")).stream().map(Label::new).collect(Collectors.toList());
@@ -48,6 +50,11 @@ public class AboutPage {
 
     }
 
+    public static Pane getPane(HostServices hostServices) {
+        VBox vbox = new VBox();
+        setText(vbox, hostServices);
+        return vbox;
+    }
     /**
      * creates new Flowpane with given Nodes and preset Settings..
      *
