@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.StudentGUI;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -27,6 +28,7 @@ public class StudentGUIApp extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        SvgImageLoaderFactory.install();
         Thread.currentThread().setUncaughtExceptionHandler(StudentGUIApp::showError);
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/StudentGUIMain.fxml"));
 
@@ -41,7 +43,7 @@ public class StudentGUIApp extends Application {
         stage.setScene(scene);
         stage.getIcons().add(
                 new Image(
-                        getClass().getResourceAsStream("/images/sql-icon.png")));
+                        getClass().getResourceAsStream("/images/logo_studentgui.svg")));
 
         stage.show();
     }

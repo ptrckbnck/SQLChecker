@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.EvalGUI;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +18,7 @@ public class EvalGUIApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        SvgImageLoaderFactory.install();
         Thread.currentThread().setUncaughtExceptionHandler(StudentGUIApp::showError);
 
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/EvalGUIMain.fxml"));
@@ -31,7 +33,7 @@ public class EvalGUIApp extends Application {
         stage.setScene(scene);
         stage.getIcons().add(
                 new Image(
-                        getClass().getResourceAsStream("/images/sql-icon.png")));
+                        getClass().getResourceAsStream("/images/logo_evalgui.svg")));
 
         stage.show();
 

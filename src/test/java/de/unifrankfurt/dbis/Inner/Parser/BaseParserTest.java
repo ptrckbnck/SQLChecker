@@ -6,16 +6,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BaseParserTest {
 
 
 
     @Test
-    void test() {
+    void test_head() {
         String h =
-                "/*%%head%%\n" +
+                "/*%%%%head%%\n" +
                         "{\"type\": \"submission\",\n" +
                         "\"name\": \"test\",\n" +
                         "\"authors\": [[\"Yusuf Baran\",\"yusufbaran66@yahoo.de\",\"6364384\"]" +
@@ -25,13 +25,17 @@ class BaseParserTest {
         BaseParser spn = new BaseParser();
         spn.registerSubTokenCreator(ParseTokenHead::fromRawToken);
         List<ParseToken> a = spn.analyzeTokens(BaseParser.tokenizer(h));
-        assertEquals(3, a.size());
+        assertEquals(1, a.size());
+        final ParseTokenHead parseTokenHead = (ParseTokenHead) a.get(0);
+        assertEquals("test", parseTokenHead.getBaseName());
+        assertEquals(2, parseTokenHead.getStudents().size());
+        assertEquals(BaseType.submission, parseTokenHead.getType());
     }
 
     @Test
     void test2() {
         String h =
-                "/*%%head%%\n" +
+                "/*%%%%head%%\n" +
                         "{\"type\": \"submission\",\n" +
                         "\"name\": \"test\",\n" +
                         "\"authors\": [[\"Yusuf Baran\",\"yusufbaran66@yahoo.de\",\"6364384\"]" +
@@ -39,15 +43,15 @@ class BaseParserTest {
                         "}\n" +
                         "%%*/\n" +
                         "\n" +
-                        "/*%%1a%%" +
+                        "/*%%1a%%task%%" +
                         "[\"a\",\"b\",\"c\"].[1,2,3] %%*/\n" +
                         "Select * from test;\n" +
                         "\n" +
-                        "/*%%task%%" +
-                        "1b" +
-                        ".[\"a\",\"b\",\"c\"]" +
+                        "/*%%1b%%" +
+                        "task%%" +
+                        "[\"a\",\"b\",\"c\"]" +
                         ".[1,2,3]" +
-                        "%%*/\n" +
+                        "%%%%task%%*/\n" +
                         "Select * from test2;";
         BaseParser spn = new BaseParser();
         spn.registerSubTokenCreator(ParseTokenHead::fromRawToken);
@@ -60,7 +64,7 @@ class BaseParserTest {
     @Test
     void test3() {
         String h =
-                "/*%%head%%\n" +
+                "/*%%%%head%%\n" +
                         "{\"type\": \"solution\",\n" +
                         "\"name\": \"test\",\n" +
                         "\"authors\": [[\"Yusuf Baran\",\"yusufbaran66@yahoo.de\",\"6364384\"]" +
@@ -68,20 +72,18 @@ class BaseParserTest {
                         "}\n" +
                         "%%*/\n" +
                         "\n" +
-                        "/*%%1a%%" +
+                        "/*%%1a%%task%%" +
                         "[\"a\",\"b\",\"c\"].[1,2,3].2 %%*/\n" +
                         "Select * from test;\n" +
                         "\n" +
-                        "/*%%task%%" +
-                        "1b" +
-                        ".[\"a\",\"b\",\"c\"]" +
+                        "/*%%1b%%task%%" +
+                        "[\"a\",\"b\",\"c\"]" +
                         ".[1,2,3]" +
                         "%%*/\n" +
                         "Select * from test2;" +
                         "\n" +
-                        "/*%%static%%" +
-                        "s" +
-                        ".[1,2,3]" +
+                        "/*%%s%%static%%" +
+                        "[1,2,3]" +
                         "%%*/\n" +
                         "Select * from test3;";
         BaseBuilder a = BaseParser.parseDefault(h);
@@ -105,9 +107,9 @@ class BaseParserTest {
                 "/*%%1a%%\n" +
                         "task%%\n" +
                         "2.eins.[\"a\",\"b\",\"c\"].[1,2,3]%%*/\n" +
-                        "Select * from test;\n" +
+                        "Select * from test1;\n" +
                         "\n" +
-                        "/*%%task2%%%%*/\n" +
+                        "/*%%%%type%%*/\n" +
                         "Select * from test2;" +
                         "\n" +
                         "/*%%task3%%" +
@@ -115,28 +117,27 @@ class BaseParserTest {
                         "addition%%*/\n" +
                         "Select * from test3;" +
                         "\n" +
-                        "/*%%task4%%*/\n" +
+                        "/*%%task4%%%%*/\n" +
                         "Select * from test4";
         List<RawToken> tokenized = BaseParser.tokenizer(h);
-        System.err.println(tokenized);
+        assertEquals("task", tokenized.get(0).getType());
+        assertEquals("1a", tokenized.get(0).getName());
+        assertTrue(tokenized.get(0).getBody().contains("test1"));
+        assertTrue(tokenized.get(0).getAddition().contains("[1,2,3]"));
+
+        assertEquals("type", tokenized.get(1).getType());
+        assertNull(tokenized.get(1).getName());
+        assertTrue(tokenized.get(1).getBody().contains("test2"));
+
+        assertEquals("type", tokenized.get(2).getType());
+        assertEquals("addition", tokenized.get(2).getAddition());
+        assertEquals("task3", tokenized.get(2).getName());
+        assertTrue(tokenized.get(2).getBody().contains("test3"));
+
+        assertNull(tokenized.get(3).getType());
+        assertEquals("task4", tokenized.get(3).getName());
+        assertTrue(tokenized.get(3).getBody().contains("test4"));
     }
 
-    @Test
-    void tokenizerStatic() {
-        String h =
-                "/*%%1a%%\n" +
-                        "static%%\n" +
-                        "2.eins.[1,2,3]%%*/\n" +
-                        "Select * from test;\n" +
-                        "\n" +
-                        "/*%%static2%%static%%*/\n" +
-                        "Select * from test2;" +
-                        "\n" +
-                        "/*%%static3%%" +
-                        "static%%" +
-                        "addition%%*/\n" +
-                        "Select * from test3;";
-        List<RawToken> tokenized = BaseParser.tokenizer(h);
-        System.err.println(tokenized);
-    }
+
 }

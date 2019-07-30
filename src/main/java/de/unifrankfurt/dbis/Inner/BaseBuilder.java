@@ -7,12 +7,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 
 public class BaseBuilder {
     private String name;
-    private BaseType type = BaseType.submission;
+    private BaseType type = BaseType.unknown;
     private List<Student> students = List.of();
     private List<TaskInterface> tasks = new ArrayList<>();
     private Charset charset;
@@ -39,14 +38,6 @@ public class BaseBuilder {
     }
 
     public Base build() {
-        if (!Objects.isNull(type)) {
-            switch (type) {
-                case template:
-                case submission:
-                    // tasks = this.tasks.stream().filter(x -> x.getClass().isAssignableFrom(TaskSQL.class)).collect(Collectors.toList());
-                case solution:
-            }
-        }
         return new Base(name, charset, type, students, tasks, path);
     }
 

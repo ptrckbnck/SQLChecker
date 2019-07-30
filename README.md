@@ -24,7 +24,7 @@ Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nich
   `sudo chmod +x sqlchecker-<Versionsnummer>.jar`
  
 ##Verwendung
-Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](TODO).
+Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md).
 
  Nachdem Sie `java -jar sqlchecker-<Versionsnummer>.jar` ausgeführt haben erscheint die GUI des SQLCheckers.
   
