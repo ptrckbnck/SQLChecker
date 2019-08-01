@@ -22,12 +22,16 @@ public class BaseParser {
     private List<Function<RawToken, ParseToken>> createSubTokenList = new ArrayList<>();
 
     public static BaseBuilder parseDefault(String text) {
+        return getDefaultBaseParser()
+                .parse(text);
+    }
+
+    public static BaseParser getDefaultBaseParser() {
         return new BaseParser()
                 .registerSubTokenCreator(ParseTokenHead::fromRawToken)
                 .registerSubTokenCreator(ParseTokenStatic::fromRawToken)
                 .registerSubTokenCreator(ParseTokenTask::fromRawToken)
-                .registerSubTokenCreator(ParseTokenUnknown::fromRawToken)
-                .parse(text);
+                .registerSubTokenCreator(ParseTokenUnknown::fromRawToken);
     }
 
     public static List<RawToken> tokenizer(String toParse) {

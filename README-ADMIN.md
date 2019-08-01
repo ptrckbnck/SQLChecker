@@ -9,11 +9,10 @@ Diese Anleitung richtet sich an diejenigen, die Übungen erstellen und auswerten
 Aus Sicht eines Übungsgruppenleiters sind vier Dateien erforderlich, um eine
 Aufgabe erfolgreich durchzuführen: Eine Template-Datei(.sqlt), ein Reset-
 skript(.sql), eine Lösungs-Datei (.sql) und eine Evaluation-Konfigurationsdatei
-(.ini).
+(.ini). Beispiele dieser Dateien sind unter [examples](/examples) zu finden.
 
 ###Die Tag-Annotation
-Die Template-Datei, die Studentenabgabe und die Lösungsdatei haben ei-
-ne spezielle Form. Sie besitzen Tag-Elemente, welche folgende Form haben:
+Die Template-Datei, die Studentenabgabe und die Lösungsdatei haben eine spezielle Syntax. Sie besitzen Tag-Elemente, welche folgende Form haben:
 
 `/*%%<name>%%<type>%%<extra>%%*/` 
 
@@ -23,7 +22,8 @@ Es gibt mehrere Regeln die zu beachten sind.
 - Der Tag-Name und der Tag-Type dürfen keine Whitespaces besitzen.
 - Zur Zeit sind drei Typen möglich:`head`,`task`,`static`. Ein leeres Feld steht für task.
 - Tag-Extra kann alles enthalten außer `%%`, `/*` und `*/`.
-- Name und Extra sind optional, abhängig vom Type.
+- Der Default-Typ ist `task`.
+- Leere Elemente können weggelassen werden, wenn alle folgenden Elemente ebenfalls leer sind. `/*%%<name>%%*/` ist ein gültiger Tag.
 
 Text zwischen zwei Tag-Elementen beinhaltet SQL-Code. Dieser Code ist dem vorherigen Tag-Element zugeordnet und wird als Body des Tag-Element bezeichnet.
 ####head
@@ -41,117 +41,67 @@ Text zwischen zwei Tag-Elementen beinhaltet SQL-Code. Dieser Code ist dem vorher
  ```
  #### task & static
  Task und Static Tags haben die selbe Syntax, werden nur intern anders verwendet. Studentenabgaben beinhalten nie Static-Tags.
-  Task und Static Tags können beliebige, nicht-leere Namen haben, müssen aber in der Datei einzigartig sein. Extra ist nur in der Definition der Solution interessant. Extra besteht aus vier Felder die jeweils durch einen Punkt getrennt werden. Punkte können weggelassen werden, wenn alle folgenden Felder leer sind.
+  Task und Static Tags können beliebige, nicht-leere Namen haben, müssen aber in der Datei einzigartig sein. 
+  
+  Extra ist nur in der Definition der Solution interessant. Extra besteht aus vier Felder die jeweils durch einen Punkt getrennt werden. Punkte können weggelassen werden, wenn alle folgenden Extra-Felder leer sind. Ein Task-Tag hat folgende Syntax:  
+  
+  `/*%%<name>%%task%%<score>.<group>.<schema>.<order>%%*/`
+  
+  Beispielsweise `/*%%Name%%task%%1.gruppe%%*/` ist gültiger Task-Tag.
+  
 - `score` ist das erste Feld. Hier wird eine positive Ganzzahl erwartet. Diese gibt an, wie viele Punkte für die Lösung der Aufgabe bzw. Gruppe angerechnet werden. Wird einer Gruppe durch verschiedenen Tags unterschiedliche Punkte zugewiesen, wird der erste gefundene Wert genommen. TODO check wie genau dies funktioniert. Wird das Feld leer gelassen, wird der Aufgabe ein Punkte zugewiesen. Eine Gruppe erhält nur Punkte, wenn alle Aufgaben der Gruppe gelöst wurden.
 - Das zweite Feld `group` bezeichnet eine Gruppe von Aufgaben, die zusammengefasst werden. Um zu der gleichen Gruppe zu gehören, müssen alle müssen die Tags die gleichen Gruppennamen definieren.
-- Das `schema` definiert das erwartete Schema der definierten SQL-Abfrage als Liste von Werten. Dieses hat folgende Form `["<Wert1>","<Wert1>", ... , "<WertN>"]`, angelehnt an die Json-Syntax. Die Aufgabe gilt nur als bestanden, wenn das Schema des Ergebnis der SQL-Anfrage identisch mit dem hier angegeben Schema ist.
-- `òrder` legt fest, ob bei der Beurteilung des Ergebnis eine Ordnung zu beachten ist. Per Default wird das Ergebnis als ungeordnet betrachtet. Die Definition der Ordnung hat die selbe Form wie das Schema. Als Werte sind die Indizies der Spalten des Schemas erwartet. Kein Index sollte mehr als einmal vorkommen, kann aber weggelassen werden. Die Indizies sind in absteigender Relevanz aufgeführt.
+- Das `schema` definiert das erwartete Schema der definierten SQL-Abfrage als Liste von Werten. Diese hat folgende Form: 
 
+  `["<Wert1>","<Wert1>", ... ,"<WertN>"]`
+  
+  Sie ist angelehnt an die Json-Syntax. Die Aufgabe gilt nur als bestanden, wenn das Schema des Ergebnis der SQL-Anfrage identisch mit dem hier angegeben Schema ist.
+- `order` legt fest, ob bei der Beurteilung des Ergebnis eine Ordnung zu beachten ist. Per Default wird das Ergebnis als ungeordnet betrachtet. Die Definition der Ordnung hat die selbe Form wie das Schema. Als Werte sind die Indizes der Spalten des Schemas erwartet. Kein Index sollte mehr als einmal vorkommen, kann aber weggelassen werden. Die Indizes sind in absteigender Relevanz aufgeführt
 
-      protected final String group;
-      protected final List<String> schema;
-      protected final List<Integer> order;
+  `["<Index1>","<Index2>", ... ,"<IndexN>"]`
+ 
+ Beispiel:
+ Vergleiche folgende Tabellen:
+ 
+| A | B | C |
+|---|---|---|
+| 1 | 2 | 4 |
+| 1 | 3 | 4 |
+| 2 | 3 | 4 |
+
+und 
+
+| A | B | C |
+|---|---|---|
+| 1 | 2 | 4 |
+| 1 | 3 | 4 |
+| 2 | 3 | 4 |
+
+Die beiden Tabellen sind im unordered Mode gleich. Auch unter der Ordnung `["0"]` werden beide als gleich betrachtet. Die Tabelle wird dabei nach Spalte `A` sortiert. Da Zeile eins und zwei die gleichen Werte in Spalte `A` haben, haben die Zeilen gleiche Priorität. Unter der Ordnung `["0","1"]` werden die Spalten `A` und `B` betrachtet. Da nun auch Zeile `B` betrachtet wird, unterscheiden sich beide Tabellen. 
+
   
   
-Das Template
-Das Template ist eine Tag-annotierte Datei. Die Datei sollte einen submission_name
-definieren und keine static-Tags verwenden.
-Eine Template-Datei wird von Studenten zum Initialisieren einer neuen
-Übung benötigt. Die Datei definiert, welche Aufgaben im SQLChecker zum
-Bearbeiten angezeigt werden und welcher Text als Code dieser Aufgaben
-beim Initialisieren der Aufgabe angezeigt werden soll.
-Alle Tags, die keine Schlüsselwörter beinhalten, werden als Aufgaben
-interpretiert. Kein Name von Aufgaben darf doppelt verwendet werden. Der
-Rumpf eines Aufgaben-Tags ist der Code, der beim Initialisieren der Aufgabe
-angezeigt wird. Da der SQL-Checker die Aufgaben sequentiell abarbeitet, ist
-Reihenfolge der Aufgaben relevant. Ein Beispiel-Template Datei ist 1.
-1.3
-Das Resetskript
-Das Reset-Skript besteht aus einer Reihe vom SQL-Statements. Der SQL-
-Checker führt dieses Skript vor jedem Test aus. Studenten können das Reset-
-skript in der SQLChecker-GUI ausführen. Es sollte darauf geachtet werden,
-2/*submission_name*/
-Blatt1
-/*1a*/
-/* Kommentar zu Aufgabe 1a
-ueber mehrere Zeilen */
-CREATE...
-/*1b*/
--- Kommentar zu Aufgabe 1b
-INSERT ...
-Listing 1: Template-Beispiel
-dass kein Statement Fehler verursacht. Zum Beispiel sollte DROP DATABASE
-IF EXISTS <name> ;, statt DROP DATABASE <name> ; genutzt werden, da-
-mit kein Fehler auftritt, wenn noch keine entsprechende Datenbank exis-
-tiert. Damit der SQL-Checker das Skript bei der Initialisierung der Übung
-automatisch findet, muss der Name der Datei folgendermaßen aussehen:
-<submission_name> _reset.sql. submission_name wird in der Template-
-Datei definiert.
-1.4
-Die Lösung
-Die Lösung ist eine weitere Tag-annotierte Datei. Die Lösung muss den selben
-submission_name und die gleichen Aufgaben-Tags in gleicher Reihenfolge
-definieren wie das dazugehörige Template. Der SQLChecker bewertet auf
-der Basis dieser Datei die Studentenabgaben. Der Code im Rumpf eines
-Aufgaben-Tags sollte eine gültige Lösung der entsprechenden Aufgabe sein.
-Das Programm überprüft, ob die von Studenten erzeugten Statements die
-gleichen Resultate erzielen, wie diese Statements der Lösung. Zusätzlich
-kann diese Datei static-Tags definieren. Das SQLStatement im Rumpf
-dieser Tags wird sowohl bei der Lösung als auch der Abgabe ausgeführt und
-die Resultate verglichen. Ist das Ergebnis in beiden Fällen gleich, gilt der
-Test dieses Tags als bestanden.
-1.5
-Die Konfigurationsdatei
-Die Konfigurationsdatei ist eine INI-Datei, welche die nötigen Informationen
-für die Auswertung der Abgaben enthält. Diese Datei wird nur für die Evalua-
-tion und nicht die Erstellung der Abgabe benötigt. Die Schlüssel database,
-username, password, hostname und port werden für die Datenbankverbin-
-3/*submission_name*/
-Blatt1
-/*1a*/
-CREATE TABLE tische (name varchar(40), beine int(6));
-/*1b*/
-INSERT INTO tische VALUES('KNARREVIK', 4);
-/*static*/
-SELECT COUNT(*) FROM tische;
-Listing 2: Lösung-Beispiel
-1
-2
-3
-4
-5
-6
-7
-#settings for database connection
-[db]
-\database = airport
-username = airportuser
-password = airportuser
-hostname = localhost
-port = 3306
-8
-9
-10
-11
-12
-13
-#pathes to files
-[files]
-resetPath = ~/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1_reset.sql
-solutionPaths =
-, →
-~/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1_solution.sql,
-, →
-~/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1_solution2.sql
-submissionPath = ~/Dropbox/SQLChecker/aufgaben/Blatt1/submissions/
-Listing 3: Konfigurations-Beispiel
-dung benötigt. resetPath gibt die Pfad zum Resetskript an. solutionPaths
-gibt den Pfad zu einer oder mehreren Lösungs-Dateien an. Mehrere Lösungen
-werden mit Komma separiert. submissionPath gibt den Pfad zu Abgaben
-an. Der Pfad wird bis zu einer Tiefe von zwei nach Abgaben durchsucht. 3
-ist ein Beispiel einer Konfigurationsdatei.
-2
-Die Auswertung
+###Das Template
+Das Template ist eine Tag-annotierte Datei. Sie enthält genau ein Head-Tag und beliebig viele Task-Tags. Eine Template-Datei wird von Studenten zum Initialisieren einer neuen Übung benötigt. Die Datei definiert, welche Aufgaben im SQLChecker zum Bearbeiten angezeigt.
+ 
+ Das Template wird einer Solution zugeordnet und muss genau so viele Task-Tags in gleicher Reihenfolge und gleichem Namen, wie das Solution-File besitzen. Der im Head-Tag definierte Name, ist der Name der Übung und muss dem angegeben Namen im Solution-File entsprechen. Für die Task-Tags ist nur der Name relevant, die restlichen Felder können weggelassen werden. Der Body der Task-Tags ist der Code der einzelnen Aufgaben, den die Studenten beim Initialisieren der Übung im SQL-Checker angezeigt bekommen.
+
+###Das Resetskript
+Das Resetskript ist ein SQL-Skript. Der SQLChecker führt dieses Skript wärhend der Evaluation vor jedem Test einer Abgabe aus. Studenten können das Resetskript in der Student-GUI ausführen. Es sollte darauf geachtet werden, dass kein Statement SQL-Fehler verursacht. Zum Beispiel sollte `DROP DATABASE
+IF EXISTS <name> ;`, statt `DROP DATABASE <name> ;` genutzt werden, damit kein Fehler auftritt, wenn noch keine entsprechende Datenbank existiert. Damit der SQL-Checker das Skript bei der Initialisierung der Übung in der StudentGUI automatisch findet, muss der Name der Datei folgendermaßen aussehen: `<name>_reset.sql`. `<name>` ist der Name der Übung, welcher in dem den Studenten mitgelieferten Template angegeben ist. Außerdem muss sich das Skript im selber Ordner befinden, in dem das Projekt initialisiert wird.
+
+###Die Solution
+Die Solution-Datei ist eine weitere Tag-annotierte Datei. Sie besitzt genau einen Head-Tag und beliebig viele Static- und Task-Tags. Im Head der Solution wird der Name der Übung definiert. Zugehörige Templates und Studenabgaben müssen sich nach diesen Namen richtigen und den gleichen Namen besitzen.
+ 
+ Die Task-Tags definieren die Aufgaben, welche die Studenten bearbeiten sollen. Der Body des Tasks enthält ein SQL-Statement. Ist dieses Statement ein Select-Befehl wird auf Basis des Ergebnis der Ausführung des Befehls, das erwartete Ergebnis der Aufgabe generiert, nach der die Abgaben der Studenten gegen geprüft werden. Ist das Ergebnis des Tasks der Solution identisch mit dem Task der Abgabe, so gilt die Aufgabe als bestanden. Im Task-Tag können noch weitere Angaben gesetzt werden, wann eine Abgabe als bestanden gilt (siehe Task-Tag).
+ 
+ Static-Tags beinhalten ebenfalls SQL-Statements, welche zur Überprüfung genutzt werden. Diese sind nicht für die Studenten sichtbar. Sie eignen sich um Tasks ohne Ergebnis, wie z.B. Insert-Befehle, zu testen. Nachdem Task kann der Static ausgeführt werden. Ist das Ergebnis des Static dasselbe bei der Abgabe des Studenten und der Lösung, gilt das Static als bestanden. Um Task und Static zu binden, können diese über das Extra-Feld als Zugehörige der gleichen Gruppe definiert werden.
+
+###Die Konfigurationsdatei der Evaluation
+Die Konfigurationsdatei der Evaluation ist eine INI-Datei, welche die nötigen Informationen für die Auswertung der Abgaben enthält. Diese Datei wird nur für die Evaluation und nicht die Erstellung der Abgabe benötigt. Die Schlüssel der Evaluation `database`, `username`, `password`, `hostname` und `port` werden für die Datenbankverbindung benötigt. `resetPath` gibt die Pfad zum Resetskript an. `solutionPaths` gibt den Pfad zu einer oder mehreren Lösungs-Dateien an. Mehrere Lösungen werden mit Komma separiert. `submissionPath` gibt den Pfad zu Abgaben an. Der Pfad wird bis zu einer Tiefe von zwei nach Abgaben durchsucht.
+
+
+##TODO
 Die Ausführung läuft ebenfalls über die SQLChecker Jar Datei. Das Pro-
 gramm wird über das Terminal gestartet und benötigt die korrekten Argu-
 mente.

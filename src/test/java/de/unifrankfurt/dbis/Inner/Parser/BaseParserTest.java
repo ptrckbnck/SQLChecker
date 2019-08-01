@@ -139,5 +139,30 @@ class BaseParserTest {
         assertTrue(tokenized.get(3).getBody().contains("test4"));
     }
 
-
+    @Test
+    void test_behavior_omitted_percent_letter() {
+        String h =
+                "/*%%0%%task%%%%*/\n" +
+                        "Select * from test1;\n" +
+                        "\n" +
+                        "/*%%1%%task%%*/\n" +
+                        "Select * from test2;\n" +
+                        "\n" +
+                        "/*%%2%%*/\n" +
+                        "Select * from test3;\n" +
+                        "\n" +
+                        "/*%%%%*/\n" +
+                        "Select * from test4;\n" +
+                        "\n";
+        List<RawToken> tokenized = BaseParser.tokenizer(h);
+        BaseParser spn = BaseParser.getDefaultBaseParser();
+        ParseTokenTask token0 = (ParseTokenTask) spn.analyzeToken(tokenized.get(0));
+        assertEquals("0", token0.getName());
+        ParseTokenTask token1 = (ParseTokenTask) spn.analyzeToken(tokenized.get(1));
+        assertEquals("1", token1.getName());
+        ParseTokenTask token2 = (ParseTokenTask) spn.analyzeToken(tokenized.get(2));
+        assertEquals("2", token2.getName());
+        ParseTokenUnknown token3 = (ParseTokenUnknown) spn.analyzeToken(tokenized.get(3));
+        assertNull(token3.getType());
+    }
 }

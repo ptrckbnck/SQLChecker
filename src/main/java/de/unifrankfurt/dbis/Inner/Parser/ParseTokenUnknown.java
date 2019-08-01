@@ -2,6 +2,8 @@ package de.unifrankfurt.dbis.Inner.Parser;
 
 import de.unifrankfurt.dbis.Inner.BaseBuilder;
 
+import java.util.StringJoiner;
+
 public class ParseTokenUnknown implements ParseToken {
     private final String name;
     private final String type;
@@ -26,5 +28,31 @@ public class ParseTokenUnknown implements ParseToken {
     @Override
     public void build(BaseBuilder bb) {
         //ignored
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", ParseTokenUnknown.class.getSimpleName() + "[", "]")
+                .add("name='" + name + "'")
+                .add("type=" + type)
+                .add("addition='" + addition + "'")
+                .add("body='" + body + "'")
+                .toString();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getAddition() {
+        return addition;
+    }
+
+    public String getBody() {
+        return body;
     }
 }
