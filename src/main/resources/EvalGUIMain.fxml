@@ -14,7 +14,6 @@
                         <MenuItem mnemonicParsing="false" onAction="#exportConfig" text="Speichere Config"/>
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Bearbeiten"/>
                 <Menu mnemonicParsing="false" text="Hilfe">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#doAbout" text="About"/>
@@ -66,7 +65,7 @@
                                                     </GridPane.margin>
                                                 </TextField>
                                                 <Label alignment="CENTER" contentDisplay="CENTER" minWidth="-Infinity"
-                                                       text="CSVPath:" GridPane.rowIndex="1">
+                                                       text="CSVOutPath:" GridPane.rowIndex="1">
                                                     <GridPane.margin>
                                                         <Insets/>
                                                     </GridPane.margin>

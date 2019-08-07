@@ -2,8 +2,53 @@
 Diese Anleitung richtet sich an diejenigen, die Übungen erstellen und auswerten möchten. Studenten die Abgaben erstellen möchte, sollten sich diese [Anleitung](README.md) durchlesen.
 
 ##SQLChecker in Console
+Neben der StudentGUI und der EvaluationsGUI kann der SQLChecker auch als Terminal-Programm genutzt werden. Über das Terminal können die GUIs mit zusätzlichen Optionen gestartet werden. Auch kann die Auswertung der Studentenabgaben vollständig über Console ausgeführt werden. So kann dieser Vorgang leicht in andere Skripte eingebettet werden. Eine Übersicht der Befehle sieht man hier:   
 
-##Evaluation GUI
+```
+sqlchecker [-c <Path>] [-csv <Path>] [-e | -s <Path (*.sqlc)>] [-h]
+       [-noGui] [-onlyBest]  [-v] [--version]
+
+SQLChecker
+A tool a create and evaluate exercises for SQL.
+ -c,--config <Path>           Path to config file. (*.ini) or (*.conf),
+                              depends if you run Evaluation or StudentGUI.
+ -csv,--csv <Path>            puts csv-report of evaluations to file at
+                              Path or System.out by default.
+ -e,--evaluate                starts the evaluation process of
+                              submissions.
+ -h,--help                    prints this help
+ -noGui,--noGui               Evaluation without GUI. You need to define a
+                              valid config file
+ -onlyBest,--onlyBest         in csv mode, do not print all evaluations,
+                              only the best of each student.
+ -s,--start <Path (*.sqlc)>   runs SQLChecker-StudentGUI. This parameter
+                              can be omitted. Use this if you want to
+                              solve an exercise.
+                              You can directly load a project file via
+                              argument Path.
+ -v,--verbose                 verbose mode. Prints a lot of information,
+                              mainly for debugging.
+    --version                 prints version of SQLChecker
+```
+ 
+##EvaluationsGUI
+Die EvaluationsGUI (EGUI) startet man über den Terminal-Befehl  `sqlchecker -e`.
+
+Ähnlich wie die bei der SGUI benötigt die EGUI diverse Informationen für die Datenbankverbindung. Diese erreicht man über den Tab Einstellungen. Zusätzlich wird für die Durchführung der Auswertung der Abgaben folgende Angaben benötigt.
+- Der Pfad zum Reset Skript
+- Der Pfad zu einer oder mehrer Solution Dateien der selben Übung, mit Komma getrennt
+- Der Pfad zu den Abgaben, entweder direkt zu einer Datei oder zu einem Order, welcher Abgaben beinhaltet.
+
+Die Config kann als INI-Datei exportiert werden. Dazu muss man auf `Datei` `Speichere Config` klicken. Gleichermaßen kann man eine - auch manuell erstellte - Config wieder einlesen.
+
+Nun kann man auf dem Tab Submissions die eigentliche Evaluation durchführen. Zunächst müssen die in der Config angegeben Submissions geladen werden. Dazu klickt man auf `Load Submissions`. Es sollte eine Liste mit Abgaben in der Tabelle unten erscheinen.
+
+Die angezeigten Abgaben können gefiltert werden. Dazu kann ein Filterterm im TextFeld Filter eingetragen werden. Wird eine Zeichenkette eingetragen und auf den Button `Filter` geklickt, werden nur die Abgaben angezeigt, welche auch die Zeichenkette beinhalten. Alternativ kann rechts, die RegEx CheckBox aktiviert werden. Nun wird die Zeichenkette als RegEx interpretiert. Nur Abgaben die über den RegEx gefunden werden werden angezeigt.
+
+Im Textfeld CSVOutPath kann der Pfad angeben, an dem Resultat der Auswertung als CSV gespeichert werden soll. Wird nicht angegeben, wird das Ergebnis in Std.Out geschrieben.
+
+Ist mindestens eine gültige Abgabe vorhanden, kann über den Button `Run` die Evaluation durchgeführt werden.
+
 
 ##Übungen definieren
 Aus Sicht eines Übungsgruppenleiters sind vier Dateien erforderlich, um eine
@@ -98,7 +143,7 @@ Die Solution-Datei ist eine weitere Tag-annotierte Datei. Sie besitzt genau eine
  Static-Tags beinhalten ebenfalls SQL-Statements, welche zur Überprüfung genutzt werden. Diese sind nicht für die Studenten sichtbar. Sie eignen sich um Tasks ohne Ergebnis, wie z.B. Insert-Befehle, zu testen. Nachdem Task kann der Static ausgeführt werden. Ist das Ergebnis des Static dasselbe bei der Abgabe des Studenten und der Lösung, gilt das Static als bestanden. Um Task und Static zu binden, können diese über das Extra-Feld als Zugehörige der gleichen Gruppe definiert werden.
 
 ###Die Konfigurationsdatei der Evaluation
-Die Konfigurationsdatei der Evaluation ist eine INI-Datei, welche die nötigen Informationen für die Auswertung der Abgaben enthält. Diese Datei wird nur für die Evaluation und nicht die Erstellung der Abgabe benötigt. Die Schlüssel der Evaluation `database`, `username`, `password`, `hostname` und `port` werden für die Datenbankverbindung benötigt. `resetPath` gibt die Pfad zum Resetskript an. `solutionPaths` gibt den Pfad zu einer oder mehreren Lösungs-Dateien an. Mehrere Lösungen werden mit Komma separiert. `submissionPath` gibt den Pfad zu Abgaben an. Der Pfad wird bis zu einer Tiefe von zwei nach Abgaben durchsucht.
+Die Konfigurationsdatei der Evaluation ist eine INI-Datei, welche die nötigen Informationen für die Auswertung der Abgaben enthält. Diese Datei wird nur für die Evaluation und nicht die Erstellung der Abgabe benötigt. Die Schlüssel der Evaluation `database`, `username`, `password`, `hostname` und `port` werden für die Datenbankverbindung benötigt. `resetPath` gibt die Pfad zum Resetskript an. `solutionPaths` gibt den Pfad zu einer oder mehreren Lösungs-Dateien an. Mehrere Lösungen werden mit Komma separiert. `submissionPath` gibt den Pfad zu Abgaben an. Falls der angegebene Pfad ein ordner ist, wird dieser bis zu einer Tiefe von zwei nach Abgaben durchsucht.
 
 
 ##TODO
