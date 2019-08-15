@@ -45,7 +45,7 @@ public class TestResources {
                 "\n" +
                 "#### Survey Settings #####\n" +
                 "#path of the reset script that should be used\n" +
-                "db.resetscript=reset.sql\n" +
+                "db.resetscript=test_uebung_reset.sql\n" +
                 "\n" +
                 "##### DBFitSolution generator settings #####\n" +
                 "#The raw solution file, from which the dbfit solution file should be created\n" +

@@ -14,7 +14,7 @@ class BaseTest {
         System.err.println("a");
         Base base = Base.fromPath(Paths.get("/home/xyntek/Dropbox/SQLChecker/NEU_TESTS/solution.sql"));
         System.err.println("b");
-        SQLScript script = SQLScript.fromPath(Paths.get("/home/xyntek/Dropbox/SQLChecker/NEU_TESTS/reset.sql"));
+        SQLScript script = SQLScript.fromPath(Paths.get("/home/xyntek/Dropbox/SQLChecker/NEU_TESTS/test_uebung_reset.sql"));
         System.err.println("c");
         Solution sol = base.generateSolution(source, script);
         System.err.println(sol);

@@ -52,7 +52,7 @@ public class ParseTokenStatic extends ParseTokenTask implements ParseToken {
     }
 
     @Override
-    protected String serializedHead() {
+    protected String serializedExtra() {
         return getScore()
                 + getDelimiter()
                 + getGroup()

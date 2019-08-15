@@ -4,8 +4,11 @@ import de.unifrankfurt.dbis.SQL.SQLData;
 import de.unifrankfurt.dbis.SQL.SQLResults;
 import de.unifrankfurt.dbis.config.DataSource;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class TaskSQL implements TaskInterface {
     private final String name;
@@ -51,12 +54,40 @@ public class TaskSQL implements TaskInterface {
         return order;
     }
 
+    public TaskSQL clearExtra() {
+        return new TaskSQL(this.name, null, null, null, null, this.sql);
+    }
 
     @Override
     public String serialize() {
-        return new ParseTokenTask(name, score, group, schema, order, sql).serialize();
+        List<String> extraList = new ArrayList<>();
+        if (Objects.nonNull(score))
+            extraList.add(getScore().toString());
+        if (Objects.nonNull(group))
+            extraList.add(getGroup());
+        if (Objects.nonNull(schema))
+            extraList.add(serializedSchema());
+        if (Objects.nonNull(order))
+            extraList.add(serializedOrder());
+        String extraStr = String.join(ParseTokenTask.getDelimiter(), extraList);
+        String tag;
+        if (extraStr.isEmpty())
+            tag = "/*%%" + getName() + "%%*/\n";
+        else
+            tag = "/*%%" + getName() + "%%" + ParseTokenTask.id + "%%" + extraStr + "%%*/\n";
+        return tag + getSql();
     }
 
+    protected String serializedSchema() {
+        return "[\"" + String.join("\", \"", this.schema) + "\"]";
+    }
+
+    protected String serializedOrder() {
+        return "[" + this.order
+                .stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(",")) + "]";
+    }
     @Override
     public boolean isStatic() {
         return false;

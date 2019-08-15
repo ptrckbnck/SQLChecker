@@ -110,7 +110,7 @@ public class Base extends CheckerFrame {
 
     public String serialize() {
         return new ParseTokenHead(this.baseType, this.name, authors).serialize() +
-                this.tasks.stream().map(TaskInterface::serialize).collect(Collectors.joining("\n"));
+                this.tasks.stream().map(TaskInterface::serialize).collect(Collectors.joining("\n\n"));
     }
 
 

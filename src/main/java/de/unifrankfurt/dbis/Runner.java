@@ -54,8 +54,7 @@ public class Runner {
         }
 
 
-
-        if (!commandLine.hasOption("e")) {
+        if (!commandLine.hasOption("e") && !commandLine.hasOption("t")) {
             List<String> newargs = new ArrayList<>();
             String valueS = commandLine.getOptionValue("s");
             if (Objects.nonNull(valueS)) {
@@ -162,6 +161,34 @@ public class Runner {
             }
             AbandonedConnectionCleanupThread.checkedShutdown();
         }
+
+        if (commandLine.hasOption("t")) {
+
+            boolean hasO = commandLine.hasOption("o");
+            String oValue = commandLine.getOptionValue("o");
+            String tValue = commandLine.getOptionValue("t");
+
+            Path out = null;
+
+            if (Objects.isNull(tValue)) {
+                //should not be reached.
+                System.err.println("Argument of -t was not defined.");
+                return;
+            }
+            Path in = Paths.get(tValue);
+
+            if (Objects.nonNull(oValue)) {
+                out = Paths.get(oValue);
+            }
+
+            boolean useStdout = !hasO;
+
+            try {
+                new TemplateGenerator(in, out, useStdout).run();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
     }
 
     /**
@@ -219,6 +246,13 @@ public class Runner {
                 .longOpt("evaluate")
                 .desc("starts the evaluation process of submissions.")
                 .build());
+        optStart.addOption(Option.builder("t")
+                .longOpt("template")
+                .desc("generates Student Template from given Solution. Without specifying outPath, result is printed to stdout. ")
+                .hasArg()
+                .optionalArg(false)
+                .argName("Path (*.sql)")
+                .build());
         options.addOptionGroup(optStart);
 
         options.addOption(Option.builder("noGui")
@@ -254,6 +288,15 @@ public class Runner {
                 .build();
         options.addOption(onlyBest);
 
+        options.addOption(Option.builder("o")
+                .longOpt("out")
+                .hasArg()
+                .desc("Only relevant with -t. Path where template should be saved. If you do not specify Path." +
+                        " Result is placed in same dir as solution.")
+                .argName("Path")
+                .required(false)
+                .optionalArg(true)
+                .build());
 
         Option help = Option.builder("h")
                 .longOpt("help")

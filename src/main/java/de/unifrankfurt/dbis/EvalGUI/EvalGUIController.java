@@ -197,7 +197,13 @@ public class EvalGUIController implements Initializable {
         if (!Objects.isNull(p)) {
             directoryChooser.setInitialDirectory(Objects.requireNonNull(p).toFile());
         }
-        File file = directoryChooser.showDialog(getPrimaryStage());
+        File file;
+        try {
+            file = directoryChooser.showDialog(getPrimaryStage());
+        } catch (IllegalArgumentException e) {
+            directoryChooser.setInitialDirectory(Paths.get(System.getProperty("user.dir")).toFile());
+            file = directoryChooser.showDialog(getPrimaryStage());
+        }
         if (Objects.isNull(file)) {
             return;
         }
@@ -208,10 +214,19 @@ public class EvalGUIController implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose Solutions");
         List<Path> sols = this.getSolutionsPaths();
-        if (!Objects.isNull(sols) && !sols.isEmpty()) {
+        if (Objects.nonNull(sols)
+                && !sols.isEmpty()
+                && Objects.nonNull(sols.get(0))
+                && Objects.nonNull(sols.get(0).getParent())) {
             fileChooser.setInitialDirectory(sols.get(0).getParent().toFile());
         }
-        List<File> files = fileChooser.showOpenMultipleDialog(getPrimaryStage());
+        List<File> files;
+        try {
+            files = fileChooser.showOpenMultipleDialog(getPrimaryStage());
+        } catch (IllegalArgumentException e) {
+            fileChooser.setInitialDirectory(Paths.get(System.getProperty("user.dir")).toFile());
+            files = fileChooser.showOpenMultipleDialog(getPrimaryStage());
+        }
         if (Objects.isNull(files)) {
             return;
         }
@@ -255,7 +270,13 @@ public class EvalGUIController implements Initializable {
         if (!Objects.isNull(p)) {
             fileChooser.setInitialDirectory(p.toFile());
         }
-        File file = fileChooser.showOpenDialog(getPrimaryStage());
+        File file;
+        try {
+            file = fileChooser.showOpenDialog(getPrimaryStage());
+        } catch (IllegalArgumentException e) {
+            fileChooser.setInitialDirectory(Paths.get(System.getProperty("user.dir")).toFile());
+            file = fileChooser.showOpenDialog(getPrimaryStage());
+        }
         if (Objects.isNull(file)) {
             return;
         }

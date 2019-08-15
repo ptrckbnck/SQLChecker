@@ -114,27 +114,19 @@ public class ParseTokenTask implements ParseToken {
         return ParseTokenTask.delimiter;
     }
 
-    protected String serializedHead() {
-        return getScore()
-                + getDelimiter()
-                + getGroup()
-                + getDelimiter()
-                + serializedSchema()
-                + getDelimiter()
-                + serializedOrder();
+    protected String serializedExtra() {
+        List<String> t = List.of(getScore().toString(),
+                getGroup(),
+                serializedSchema(),
+                serializedOrder());
+        return String.join(delimiter, t);
     }
 
     protected String serializedSchema() {
-        if (Objects.isNull(this.schema)) {
-            return "";
-        }
         return "[\"" + String.join("\", \"", this.schema) + "\"]";
     }
 
     protected String serializedOrder() {
-        if (Objects.isNull(order)) {
-            return "";
-        }
         return "[" + this.order
                 .stream()
                 .map(String::valueOf)
@@ -184,9 +176,12 @@ public class ParseTokenTask implements ParseToken {
         bb.addTask(new TaskSQL(name, score, group, schema, order, body));
     }
 
-
     public String serialize() {
-        return "/*%%" + getName() + "%%" + getID() + "%%" + serializedHead() + "%%*/\n" + body;
+        List<String> tagList = List.of(getName(), getID(), serializedExtra())
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return "/*%%" + String.join("%%", tagList) + "%%*/";
     }
 
     protected String getID() {

@@ -18,7 +18,7 @@ db.executable=exe
 
 #### Survey Settings #####
 #path of the reset script that should be used
-db.resetscript=reset.sql
+db.resetscript=test_uebung_reset.sql
 
 ##### DBFitSolution generator settings #####
 #The raw solution file, from which the dbfit solution file should be created
