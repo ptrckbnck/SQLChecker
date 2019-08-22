@@ -50,7 +50,4 @@ class SQLDataTableMatcherTest {
         assertEquals(List.of(), splitted);
     }
 
-    @Test
-    void schemaMatch() {
-    }
 }

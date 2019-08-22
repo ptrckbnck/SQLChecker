@@ -36,7 +36,7 @@ WHERE PlaneID = 2;
 /*%%5%%task%%*/
 # falsche Ordnung
 SELECT f.FlightNo,
-       f.FlightDurationInMinutes
+       f.PlaneID
 FROM flightexecution f
 WHERE FlightDurationInMinutes < 130
 ORDER BY PlaneID;

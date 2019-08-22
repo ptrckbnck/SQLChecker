@@ -32,7 +32,7 @@ WHERE PlaneID = 2;
 
 /*%%5%%task%%*/
 SELECT f.FlightNo,
-       f.FlightDurationInMinutes
+       f.PlaneID
 FROM flightexecution f
 WHERE FlightDurationInMinutes < 130
 ORDER BY FlightNo;

@@ -6,13 +6,23 @@ import java.util.stream.Stream;
 
 public abstract class SQLResultTableMatcher {
 
+    public static SQLResultTableDiff match(SQLDataTable expectedTable, SQLDataTable actualTable) {
+        return match(expectedTable, actualTable, new ArrayList<>());
+    }
 
+
+    /***
+     * Creates SQLResultTableDiff of expected and actual.
+     * @param expected
+     * @param actual
+     * @param order
+     * @return SQLResultTableDiff
+     */
     public static SQLResultTableDiff match(SQLDataTable expected,
                                            SQLDataTable actual,
                                            Collection<Integer> order) {
-        order = Objects.isNull(order) ? new ArrayList<>() : order;
 
-        if (!schemaMatch(expected, actual)) return null;
+        if (!schemaMatch(expected, actual)) return SQLResultTableDiff.newInvalid();
         final List<PairKeyIndiciesSet> keySplittedExpected = SQLResultTableMatcher.keySplit(expected, order);
         final List<PairKeyIndiciesSet> keySplittedActual = SQLResultTableMatcher.keySplit(actual, order);
 
@@ -37,6 +47,7 @@ public abstract class SQLResultTableMatcher {
             final List<Integer> rows = keySplittedActual.get(keySplittedExpected.size()).getRowsAsList();
             return new SQLResultTableDiff(List.of(), rows, rows, List.of(), false);
         }
+
         return new SQLResultTableDiff(List.of(), List.of(), List.of(), List.of(), true); //ok
     }
 
@@ -128,6 +139,7 @@ public abstract class SQLResultTableMatcher {
 
 
     }
+
 
     public static class PairKeyIndiciesSet {
         private final List<Object> key;

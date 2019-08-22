@@ -86,7 +86,12 @@ public class Solution extends CheckerFrame {
                 actualResult = base.getTasks().get(subTask++).execute(source);
             }
             results.add(actualResult);
-            SQLResultDiff diff = SQLResultDiffer.diff(expectedResult, actualResult);
+            SQLResultDiff diff;
+            if (Objects.isNull(t.getOrder())) {
+                diff = SQLResultDiffer.diff(expectedResult, actualResult);
+            } else {
+                diff = SQLResultDiffer.diff(expectedResult, actualResult, t.getOrder());
+            }
             diffs.add(diff);
             if (verbose) {
                 String s = t.getName() + ": " + diff.getMessage();

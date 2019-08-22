@@ -3,6 +3,8 @@ package de.unifrankfurt.dbis.Inner.Parser;
 import de.unifrankfurt.dbis.SQL.SQLData;
 import de.unifrankfurt.dbis.config.DataSource;
 
+import java.util.Collection;
+
 public interface TaskInterface {
     String getName();
 
@@ -14,7 +16,11 @@ public interface TaskInterface {
 
     String getGroup();
 
+    Collection<Integer> getOrder();
+
     boolean isStatic();
 
     SQLData execute(DataSource source);
+
+
 }

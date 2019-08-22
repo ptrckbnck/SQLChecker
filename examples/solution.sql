@@ -56,10 +56,10 @@ FROM flightexecution
 WHERE PlaneID = 2;
 
 /*%%5%%task%%2.Aufgabe5.["FlightNo", "DepartureDateAndTimeUTC"].[0]%%*/
-/* Zeige FlightNo und FlightDurationInMinutes aller Flüge die kürzer als 130 Minuten sind
+/* Zeige FlightNo und PlaneID aller Flüge die kürzer als 130 Minuten sind
  geordnet nach FlightNo */
 SELECT f.FlightNo,
-       f.FlightDurationInMinutes
+       f.PlaneID
 FROM flightexecution f
 WHERE FlightDurationInMinutes < 130
 ORDER BY FlightNo;
