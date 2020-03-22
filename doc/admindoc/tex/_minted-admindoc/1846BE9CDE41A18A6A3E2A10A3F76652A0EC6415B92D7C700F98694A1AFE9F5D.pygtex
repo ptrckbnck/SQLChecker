@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+java \PYGZhy{}jar SQLChecker\PYGZhy{}1.0.2.jar \PYGZhy{}c \PYGZti{}/simple/config.ini \PYGZhy{}csv \PYGZhy{}e
+\end{Verbatim}

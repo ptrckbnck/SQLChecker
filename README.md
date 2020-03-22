@@ -2,21 +2,21 @@
 SQLChecker hilft Studenten dabei Lösungen für die Aufgaben der [Database Systems Module](http://www.bigdata.uni-frankfurt.de/teaching/) zu finden. Diese werde vom Big Data Lab der Goethe Universität Frankfurt am Main angeboten.
 
 ##Einführung
-Ein wichtiger Bestandteil der Vorlesung zu Database Systems 1 ist das Erlernen von SQL. Dazu müssen die Studenten praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studenten bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studenten. 
+Ein wichtiger Bestandteil der Vorlesungungen zu Database Systems  ist das Erlernen von SQL. Dazu müssen die Studenten praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studenten bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studenten. 
 
 ##Installation
 Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf der [Website](https://www.oracle.com/technetwork/java/javase/downloads/index.html) von Oracle.
   
- Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Um Probleme zu vermeiden, sollten Studenten die in der Vorlesung bekanntgegebene Version des Verwaltungssystem verwenden. Dies wird wahrscheinlich die aktuelle Version von [MySQL](https://dev.mysql.com/downloads/mysql/) oder [MariaDB](https://downloads.mariadb.org/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
- `mysqladmin -u root -p version` ausführen und ihr Root-Password eingeben. Für die Installation des gewählten Verwaltungssystem richten Sie sich bitte an dessen Anleitung.
+ Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server-10.3.22](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
+ `mysql --version` ausführen und ihr Root-Password eingeben. Für die Installation des gewählten Verwaltungssystem richten Sie sich bitte an dessen Anleitung.
  
  Studenten sind in der Lage alle Aufgaben durch Verwendung des SQLCheckers lösen. Da dieser allerdings nur über eine eingeschränkte grafische Oberfläche verfügt, empfiehlt es sich zusätzlich einen Datenbank-Clienten zu installieren, um einfacher SQL-Statements zu testen. [Workbench](https://www.mysql.com/de/products/workbench/) und [HeidiSQL](https://www.heidisql.com/) sind zwei gängige Programme.
  
- Laden Sie abschließend das aktuelle Build des SQLCheckers herunter. Dieses Jar-File führen Sie mit Java im Terminal aus:
+ Laden Sie abschließend das aktuelle Build des [SQLCheckers](https://github.com/ptrckbnck/SQLChecker/releases) herunter. Dieses Jar-File führen Sie mit Java im Terminal aus:
  
  `java -jar sqlchecker-<Versionsnummer>.jar`
  
- Achten Sie darauf die korrekte Version von Java zu nutzen. Sie können die Version von Java mit `java --version` überprüfen. Haben Sie mehrere Versionen von Java installiert, können sie statt `java` den expliziten Pfad zur richtigen Java-Installation angeben.
+ Achten Sie darauf die korrekte Version von Java (mindestens 11) zu nutzen. Sie können die Version von Java mit `java --version` überprüfen. Haben Sie mehrere Versionen von Java installiert, können sie statt `java` den expliziten Pfad zur richtigen Java-Installation angeben.
  
  
   Möchten Sie SQLChecker per Doppelklick starten, müssen Sie die Datei ggf. noch ausführbar machen.  Auf den meißten Linux Systemen können sie dies mit folgendem Befehl:
@@ -24,7 +24,7 @@ Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nich
   `sudo chmod +x sqlchecker-<Versionsnummer>.jar`
  
 ##Verwendung
-Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md).
+Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md) (nicht aktuell). 
 
  Nachdem Sie `java -jar sqlchecker-<Versionsnummer>.jar` ausgeführt haben erscheint die GUI des SQLCheckers.
   
