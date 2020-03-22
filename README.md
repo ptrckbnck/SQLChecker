@@ -1,10 +1,10 @@
 # SQLChecker
 SQLChecker hilft Studenten dabei Lösungen für die Aufgaben der [Database Systems Module](http://www.bigdata.uni-frankfurt.de/teaching/) zu finden. Diese werde vom Big Data Lab der Goethe Universität Frankfurt am Main angeboten.
 
-##Einführung
+## Einführung
 Ein wichtiger Bestandteil der Vorlesungungen zu Database Systems  ist das Erlernen von SQL. Dazu müssen die Studenten praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studenten bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studenten. 
 
-##Installation
+## Installation
 Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf der [Website](https://www.oracle.com/technetwork/java/javase/downloads/index.html) von Oracle.
   
  Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server-10.3.22](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
@@ -23,7 +23,7 @@ Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nich
   
   `sudo chmod +x sqlchecker-<Versionsnummer>.jar`
  
-##Verwendung
+## Verwendung
 Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md) (nicht aktuell). 
 
  Nachdem Sie `java -jar sqlchecker-<Versionsnummer>.jar` ausgeführt haben erscheint die GUI des SQLCheckers.
