@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-Error: A JNI error has occurred, please check your installation and try again
-Exception in thread \PYG{l+s+s2}{\PYGZdq{}main\PYGZdq{}} java.lang.UnsupportedClassVersionError: de/unifrankfurt/dbis/Runner has been compiled by a more recent version of the Java Runtime \PYG{o}{(}class file version \PYG{l+m}{54}.0\PYG{o}{)}, this version of the Java Runtime only recognizes class file versions up to \PYG{l+m}{52}.0
-\end{Verbatim}

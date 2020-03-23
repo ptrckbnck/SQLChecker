@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.7.19)  22 MAR 2020 19:02
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.7.19)  23 MAR 2020 09:16
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1146,11 +1146,11 @@ runsystem(rm userdoc.pyg)...executed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 298.
  ) 
 Here is how much of TeX's memory you used:
- 13210 strings out of 492982
- 215412 string characters out of 6134896
- 384626 words of memory out of 5000000
+ 13208 strings out of 492982
+ 215390 string characters out of 6134896
+ 383626 words of memory out of 5000000
  16447 multiletter control sequences out of 15000+600000
- 55047 words of font info for 72 fonts, out of 8000000 for 9000
+ 54917 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  47i,9n,38p,958b,581s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/en
@@ -1162,7 +1162,7 @@ mf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/public/lm/lmr1
 /type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb><
 /usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1
 /public/lm/lmtti10.pfb>
-Output written on userdoc.pdf (13 pages, 350664 bytes).
+Output written on userdoc.pdf (13 pages, 350139 bytes).
 PDF statistics:
  307 PDF objects out of 1000 (max. 8388607)
  260 compressed objects within 3 object streams
