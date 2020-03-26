@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{}settings for database connection}
+\PYG{k}{[db]}
+\PYG{n+na}{\PYGZbs{}database} \PYG{o}{=} \PYG{l+s}{airport}
+\PYG{n+na}{username} \PYG{o}{=} \PYG{l+s}{airportuser}
+\PYG{n+na}{password} \PYG{o}{=} \PYG{l+s}{airportuser}
+\PYG{n+na}{hostname} \PYG{o}{=} \PYG{l+s}{localhost}
+\PYG{n+na}{port} \PYG{o}{=} \PYG{l+s}{3306}
+
+\PYG{c+c1}{\PYGZsh{}pathes to files}
+\PYG{k}{[files]}
+\PYG{n+na}{resetPath} \PYG{o}{=} \PYG{l+s}{\PYGZti{}/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1\PYGZus{}reset.sql}
+\PYG{n+na}{solutionPaths} \PYG{o}{=} \PYG{l+s}{\PYGZti{}/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1\PYGZus{}solution.sql, \PYGZti{}/Dropbox/SQLChecker/aufgaben/Blatt1/Blatt1\PYGZus{}solution2.sql}
+\PYG{n+na}{submissionPath} \PYG{o}{=} \PYG{l+s}{\PYGZti{}/Dropbox/SQLChecker/aufgaben/Blatt1/submissions/}
+\end{Verbatim}

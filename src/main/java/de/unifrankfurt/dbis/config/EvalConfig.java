@@ -4,9 +4,8 @@ package de.unifrankfurt.dbis.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import de.unifrankfurt.dbis.Submission.SQLScript;
-import de.unifrankfurt.dbis.Submission.Submission;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.Inner.Base;
+import de.unifrankfurt.dbis.Inner.SQLScript;
 import org.ini4j.Ini;
 
 import java.io.IOException;
@@ -99,7 +98,7 @@ public class EvalConfig {
         try{
             return new Gson().fromJson(conf, EvalConfig.class);
         }catch(JsonSyntaxException e){
-            throw new IOException("Could not parseLines Config (" + path + "): " + e.getMessage(), e);
+            return EvalConfig.parseINI(conf);
         }
 
     }
@@ -125,7 +124,7 @@ public class EvalConfig {
                 password,
                 database,
                 false,
-                null);
+                "+01:00");
     }
 
 
@@ -144,13 +143,13 @@ public class EvalConfig {
     }
 
 
-    public List<Submission> getSolutions() throws IOException, SubmissionParseException {
+    public List<Base> getSolutions() throws IOException {
         String[] pathes = this.solutionPaths.split(",");
-        List<Submission> submissions = new ArrayList<>();
+        List<Base> bases = new ArrayList<>();
         for (String path : pathes){
-            submissions.add(Submission.fromPath(Paths.get(path)));
+            bases.add(Base.fromPath(Paths.get(path)));
         }
-        return submissions;
+        return bases;
     }
 
 

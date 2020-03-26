@@ -55,6 +55,7 @@ public class FileIO {
      * @throws IOException
      */
     public static void saveText(Path path, String text) throws IOException {
+        path = path.toAbsolutePath();
         if (Files.exists(path)) {
             Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
         }

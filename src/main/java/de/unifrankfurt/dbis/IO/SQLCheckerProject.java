@@ -1,11 +1,16 @@
 package de.unifrankfurt.dbis.IO;
 
-import de.unifrankfurt.dbis.GUI.Assignment;
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Inner.Base;
+import de.unifrankfurt.dbis.Inner.BaseBuilder;
+import de.unifrankfurt.dbis.Inner.Parser.BaseType;
+import de.unifrankfurt.dbis.Inner.Parser.TaskSQL;
+import de.unifrankfurt.dbis.Inner.Student;
+import de.unifrankfurt.dbis.StudentGUI.Assignment;
 import de.unifrankfurt.dbis.config.GUIConfig;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -52,20 +57,52 @@ public class SQLCheckerProject {
     }
 
     /**
-     * creates Submission with data from this project.
+     * creates Inner with data from this project.
      *
      * @return
      */
-    public Submission createSubmission() {
-        List<String> codes = assignment.getCodes();
+    public Base createSubmission_old() {
+        /*List<String> codes = assignment.getCodes();
         List<String> tasks = assignment.getTasks();
-        List<Task> list = IntStream.range(0, tasks.size())
+        List<TaskInterface> list = IntStream.range(0, tasks.size())
                 .mapToObj(i -> Task.parseToken(
                         new SubmissionTokenBuilder().
                                 setTag(new Tag(tasks.get(i)))
                                 .setBody(codes.get(i))
                                 .createSubmissionToken()))
                 .collect(Collectors.toList());
-        return new Submission(studentList(), list, assignment.getName());
+        return new Base(studentList(), list, assignment.getName(), StandardCharsets.UTF_8, baseType);*///TODO fix
+        return null;
     }
+
+
+    public List<Student> getStudents() {
+        ArrayList<Student> newList = new ArrayList<>();
+        Student student1 = new Student(this.GUIConfig.getNameStudent(),
+                this.getGUIConfig().getEmail(),
+                this.getGUIConfig().getMatNr());
+        newList.add(student1);
+        if (this.GUIConfig.isPartnerOk()) {
+            Student student2 = new Student(this.GUIConfig.getPartnerName(),
+                    this.getGUIConfig().getPartnerEmail(),
+                    this.getGUIConfig().getPartnerMatNr());
+            newList.add(student2);
+        }
+        return newList;
+    }
+
+    public Base createSubmission() {
+        List<String> codes = assignment.getCodes();
+        List<String> tasks = assignment.getTasks();
+        BaseBuilder bb = new BaseBuilder();
+        bb.setType(BaseType.submission);
+        bb.setName(assignment.getName());
+        bb.setCharset(StandardCharsets.UTF_8);
+        bb.setStudents(this.getStudents());
+        IntStream.range(0, tasks.size())
+                .mapToObj(i -> new TaskSQL(tasks.get(i), null, null, null, null, codes.get(i)))
+                .forEach(bb::addTask);
+        return bb.build();
+    }
+
 }

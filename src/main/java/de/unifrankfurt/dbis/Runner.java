@@ -1,10 +1,10 @@
 package de.unifrankfurt.dbis;
 
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import de.unifrankfurt.dbis.DBFit.ResultStorage;
-import de.unifrankfurt.dbis.Submission.Report;
-import de.unifrankfurt.dbis.Submission.Solution;
-import de.unifrankfurt.dbis.Submission.SubmissionParseException;
+import de.unifrankfurt.dbis.EvalGUI.EvalGUIApp;
+import de.unifrankfurt.dbis.Inner.Report;
+import de.unifrankfurt.dbis.Inner.Solution;
+import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
 
@@ -54,7 +54,7 @@ public class Runner {
         }
 
 
-        if (!commandLine.hasOption("e")) {
+        if (!commandLine.hasOption("e") && !commandLine.hasOption("t")) {
             List<String> newargs = new ArrayList<>();
             String valueS = commandLine.getOptionValue("s");
             if (Objects.nonNull(valueS)) {
@@ -68,15 +68,22 @@ public class Runner {
             if (commandLine.hasOption("v")) {
                 newargs.add("v");
             }
-            Application.launch(GUIApp.class, newargs.toArray(new String[0]));
+            Application.launch(StudentGUIApp.class, newargs.toArray(new String[0]));
             return;
         }
 
         if (commandLine.hasOption("e")){
-            String configPath;
+            String configPath = null;
             if (commandLine.hasOption("c")) {
                 configPath = commandLine.getOptionValue("c");
-            } else {
+            }
+            if (!commandLine.hasOption("noGui")) {
+                List<String> newArgs = new ArrayList<>();
+                newArgs.add(configPath);
+                Application.launch(EvalGUIApp.class, newArgs.toArray(new String[0]));
+                return;
+            }
+            if (Objects.isNull(configPath)) {
                 System.out.println("no config defined.");
                 return;
             }
@@ -114,23 +121,28 @@ public class Runner {
                 if (verbose){
                     for(Solution s :sol){
                         System.out.println("Result of " + s.getName());
-                        System.out.println(ResultStorage.generateReadableResult(s.getDBFitHtml()));
+                        System.out.println(s.getExpectedResultPrintable());
                     }
                 }
-                if (verbose) System.out.println("run Evaluation----------------------------");
-
-
-                Report report = evaluator.runEvaluation(verbose, commandLine.hasOption("onlyBest"));
-
-
+                if (verbose) {
+                    System.out.println("run Evaluation----------------------------");
+                }
+                Report report = evaluator.runEvaluation(verbose,
+                        commandLine.hasOption("onlyBest"),
+                        sol.get(0).getMetaData(),
+                        sol);
+                if (verbose) {
+                    System.out.println("create csv----------------------------");
+                }
                 if (doCsv){
+                    final List<String> csv = report.getCSV();
                     if (Objects.isNull(saveCSV)) {
-                        report.getCSV().forEach(System.out::println);
+                        csv.forEach(System.out::println);
                     }
                     else {
                         Path path = Paths.get(saveCSV);
                         try {
-                            Files.write(path, report.getCSV(), StandardCharsets.UTF_8);
+                            Files.write(path, csv, StandardCharsets.UTF_8);
                         } catch(IOException e){
                             System.out.println("could not write CSV at "+saveCSV+": "+e.getMessage());
                         }
@@ -138,14 +150,44 @@ public class Runner {
                 }
 
 
-            } catch (IOException | SQLException | SubmissionParseException e) {
+            } catch (IOException | SQLException e) {
 
                 if (commandLine.hasOption("v")){
                     e.printStackTrace();
-                } else System.err.println(e.toString());
+                } else {
+                    System.err.println(e.toString());
+                }
 
             }
             AbandonedConnectionCleanupThread.checkedShutdown();
+        }
+
+        if (commandLine.hasOption("t")) {
+
+            boolean hasO = commandLine.hasOption("o");
+            String oValue = commandLine.getOptionValue("o");
+            String tValue = commandLine.getOptionValue("t");
+
+            Path out = null;
+
+            if (Objects.isNull(tValue)) {
+                //should not be reached.
+                System.err.println("Argument of -t was not defined.");
+                return;
+            }
+            Path in = Paths.get(tValue);
+
+            if (Objects.nonNull(oValue)) {
+                out = Paths.get(oValue);
+            }
+
+            boolean useStdout = !hasO;
+
+            try {
+                new TemplateGenerator(in, out, useStdout).run();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
@@ -193,7 +235,7 @@ public class Runner {
         OptionGroup optStart = new OptionGroup();
         optStart.addOption(Option.builder("s")
                 .longOpt("start")
-                .desc("runs SQLChecker-GUI. This parameter can be omitted. " +
+                .desc("runs SQLChecker-StudentGUI. This parameter can be omitted. " +
                         "Use this if you want to solve an exercise.\n" +
                         "You can directly load a project file via argument Path.")
                 .hasArg(true)
@@ -202,13 +244,25 @@ public class Runner {
                 .build());
         optStart.addOption(Option.builder("e")
                 .longOpt("evaluate")
-                .desc("starts the evaluation process of submissions. You need to set up a correct config-file.")
+                .desc("starts the evaluation process of submissions.")
+                .build());
+        optStart.addOption(Option.builder("t")
+                .longOpt("template")
+                .desc("generates Student Template from given Solution. Without specifying outPath, result is printed to stdout. ")
+                .hasArg()
+                .optionalArg(false)
+                .argName("Path (*.sql)")
                 .build());
         options.addOptionGroup(optStart);
 
+        options.addOption(Option.builder("noGui")
+                .longOpt("noGui")
+                .desc("Evaluation without GUI. You need to define a valid config file").build());
+
+
         options.addOption(Option.builder("c")
                 .longOpt("config")
-                .desc("Path to config file. (*.ini) or (*.conf), depends if you run Evaluation or GUI.")
+                .desc("Path to config file. (*.ini) or (*.conf), depends if you run Evaluation or StudentGUI.")
                 .hasArg()
                 .optionalArg(true)
                 .argName("Path")
@@ -234,6 +288,15 @@ public class Runner {
                 .build();
         options.addOption(onlyBest);
 
+        options.addOption(Option.builder("o")
+                .longOpt("out")
+                .hasArg()
+                .desc("Only relevant with -t. Path where template should be saved. If you do not specify Path." +
+                        " Result is placed in same dir as solution.")
+                .argName("Path")
+                .required(false)
+                .optionalArg(true)
+                .build());
 
         Option help = Option.builder("h")
                 .longOpt("help")

@@ -1,10 +1,8 @@
 package de.unifrankfurt.dbis;
 
-import de.unifrankfurt.dbis.DBFit.ResultStorage;
-import de.unifrankfurt.dbis.Submission.*;
+import de.unifrankfurt.dbis.Inner.*;
 import de.unifrankfurt.dbis.config.DataSource;
 import de.unifrankfurt.dbis.config.EvalConfig;
-import fit.exception.FitParseException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,44 +10,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 
 public class Evaluator {
-    private List<Submission> samples;
+    private List<Base> samples;
     private String configPath;
     private EvalConfig config;
-    private List<Solution> sols;
     private Path submissionsPath;
     private SQLScript resetScript;
     private DataSource source;
-    private List<String> solutionScheme;
 
     public Evaluator(String configPath) {
         this.configPath = configPath;
     }
 
-    public void loadRessources(Boolean verbose) throws IOException, SubmissionParseException {
-        if (verbose) System.out.println("Loading Config");
-        config = EvalConfig.fromPath(Paths.get(configPath));
-        config.configOK(); //throws IOException if not;
-        submissionsPath = Paths.get(config.getSubmissionPath());
-        if (verbose) System.out.println("Loading Reset");
-        resetScript = config.getResetScript();
-        if (verbose) System.out.println("create Datasource");
-        source = config.getDataSource();
-        if (verbose) System.out.println("Loading Sample");
-        samples = config.getSolutions();
-        if (samples.isEmpty()) throw new IOException("No Solution File");
-        if (!haveAllSameScheme(samples)) throw new IOException("tags of solutions do not match");
-        this.solutionScheme = this.samples.get(0).getTagStrings();
-    }
-
-
-    public List<Solution> createSolutions() throws SQLException {
-        sols = new ArrayList<>();
-        for (Submission s : samples) {
+    public static List<Solution> createSolutions(EvalConfig config, SQLScript resetScript, List<Base> samples, DataSource source) throws SQLException {
+        List<Solution> sols = new ArrayList<>();
+        for (Base s : samples) {
             try {
                 resetScript.execute(source);
             } catch (SQLException e) {
@@ -62,120 +42,149 @@ public class Evaluator {
         return sols;
     }
 
-    public boolean haveAllSameScheme(List<Submission> subs) {
-        assert Objects.nonNull(samples);
-        assert !samples.isEmpty();
-        int size = samples.size();
-        if (size == 1) return true;
-        Submission submission = subs.get(0);
-        return submission.sameSchema(samples.subList(1,size));
-    }
-
-
-    public Report runEvaluation(boolean verbose, boolean csvOnlyBest) {
-        List<ResultStorage> resultStorages = new ArrayList<>();
-        List<Submission> subs = loadSubmissions(submissionsPath, resultStorages);
+    public static void runEachEvaluation(List<Solution> sols,
+                                         DataSource source,
+                                         SQLScript resetScript,
+                                         boolean verbose,
+                                         boolean csvOnlyBest,
+                                         Report report,
+                                         List<Base> subs) {
         int i = 1;
         int count_digits = ((int) Math.log10(subs.size())) + 1;
-        for (Submission sub : subs) {
+        for (Base sub : subs) {
             if (verbose) {
-                System.err.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
-                System.err.flush();
+                System.out.format("submission %" + count_digits + "d of %d submissions%n", i++, subs.size());
                 System.out.flush();
             }
-            runSubmissionEvaluation(sub, resultStorages, verbose, csvOnlyBest);
+            runSubmissionEvaluation(sols, source, resetScript, sub, report, verbose, csvOnlyBest);
         }
-        return new Report(resultStorages, this.sols.get(0).csvCreator());
     }
 
-
-    public void runSubmissionEvaluation(Submission sub, List<ResultStorage> storages, boolean verbose, boolean csvOnlyBest) {
+    public static void runSubmissionEvaluation(List<Solution> sols,
+                                               DataSource source,
+                                               SQLScript resetScript,
+                                               Base sub,
+                                               Report report,
+                                               boolean verbose,
+                                               boolean csvOnlyBest) {
         if(verbose) {
             System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
         }
-
         List<ResultStorage> curStorages = new ArrayList<>();
-        if (!sub.isSubmissionFor(sols.get(0))) {
-            Submission fixedSub = sols.get(0).tryToFixTagsFor(sub);
-            if (Objects.isNull(fixedSub)) {
-                storages.add(new ResultStorage(submissionsPath,
-                        this.solutionScheme.size(),
-                        sub,
-                        new Exception("Tags do not match")));
-                System.out.println(errorMsg(null,
-                        sub,
-                        "Submissions tags do not match with solution"));
-                return;
-            }
-            sub = fixedSub;
-        }
 
-        for (Solution sol : this.sols){
-            ResultStorage evaluate;
+        //try to fix sub, if possible
+        sub.isSubmissionFor(sols.get(0));
+
+        //run evaluation for every given solution
+        for (Solution sol : sols) {
+            if (sub.getPath() == null) {
+                System.err.println(sol.getName() + " is null");
+            }
+            ResultStorage resultStorage = new ResultStorage(sub.getPath());
+            resultStorage.setValid(true);
+            resultStorage.setCharset(sub.getCharset());
+            resultStorage.setAuthors(sub.getAuthors());
+            resultStorage.setSolution(sol);
+            resultStorage.setSolutionName(sol.getName());
             try {
-                evaluate = sol.evaluate(submissionsPath, source, resetScript, sub, verbose);
-                if (verbose) {
-                    System.out.println(evaluate.getReadableResult());
-                }
-                System.out.println(evaluate.createReport(this.solutionScheme));
-            } catch (SQLException | FitParseException e) {
-                evaluate = new ResultStorage(submissionsPath, sol, sub, e);
-                System.out.println(errorMsg(sol, sub, e.getMessage()));
+                sol.evaluate(resultStorage, source, resetScript, sub, verbose);
+            } catch (Exception e) {
+                resultStorage.setBase(sub)
+                        .setSolution(sol)
+                        .setException(e);
+                System.err.println(errorMsg(sol, sub, e.getMessage()));
 
             }
-            curStorages.add(evaluate);
+            curStorages.add(resultStorage);
         }
         if (csvOnlyBest){
-            storages.add(onlyBest(curStorages));
+            report.add(onlyBest(curStorages));
         }else{
-            storages.addAll(curStorages);
+            report.addAll(curStorages);
         }
     }
 
-    private String errorMsg(Solution sol, Submission sub, String message) {
+    private static String errorMsg(Solution sol, Base sub, String message) {
         if (Objects.isNull(sol))
             return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors() + " ErrorMsg:" + message;
         return "FAILED Path:" + sub.getPath() + " Authors:" + sub.getAuthors()
-                + " Solution:" + sol.getSubmission().getName() + " ErrorMsg:" + message;
+                + " Solution:" + sol.getName() + " ErrorMsg:" + message;
     }
 
-    private ResultStorage onlyBest(List<ResultStorage> storages) {
+
+    public static List<Base> loadSubmissions(Path root, Report report) {
+        int depth = 0;
+        if (Files.isDirectory(root)) {
+            depth = 2;
+        }
+        List<Path> pathes = new ArrayList<>();
+        try {
+            Files.walk(root, depth).forEach((x) -> {
+                if (Files.isDirectory(x)) return;
+                pathes.add(x);
+            });
+        } catch (IOException e) {
+            System.err.println("root path is no valid File nor Directory.");
+        }
+        return loadSubmissions(pathes, report);
+    }
+
+    public static List<Base> loadSubmissions(Collection<Path> submissionPaths, Report report) {
+        List<Base> list = new ArrayList<>();
+        for (Path p : submissionPaths) {
+            try {
+                Base sub = Base.fromPath(p);
+                list.add(sub);
+
+            } catch (IOException e) {
+                report.add(new ResultStorage(p)
+                        .setException(e)
+                        .setValid(false));
+            }
+        }
+        return list;
+    }
+
+    private static ResultStorage onlyBest(List<ResultStorage> storages) {
         storages.sort(ResultStorage.resultComperator());
         return storages.get(0);
     }
 
-    /**
-     * loads every submissionsPath
-     * @param submissionsPath path to submissionsPath
-     * @param storages storage-container.if loading of a submission was unsuccessful, a new storage is added to container.
-     * @return
-     */
-    private List<Submission> loadSubmissions(Path submissionsPath, List<ResultStorage> storages) {
-        ArrayList<Submission> submissionList = new ArrayList<>();
-        int depth = 0;
-        if (Files.isDirectory(submissionsPath)) {
-            depth = 2;
-        }
-        try {
-            Files.walk(submissionsPath, depth).forEach((x) -> {
-                try {
-                    if (Files.isDirectory(x)) return;
-                    Submission s = Submission.fromPath(x);
-                    s.setPath(x);
-                    submissionList.add(s);
-                    System.out.println("Submission loaded: "+x);
-                } catch (SubmissionParseException e) {
-                    storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
-                    System.out.println("SubmissionParseException, "+e.getMessage()+": "+x);
-                } catch (IOException e) {
-                    storages.add(new ResultStorage(submissionsPath, this.solutionScheme.size(), x, e));
-                    System.out.println("IOException, " + e.getMessage()+": "+x);
-                }
-            });
-        } catch (IOException e) {
-            System.err.println("Submission path is no valid File nor Directory.");
-        }
-        return submissionList;
+    public void loadRessources(Boolean verbose) throws IOException {
+        if (verbose) System.out.println("Loading Config");
+        config = EvalConfig.fromPath(Paths.get(configPath));
+        config.configOK(); //throws IOException if not;
+        submissionsPath = Paths.get(config.getSubmissionPath());
+        if (verbose) System.out.println("Loading Reset");
+        resetScript = config.getResetScript();
+        if (verbose) System.out.println("create Datasource");
+        source = config.getDataSource();
+        if (verbose) System.out.println("Loading Sample");
+        samples = config.getSolutions();
+        if (samples.isEmpty()) throw new IOException("No Solution File");
+        if (!haveAllSameScheme(samples)) throw new IOException("tags of solutions do not match");
+    }
+
+    public boolean haveAllSameScheme(List<Base> subs) {
+        assert Objects.nonNull(samples);
+        assert !samples.isEmpty();
+        int size = samples.size();
+        if (size == 1) return true;
+        Base base = subs.get(0);
+        return base.sameSchema(samples.subList(1, size));
+    }
+
+    public List<Solution> createSolutions() throws SQLException {
+        return Evaluator.createSolutions(config, resetScript, samples, source);
+    }
+
+    public Report runEvaluation(boolean verbose, boolean csvOnlyBest, SolutionMetadata metadata, List<Solution> sols) {
+        Report report = new Report();
+        report.setRootPath(submissionsPath);
+        report.setSolutionMetadata(metadata);
+        List<Base> subs = loadSubmissions(submissionsPath, report);
+        runEachEvaluation(sols, source, resetScript, verbose, csvOnlyBest, report, subs);
+        return report;
     }
 
 
