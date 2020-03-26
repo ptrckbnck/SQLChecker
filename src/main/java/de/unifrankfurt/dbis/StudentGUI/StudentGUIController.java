@@ -1015,9 +1015,9 @@ public class StudentGUIController implements Initializable {
         File file = fileChooser.showSaveDialog(getPrimaryStage());
         if (file == null) return;
         try {
-            new SQLCheckerProject(this.GUIConfig, this.assignment)
-                    .createSubmission()
-                    .storeInPath(file.toPath());
+            SQLCheckerProject cp = new SQLCheckerProject(this.GUIConfig, this.assignment);
+            Base sub = cp.createSubmission();
+            sub.storeInPath(file.toPath());
         } catch (IOException e) {
             System.err.println("Speichern fehlgeschlagen: " + e.getMessage());
         }
