@@ -66,7 +66,10 @@ public class SQLDataTable implements SQLData {
         at.addRow(this.header);
         at.addRule();
         for (List<Object> row : this.data) {
-            at.addRow(row.stream().map(Objects::toString).collect(Collectors.toList())); //TODO fix
+            at.addRow(row.stream()
+                    .map(x -> Objects.isNull(x) ? "<null>" : x)
+                    .map(Objects::toString)
+                    .collect(Collectors.toList()));
         }
         at.addRule();
 
@@ -76,7 +79,7 @@ public class SQLDataTable implements SQLData {
             System.err.println("Fehler beim Erstellen der Tabelle. Direkte Ausgabe:");
             StringBuilder sb = new StringBuilder();
             sb.append(String.join("\t", header)).append("\n");
-            data.forEach(x -> sb.append(String.join("\t", x)).append("\n"));
+            data.forEach(x -> sb.append(String.join("\t", Objects.toString(x))).append("\n"));
             return sb.toString();
         }
 

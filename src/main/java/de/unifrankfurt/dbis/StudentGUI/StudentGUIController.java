@@ -323,7 +323,7 @@ public class StudentGUIController implements Initializable {
         version.setText("Version " + Runner.getVersion());
 
         initConfig(null);
-        //updateMenu(); //TODo
+        //updateMenu(); //TODo check this. is this needed?
 
 
         //Config Fields listener
