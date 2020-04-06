@@ -1,11 +1,11 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.10.17)  7 NOV 2018 12:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.7.19)  6 APR 2020 16:34
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
 **admindoc.tex
 (./admindoc.tex
 LaTeX2e <2017-04-15>
-Babel <3.18> and hyphenation patterns for 12 language(s) loaded.
+Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
 (/usr/share/texlive/texmf-dist/tex/latex/base/size11.clo
@@ -1005,12 +1005,12 @@ Package hyperref Info: Option `pageanchor' set `false' on input line 26.
 <title/goethe.pdf, id=40, 771.88374pt x 420.57124pt>
 File: title/goethe.pdf Graphic file (type pdf)
 <use title/goethe.pdf>
-Package pdftex.def Info: title/goethe.pdf  used on input line 39.
+Package pdftex.def Info: title/goethe.pdf  used on input line 40.
 (pdftex.def)             Requested size: 170.71652pt x 93.01367pt.
  [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./title/goethe.pdf>]
-Package hyperref Info: Option `pageanchor' set `true' on input line 50.
+Package hyperref Info: Option `pageanchor' set `true' on input line 51.
  (./admindoc.toc
 LaTeX Font Info:    Try loading font information for OT1+lmr on input line 4.
 
@@ -1043,12 +1043,12 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 \openout7 = `admindoc.toc'.
 
  [1]
-Overfull \hbox (3.98192pt too wide) in paragraph at lines 59--60
+Overfull \hbox (3.98192pt too wide) in paragraph at lines 60--61
 \T1/lmr/m/n/10.95 (-10) skript(.sql), ei-ne Lösungs-Datei (.sql) und ei-ne Eval
 uation-Konfigurationsdatei
  []
 
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 62.
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 63.
 (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -1057,15 +1057,15 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-Overfull \hbox (32.88654pt too wide) in paragraph at lines 65--66
+Overfull \hbox (32.88654pt too wide) in paragraph at lines 66--67
 \T1/lmr/m/n/10.95 (-10) Das Tem-pla-te ist ei-ne Tag-annotierte Da-tei. Die Da-
 tei soll-te einen \T1/lmtt/m/n/10.95 submission_name
  []
 
 Package hyperref Info: bookmark level for unknown listing defaults to 0 on inpu
-t line 73.
+t line 74.
 [2]
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 105
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 106
 .
  (/usr/share/texmf/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
@@ -1091,7 +1091,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 13.
 )
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 136.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 137.
  [4]
 \openout3 = `admindoc.pyg'.
 
@@ -1107,25 +1107,25 @@ Package microtype Info: Character `texttrademark ' is missing
 (microtype)             in font `TS1/lmtt/m/it/10'.
 (microtype)             Ignoring protrusion settings for this character.
  [5])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 159.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 160.
  [6]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 159.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 160.
  (./admindoc.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 159.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 159.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 160.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 160.
 Package rerunfilecheck Info: File `admindoc.out' has not changed.
 (rerunfilecheck)             Checksum: 63978505636A1D9D9D066E0470051F16;564.
 runsystem(rm admindoc.pyg)...executed.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 159.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 160.
  ) 
 Here is how much of TeX's memory you used:
- 13110 strings out of 494798
- 212364 string characters out of 6176799
- 379607 words of memory out of 5000000
- 16175 multiletter control sequences out of 15000+600000
+ 13110 strings out of 492982
+ 212364 string characters out of 6134896
+ 384016 words of memory out of 5000000
+ 16402 multiletter control sequences out of 15000+600000
  50389 words of font info for 62 fonts, out of 8000000 for 9000
- 60 hyphenation exceptions out of 8191
+ 1142 hyphenation exceptions out of 8191
  44i,10n,38p,959b,717s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/d
 vips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/
@@ -1136,7 +1136,7 @@ mf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/public/lm/lmr1
 /type1/public/lm/lmr6.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb></u
 sr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/p
 ublic/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtti10.pfb>
-Output written on admindoc.pdf (7 pages, 249125 bytes).
+Output written on admindoc.pdf (7 pages, 250867 bytes).
 PDF statistics:
  149 PDF objects out of 1000 (max. 8388607)
  126 compressed objects within 2 object streams
