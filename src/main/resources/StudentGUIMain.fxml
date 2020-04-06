@@ -59,7 +59,7 @@
                                 <Menu mnemonicParsing="false" text="Ausführen">
                                     <items>
                                         <MenuItem fx:id="resetMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleResetDatabase" text="Vollständg Ausführen"/>
+                                                  onAction="#handleResetDatabase" text="Datenbank Rücksetzen"/>
                                         <MenuItem fx:id="runMenuItem" disable="true" mnemonicParsing="false"
                                                   onAction="#runTaskCode" text="Aufgabe Ausführen"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
