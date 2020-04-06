@@ -67,10 +67,10 @@
                                                   onAction="#handleRunAll" text="Vollständg Ausführen"/>
                                     </items>
                                 </Menu>
-                                <Menu mnemonicParsing="false" text="Olat">
+                                <Menu mnemonicParsing="false" text="Abgabe">
                                     <items>
                                         <MenuItem fx:id="exportMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleExportOlat" text="Exportieren ..."/>
+                                                  onAction="#handleExportSubmission" text="Exportieren ..."/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="?">

@@ -987,10 +987,10 @@ public class StudentGUIController implements Initializable {
     }
 
     /**
-     * creates zip File with Inner for loading to Olat.
+     * creates zip File with Inner for loading to Submission Platform (olat, moodle, etc).
      * @param actionEvent
      */
-    public void handleExportOlat(ActionEvent actionEvent) {
+    public void handleExportSubmission(ActionEvent actionEvent) {
         if (!mandatoryFieldsOk()) {
             Alert a = new Alert(Alert.AlertType.WARNING,
                     "Bitte geben Sie Vor- und Zuname, Matrikelnummer und E-Mail-Adresse mindestens eines Studenten an.",
@@ -1004,7 +1004,7 @@ public class StudentGUIController implements Initializable {
             }
         }
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Erzeuge Abgabe-Datei für Olat");
+        fileChooser.setTitle("Erzeuge Abgabe-Datei");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Datei (*.txt)", "*.txt"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
