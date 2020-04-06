@@ -20,7 +20,7 @@ public class FileIO {
      * @throws IOException
      */
     private static String loadString(Path path) throws IOException {
-        return new String(Files.readAllBytes(path));
+        return Files.readString(path, StandardCharsets.UTF_8);
     }
 
     /**
@@ -40,19 +40,6 @@ public class FileIO {
 
     }
 
-    /**
-     * serialize object and save at path.
-     * @param path
-     * @param object
-     * @throws IOException
-     */
-    public static void save(Path path, Object object) throws IOException {
-        if (Files.exists(path)) {
-            Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
-        }
-        Files.createFile(path);
-        Files.write(path, (new Gson()).toJson(object).getBytes());
-    }
 
     /**
      * Create File at path with given String text.
