@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.IO;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +32,12 @@ public class FileIO {
      * @throws IOException IO
      */
     public static <T> T load(Path path, Class<T> classOf) throws IOException {
-        return new Gson().fromJson(loadString(path), classOf);
+        try {
+            return new Gson().fromJson(loadString(path), classOf);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
+
     }
 
     /**

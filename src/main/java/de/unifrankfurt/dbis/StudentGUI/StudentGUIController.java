@@ -237,6 +237,7 @@ public class StudentGUIController implements Initializable {
     }
 
     public Path backupPath() {
+        if (this.projectPath == null) return null;
         return this.projectPath.getParent().resolve(this.projectPath.getFileName() + ".backup");
     }
 
@@ -516,6 +517,7 @@ public class StudentGUIController implements Initializable {
      * Load Config from default Path if present.
      */
     private void loadConfigImplicit() {
+        if (this.projectPath == null) return;
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
             initConfig(c);
@@ -542,17 +544,29 @@ public class StudentGUIController implements Initializable {
 
         //check parent folder
         try {
-            Optional<Path> conf = Files.walk(this.projectPath.getParent().getParent(), 1)
+            Path parent = this.projectPath.getParent();
+            if (parent == null) {
+                return;
+            }
+            Path toSearch = parent.getParent();
+            if (toSearch == null) {
+                return;
+            }
+            Optional<Path> conf = Files.walk(toSearch, 1)
+                    .filter(Objects::nonNull)
                     .filter(Files::isReadable)
                     .filter((x) -> x.getFileName().toString().endsWith(".conf"))
                     .findFirst();
             if (conf.isPresent()) {
                 GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
+                if (c == null) {
+                    return;
+                }
                 initConfig(c);
             }
 
-        } catch (IOException e) {
-            //nothing;}
+        } catch (IOException | NullPointerException e) { //TODO fix Nullpointer Exception
+            // nothing;
         }
     }
 
@@ -563,6 +577,7 @@ public class StudentGUIController implements Initializable {
         if (!this.GUIConfig.getResetScript().isEmpty()) {
             return;
         }
+        if (this.projectPath == null) return;
         Path path = defaultResetPath(this.projectPath);
         if (Files.isReadable(path))
             initResetScript(defaultResetPath(this.projectPath));
@@ -704,7 +719,7 @@ public class StudentGUIController implements Initializable {
     public void saveProject(ActionEvent actionEvent) {
         try {
             saveProject(this.projectPath);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
         }
     }
