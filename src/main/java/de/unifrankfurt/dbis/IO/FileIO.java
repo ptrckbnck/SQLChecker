@@ -53,6 +53,6 @@ public class FileIO {
             Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
         }
         Files.createFile(path);
-        Files.write(path, text.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, text, StandardCharsets.UTF_8);
     }
 }
