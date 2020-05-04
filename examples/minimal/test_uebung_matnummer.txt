@@ -1,0 +1,23 @@
+/*%%%%head%%{"type":"submission","name":"test_uebung","authors":[["vorname","email","matnummer"]]}%%*/
+/*%%1%%*/
+/* Fügen Sie ein Zeile der Tabelle plane hinzu. */
+INSERT ...
+
+/*%%2%%*/
+/* Erzeugen Sie eine Tabelle crewhotel mit den Feldern: ID, Name und AddressID.
+Beide ID sind Zahlen, während Name ein String ist */
+
+SELECT 'HALLO_Welt';
+
+/*%%3%%*/
+/* Fügen Sie drei Zeilen der Tabelle crewhotel zu */
+INSERT ...
+
+/*%%4%%*/
+/* Zeige FlightNo und FlightDurationInMinutes aller Flüge mit PlaneID=2*/
+SELECT ...
+
+/*%%5%%*/
+/* Zeige FlightNo und FlightDurationInMinutes aller Flüge die kürzer als 130 Minuten sind
+ geordnet nach FlightDurationInMinutes */
+SELECT ...

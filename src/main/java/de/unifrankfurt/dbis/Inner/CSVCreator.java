@@ -177,4 +177,35 @@ public class CSVCreator {
     }
 
 
+    public CSVCreator useName() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getAuthors().stream()
+                        .map(Student::getName)
+                        .sorted()
+                        .collect(Collectors.joining(";"));
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.functions.add(f);
+        this.header.add("Name");
+        return this;
+    }
+
+    public CSVCreator useEmail() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getAuthors().stream()
+                        .map(Student::getEmailAddress)
+                        .sorted()
+                        .collect(Collectors.joining(";"));
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.functions.add(f);
+        this.header.add("Email");
+        return this;
+    }
 }

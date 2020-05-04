@@ -30,7 +30,8 @@ public class Report {
 
     public CSVCreator defaultCSVCreator() {
         return new CSVCreator(this).useSubmissionPath()
-                .useAuthors()
+                .useName()
+                .useEmail()
                 .useMatrikelNr()
                 .useSolutionName()
                 .useAllStatus()
