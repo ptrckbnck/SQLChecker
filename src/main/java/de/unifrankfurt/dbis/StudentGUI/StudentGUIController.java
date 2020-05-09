@@ -782,7 +782,6 @@ public class StudentGUIController implements Initializable {
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
             setProjectPath(path);
-            loadResetImplicit();
         } catch (JsonSyntaxException e) {
             alertNoValidSQLCFile(path);
         } catch (IOException e) {
