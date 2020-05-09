@@ -187,7 +187,8 @@ public class StudentGUIController implements Initializable {
                 // do not emit an event until 500 ms have passed since the last emission of previous stream
                 .successionEnds(Duration.ofMillis(500))
 
-                // run the following code block when previous stream emits an event
+                // run the following code block when previous stream
+                // emits an event
                 .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
         Subscription cleanupWhenNoLongerNeedIt2 = codeArea
                 .multiPlainChanges()

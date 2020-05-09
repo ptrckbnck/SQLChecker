@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class Evaluator {
@@ -68,7 +69,13 @@ public class Evaluator {
                                                boolean verbose,
                                                boolean csvOnlyBest) {
         if(verbose) {
-            System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
+            System.out.println(
+                    "EVALUATION: [" + sub.getAuthors()
+                            .stream()
+                            .map(Student::getName)
+                            .collect(Collectors.joining(","))
+                            + "] "
+                            + sub.getPath().getFileName().toString());
         }
         List<ResultStorage> curStorages = new ArrayList<>();
 

@@ -78,7 +78,7 @@ public class SQLHighlighter {
                     matcher.group("COMMENT") != null ? "comment" :
                             matcher.group("STRING") != null ? "string" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
-                                            matcher.group("SEMICOLON") != null ? "semicolon" :
+                                            matcher.group("SEMICOLON") != null ? "keyword" : //TODO used "keyword" to hotfix color it purple. I dont know how to change color
                                                     matcher.group("NUMERIC") != null ? "numeric" :
                                                             null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
