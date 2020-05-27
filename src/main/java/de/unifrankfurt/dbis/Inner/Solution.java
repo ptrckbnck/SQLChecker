@@ -93,8 +93,9 @@ public class Solution extends CheckerFrame {
                 diff = SQLResultDiffer.diff(expectedResult, actualResult, t.getOrder());
             }
             diffs.add(diff);
+            String s = t.getName() + ": " + diff.getMessage();
+            store.addFeedback(s);
             if (verbose) {
-                String s = t.getName() + ": " + diff.getMessage();
                 System.out.println(s);
             }
         }

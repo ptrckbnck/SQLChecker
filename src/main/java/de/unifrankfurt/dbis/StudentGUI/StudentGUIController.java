@@ -290,7 +290,10 @@ public class StudentGUIController implements Initializable {
         matNrPartnerTextField.setText(this.GUIConfig.getPartnerMatNr());
         emailPartnerTextField.setText(this.GUIConfig.getPartnerEmail());
         setDisablePartner(!this.GUIConfig.isPartnerOk());
-
+        if (Objects.nonNull(this.GUIConfig.getResetScript())
+                && !this.GUIConfig.getResetScript().isBlank()) {
+            initResetScript(Paths.get(this.GUIConfig.getResetScript()));
+        }
     }
 
 
@@ -761,8 +764,8 @@ public class StudentGUIController implements Initializable {
             createEmptyFile(project.toPath());
             setProjectPath(project.toPath());
             this.initAssignment(base);
-            loadConfigImplicit();
             loadResetImplicit();
+            loadConfigImplicit();
             saveProject(project.toPath());
         } catch (IOException e) {
             System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());

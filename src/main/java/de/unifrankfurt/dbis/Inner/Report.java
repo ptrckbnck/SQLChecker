@@ -38,7 +38,8 @@ public class Report {
                 .useAllGroups()
                 .useSumScore()
                 .useEncoding()
-                .useErrorMsg();
+                .useErrorMsg()
+                .useFeedback();
     }
 
     public void add(ResultStorage resultStorage) {

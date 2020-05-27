@@ -28,9 +28,11 @@ public class ResultStorage {
     private Solution solution;
     final private Path submissionPath;
     private Boolean valid;
+    private final StringBuilder feedback;
 
     public ResultStorage(Path submissionPath) {
         this.submissionPath = submissionPath;
+        this.feedback = new StringBuilder();
 
     }
 
@@ -38,6 +40,14 @@ public class ResultStorage {
         return Comparator.comparingInt(ResultStorage::getSumScore);
     }
 
+    public String getFeedback() {
+        return feedback.toString();
+    }
+
+    public ResultStorage addFeedback(String feedback) {
+        this.feedback.append(feedback).append('\n');
+        return this;
+    }
 
     public List<Student> getAuthors() {
         return authors;
