@@ -99,7 +99,13 @@ public class CSVCreator {
         int size = groups.size();
         for (int i = 0; i < size; i++) {
             final int finalI = i;
-            Function<ResultStorage, String> f = x -> x.getScore().get(finalI).toString();
+            Function<ResultStorage, String> f = x -> {
+                try {
+                    return x.getScore().get(finalI).toString();
+                } catch (Exception e) {
+                    return "0";
+                }
+            };
             this.addFunction(f);
 
             this.header.add(groups.get(i));
@@ -108,7 +114,14 @@ public class CSVCreator {
     }
 
     public CSVCreator useSumScore() {
-        Function<ResultStorage, String> f = x -> x.getSumScore().toString();
+        Function<ResultStorage, String> f = x ->
+        {
+            try {
+                return x.getSumScore().toString();
+            } catch (Exception e) {
+                return "0";
+            }
+        };
         this.addFunction(f);
         this.header.add("sum");
         return this;
@@ -117,7 +130,11 @@ public class CSVCreator {
 
 
     public CSVCreator useErrorMsg() {
-        Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getErrorMsg(), "none");
+        Function<ResultStorage, String> f = x -> {
+            Exception ex = x.getException();
+            if (Objects.isNull(ex)) return "none";
+            else return ex.getMessage();
+        };
         this.addFunction(f);
         this.header.add("ErrorMsg");
         return this;

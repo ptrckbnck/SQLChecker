@@ -45,6 +45,7 @@ public class TaskEvaluation extends Task<Integer> {
         });
         this.setOnFailed((x) -> {
             stage.setTitle("");
+            System.err.println("Failed");
             runButton.setText("Run");
         });
         this.setOnSucceeded((x) -> {
@@ -129,15 +130,16 @@ public class TaskEvaluation extends Task<Integer> {
         }
         Platform.runLater(() -> stage.setTitle(""));
         try {
+            List<String> csv = report.getCSV();
             if (Objects.isNull(csvOut)) {
-                report.getCSV().forEach(out::println);
+                Platform.runLater(() -> csv.forEach(System.out::println)); //maybe to big
             } else {
-                Files.write(csvOut, report.getCSV());
+                Files.write(csvOut, csv);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        Platform.runLater(() -> System.err.println("finished"));
         return 0;
     }
 

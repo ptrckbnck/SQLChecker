@@ -58,6 +58,7 @@ public class Evaluator {
                 System.out.flush();
             }
             runSubmissionEvaluation(sols, source, resetScript, sub, report, verbose, csvOnlyBest);
+            ;
         }
     }
 

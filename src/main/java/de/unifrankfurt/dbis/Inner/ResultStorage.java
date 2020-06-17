@@ -19,7 +19,6 @@ public class ResultStorage {
     private List<Student> authors;
     private String solutionName;
     private List<SQLResultDiff> diffs;
-    private String errorMsg;
     private List<Integer> score;
     private Charset charset;
     private List<SQLData> sqlData;
@@ -74,15 +73,6 @@ public class ResultStorage {
 
     public List<SQLResultDiff> getDiff() {
         return diffs;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public ResultStorage setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
-        return this;
     }
 
 
@@ -181,7 +171,6 @@ public class ResultStorage {
                 "authors=" + authors +
                 ", solutionName='" + solutionName + '\'' +
                 ", diffs=" + diffs +
-                ", errorMsg='" + errorMsg + '\'' +
                 ", score=" + score +
                 ", charset=" + charset +
                 ", sqlResults=" + sqlData +

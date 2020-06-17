@@ -83,6 +83,7 @@ public class Solution extends CheckerFrame {
             if (t.isStatic()) {
                 actualResult = t.execute(source);
             } else {
+                assert subTask <= base.getTasks().size();
                 actualResult = base.getTasks().get(subTask++).execute(source);
             }
             results.add(actualResult);
@@ -99,7 +100,6 @@ public class Solution extends CheckerFrame {
                 System.out.println(s);
             }
         }
-
         store.setScore(group.analyseDiffs(diffs));
         store.setSqlData(results);
         store.setDiffs(diffs);
@@ -107,6 +107,26 @@ public class Solution extends CheckerFrame {
 
     public SolutionMetadata getMetaData() {
         return new SolutionMetadata(this.name, this.getTags(), this.getNonStaticTags(), getScoreGroup());
+    }
+
+    @Override
+    public String toString() {
+   /*     StringBuilder stringBuilder = new StringBuilder();
+        assert Objects.nonNull(this.tasks);
+        assert Objects.nonNull(this.expectedResults);
+        for (int i = 0; i < this.tasks.size(); i++) {
+            assert Objects.nonNull(this.tasks.get(i));
+            assert Objects.nonNull(this.expectedResults.get(i));
+            stringBuilder.append(this.tasks.get(i).serialize())
+                    .append("\n")
+                    .append(this.expectedResults.get(i))
+                    .append("\n");
+        }*/
+        return "Solution{\n" +
+                ", name='" + name + '\n' +
+                ", charset=" + charset + "\n" +
+                //stringBuilder.toString() +
+                '}';
     }
 
     public class ScoreGroup {
@@ -169,27 +189,15 @@ public class Solution extends CheckerFrame {
 
         @Override
         public String toString() {
-            return new StringJoiner(", ", ScoreGroup.class.getSimpleName() + "[", "]")
-                    .add("groups=" + groups)
-                    .add("mapGroupScore=" + mapGroupScore)
-                    .add("mapGroupTask=" + mapGroupTask)
-                    .toString();
+            try {
+                return new StringJoiner(", ", String.valueOf(ScoreGroup.class.getSimpleName()) + "[", "]")
+                        .add("groups=" + String.valueOf(groups))
+                        .add("mapGroupScore=" + String.valueOf(mapGroupScore))
+                        .add("mapGroupTask=" + String.valueOf(mapGroupTask))
+                        .toString();
+            } catch (Exception e) {
+                return e.toString();
+            }
         }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < this.tasks.size(); i++) {
-            stringBuilder.append(this.tasks.get(i).serialize())
-                    .append("\n")
-                    .append(this.expectedResults.get(i))
-                    .append("\n");
-        }
-        return "Solution{\n" +
-                ", name='" + name + '\n' +
-                ", charset=" + charset + "\n"
-                + stringBuilder.toString() +
-                '}';
     }
 }
