@@ -329,7 +329,7 @@ public class EvalGUIController implements Initializable {
         }
         rep.setSolutionMetadata(report.getSolutionMetadata());
         rep.setRootPath(report.getRootPath());
-        this.running = new TaskEvaluation(config, rep, this.getSubmissions(), getPrimaryStage(), runButton, out, this.getCSVOut());
+        this.running = new TaskEvaluation(config, rep, this.getSubmissions(), getPrimaryStage(), runButton, this.getCSVOut());
         Thread t = new Thread(this.running);
         t.setDaemon(true);
         t.start();

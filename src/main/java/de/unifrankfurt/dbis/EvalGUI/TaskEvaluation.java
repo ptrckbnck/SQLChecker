@@ -15,7 +15,6 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -27,16 +26,14 @@ public class TaskEvaluation extends Task<Integer> {
     private final List<Base> subs;
     private final Stage stage;
     private final EvalConfig config;
-    private final PrintStream out;
     private final Path csvOut;
 
 
-    public TaskEvaluation(EvalConfig config, Report report, List<Base> subs, Stage stage, Button runButton, PrintStream out, Path csvOut) {
+    public TaskEvaluation(EvalConfig config, Report report, List<Base> subs, Stage stage, Button runButton, Path csvOut) {
         this.report = report;
         this.subs = subs;
         this.stage = stage;
         this.config = config;
-        this.out = out;
         this.csvOut = csvOut;
         this.setOnCancelled((x) -> {
             doCancel();
@@ -71,76 +68,87 @@ public class TaskEvaluation extends Task<Integer> {
     }
 
     @Override
-    protected Integer call() throws Exception {
-
-        DataSource source;
+    protected Integer call() {
         try {
-            source = config.getDataSource();
-        } catch (Exception e) {
-            Platform.runLater(() -> {
-                alert("creating Datasource failed:\n" + e.getMessage());
-            });
-            return 0;
-        }
-        if (this.isCancelled()) {
-            return 0;
-        }
-        List<Base> samples;
-        try {
-            samples = config.getSolutions();
-        } catch (IOException e) {
-            Platform.runLater(() -> {
-                alert("loading Solutions failed:\n" + e.getMessage());
-            });
-            return 0;
-        }
-
-        if (this.isCancelled()) {
-            return 0;
-        }
-
-        List<Solution> sols;
-        SQLScript resetScript;
-        try {
-            resetScript = config.getResetScript();
-            sols = Evaluator.createSolutions(config, resetScript, samples, source);
-            report.setSolutionMetadata(sols.get(0).getMetaData());
-        } catch (SQLException | IOException e) {
-            Platform.runLater(() -> {
-                alert("running ResetScript failed:\n" + e.getMessage());
-            });
-            return 0;
-        }
-
-        if (this.isCancelled()) {
-            return 0;
-        }
-
-
-        int i = 1;
-        int count_digits = ((int) Math.log10(subs.size())) + 1;
-        for (Base sub : subs) {
+            DataSource source;
+            try {
+                source = config.getDataSource();
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    alert("creating Datasource failed:\n" + e.getMessage());
+                });
+                return 0;
+            }
             if (this.isCancelled()) {
                 return 0;
             }
-            final int a = i;
-            Platform.runLater(() -> stage.setTitle(String.format("Running... (%" + count_digits + "d / %d)", a, subs.size())));
-            i++;
-            Evaluator.runSubmissionEvaluation(sols, source, resetScript, sub, report, true, false);
-        }
-        Platform.runLater(() -> stage.setTitle(""));
-        try {
-            List<String> csv = report.getCSV();
-            if (Objects.isNull(csvOut)) {
-                Platform.runLater(() -> csv.forEach(System.out::println)); //maybe to big
-            } else {
-                Files.write(csvOut, csv);
+            List<Base> samples;
+            try {
+                samples = config.getSolutions();
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    alert("loading Solutions failed:\n" + e.getMessage());
+                });
+                return 0;
             }
+
+            if (this.isCancelled()) {
+                return 0;
+            }
+
+            List<Solution> sols;
+            SQLScript resetScript;
+            try {
+                resetScript = config.getResetScript();
+                sols = Evaluator.createSolutions(config, resetScript, samples, source);
+                if (sols.isEmpty()) {
+                    Platform.runLater(() -> {
+                        alert("no valid Solution");
+                    });
+                    return 0;
+                } else {
+                    report.setSolutionMetadata(sols.get(0).getMetaData());
+                }
+            } catch (SQLException | IOException e) {
+                Platform.runLater(() -> {
+                    alert("running ResetScript failed:\n" + e.getMessage());
+                });
+                return 0;
+            }
+
+            if (this.isCancelled()) {
+                return 0;
+            }
+
+
+            int i = 1;
+            int count_digits = ((int) Math.log10(subs.size())) + 1;
+            for (Base sub : subs) {
+                if (this.isCancelled()) {
+                    return 0;
+                }
+                final int a = i;
+                Platform.runLater(() -> stage.setTitle(String.format("Running... (%" + count_digits + "d / %d)", a, subs.size())));
+                i++;
+                Evaluator.runSubmissionEvaluation(sols, source, resetScript, sub, report, true, false);
+            }
+            Platform.runLater(() -> stage.setTitle(""));
+            try {
+                List<String> csv = report.getCSV();
+                if (Objects.isNull(csvOut)) {
+                    Platform.runLater(() -> csv.forEach(System.out::println)); //maybe to big
+                } else {
+                    Files.write(csvOut, csv);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Platform.runLater(() -> System.err.println("finished"));
+            return 0;
         } catch (Exception e) {
             e.printStackTrace();
+            return 1;
         }
-        Platform.runLater(() -> System.err.println("finished"));
-        return 0;
     }
 
 
