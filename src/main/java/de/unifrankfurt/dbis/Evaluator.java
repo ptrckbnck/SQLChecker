@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class Evaluator {
     private List<Base> samples;
-    private String configPath;
+    private final String configPath;
     private EvalConfig config;
     private Path submissionsPath;
     private SQLScript resetScript;
@@ -38,7 +38,11 @@ public class Evaluator {
             }
 
             Solution sol = s.generateSolution(config.getDataSource(), resetScript);
-            sols.add(sol);
+            if (Objects.isNull(sol)) {
+                System.err.println("Cresting Solution for " + resetScript + " failed.");
+            } else {
+                sols.add(sol);
+            }
         }
         return sols;
     }
@@ -58,7 +62,6 @@ public class Evaluator {
                 System.out.flush();
             }
             runSubmissionEvaluation(sols, source, resetScript, sub, report, verbose, csvOnlyBest);
-            ;
         }
     }
 

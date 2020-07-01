@@ -33,8 +33,13 @@ public class Solution extends CheckerFrame {
         List<SQLData> expectedResults = new ArrayList<>();
         for (TaskInterface t : tasks) {
             String sql = t.getSql();
-            SQLData result = SQLResults.execute(datasource, sql);
-            if (result instanceof SQLDataFail) {
+            SQLData result = null;
+            try {
+                result = SQLResults.execute(datasource, sql);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (Objects.isNull(result) || result instanceof SQLDataFail) {
                 System.err.println("WARNING: error while running task: " + t + "\n" + result);
                 return null;
             }

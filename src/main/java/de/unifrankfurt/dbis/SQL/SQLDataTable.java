@@ -32,7 +32,7 @@ public class SQLDataTable implements SQLData {
      * @return SQLResultTable
      * @throws SQLException @see ResultSet#getMetaData()
      */
-    public static SQLDataTable fromResultSet(ResultSet resultSet) throws SQLException {
+    public static SQLDataTable fromResultSet(ResultSet resultSet) throws SQLException, IllegalArgumentException {
         List<List<Object>> table = new ArrayList<>();
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
