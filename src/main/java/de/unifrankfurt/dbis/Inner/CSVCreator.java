@@ -244,4 +244,35 @@ public class CSVCreator {
         this.header.add("Feedback");
         return this;
     }
+
+    public CSVCreator useSubmissionCompactPath() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                Path subp = x.getSubmissionPath();
+                if (subp.getParent() == null) {
+                    return subp.getFileName().toString();
+                } else {
+                    return subp.getParent().getFileName().resolve(subp.getFileName()).toString();
+                }
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Path");
+        return this;
+    }
+
+    public CSVCreator useMinimalFeedback() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getMinimalFeedback();
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Feedback");
+        return this;
+    }
 }

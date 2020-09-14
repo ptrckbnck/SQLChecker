@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -52,6 +53,7 @@ public class EvalGUIController implements Initializable {
     public TextField filterTextField;
     public Button undoFilterButton;
     public CheckBox useRegEx;
+    public CheckBox verboseCheckBox;
     private ObservableList<BaseInfo> subInfos;
     private Report report;
     private Task<Integer> running;
@@ -283,15 +285,16 @@ public class EvalGUIController implements Initializable {
         this.resetScriptPathTextField.setText(file.getPath());
     }
 
-    public void openCSVPath(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Choose CSV Path");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV File", "*.csv"));
-        Path p = this.getCSVOut();
-        if (!Objects.isNull(p)) {
-            fileChooser.setInitialDirectory(p.getParent().toFile());
+    public void openOutPath(ActionEvent actionEvent) {
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Choose Output Path");
+        Path p = this.getOutPath();
+        if (!Objects.isNull(p) && Files.exists(p) && Files.isDirectory(p)) {
+            dirChooser.setInitialDirectory(p.toFile());
+        } else {
+            dirChooser.setInitialDirectory(Paths.get(".").toFile());
         }
-        File file = fileChooser.showSaveDialog(getPrimaryStage());
+        File file = dirChooser.showDialog(getPrimaryStage());
         if (Objects.isNull(file)) {
             return;
         }
@@ -309,7 +312,7 @@ public class EvalGUIController implements Initializable {
         }
         runButton.setText("Stop");
         getPrimaryStage().setTitle("Running ...");
-        EvalConfig config = new EvalConfig(this.databaseTextField.getText(), this.usernameTextField.getText(), this.passwordTextField.getText(), this.hostTextField.getText(), this.portTextField.getText(), this.resetScriptPathTextField.getText(), this.solutionPathTextField.getText(), this.submissionsPathTextField.getText());
+        EvalConfig config = getEvalConfig();
         try (Connection ignored = config.getDataSource().getConnection()) {
             //empty
         } catch (Exception e) {
@@ -329,13 +332,13 @@ public class EvalGUIController implements Initializable {
         }
         rep.setSolutionMetadata(report.getSolutionMetadata());
         rep.setRootPath(report.getRootPath());
-        this.running = new TaskEvaluation(config, rep, this.getSubmissions(), getPrimaryStage(), runButton, this.getCSVOut());
+        this.running = new TaskEvaluation(config, rep, this.getSubmissions(), getPrimaryStage(), runButton, this.getOutPath());
         Thread t = new Thread(this.running);
         t.setDaemon(true);
         t.start();
     }
 
-    private Path getCSVOut() {
+    private Path getOutPath() {
         final String text = this.csvPathTextField.getText();
         if (text.isBlank())
             return null;
@@ -420,17 +423,23 @@ public class EvalGUIController implements Initializable {
         this.passwordTextField.setText(config.getPassword());
         this.hostTextField.setText(config.getHostname());
         this.portTextField.setText(config.getPort());
+        this.verboseCheckBox.setSelected(config.getVerbose());
+        this.csvPathTextField.setText(config.getCsvOutputPath());
     }
 
     private EvalConfig getEvalConfig() {
-        return new EvalConfig(this.databaseTextField.getText(),
+        return new EvalConfig(
+                this.databaseTextField.getText(),
                 this.usernameTextField.getText(),
                 this.passwordTextField.getText(),
                 this.hostTextField.getText(),
                 this.portTextField.getText(),
                 this.resetScriptPathTextField.getText(),
                 this.solutionPathTextField.getText(),
-                this.submissionsPathTextField.getText());
+                this.submissionsPathTextField.getText(),
+                this.verboseCheckBox.isSelected(),
+                this.csvPathTextField.getText()
+        );
     }
 
     public void setPrimaryStage(Stage stage) {

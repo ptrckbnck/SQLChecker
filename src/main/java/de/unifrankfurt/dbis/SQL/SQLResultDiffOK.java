@@ -10,4 +10,9 @@ class SQLResultDiffOK implements SQLResultDiff {
     public Boolean isOk() {
         return true;
     }
+
+    @Override
+    public String getMinimalMessage() {
+        return "";
+    }
 }

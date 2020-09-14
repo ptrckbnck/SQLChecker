@@ -56,6 +56,13 @@ public class SQLResultDiffTableDataMismatch implements SQLResultDiff {
         return false;
     }
 
+    @Override
+    public String getMinimalMessage() {
+        return "Data mismatch in line(s): " + lines()
+                + missing()
+                + surplus();
+    }
+
 
     public List<List<Object>> lineNrsToData(List<Integer> list, List<List<Object>> data) {
         return list.stream().map(data::get).collect(Collectors.toList());

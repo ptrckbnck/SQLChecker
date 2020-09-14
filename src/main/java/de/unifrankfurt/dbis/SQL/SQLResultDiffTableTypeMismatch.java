@@ -18,4 +18,9 @@ public class SQLResultDiffTableTypeMismatch implements SQLResultDiff {
     public Boolean isOk() {
         return false;
     }
+
+    @Override
+    public String getMinimalMessage() {
+        return "Datatype mismatch:" + actual.getType();
+    }
 }

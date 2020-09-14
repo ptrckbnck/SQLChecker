@@ -23,4 +23,13 @@ public class SQLResultDiffTypeMismatch implements SQLResultDiff {
     public Boolean isOk() {
         return false;
     }
+
+    @Override
+    public String getMinimalMessage() {
+        if (!expected.failed() && actual.failed()) {
+            return "Failed: " + actual.toString();
+        } else {
+            return "Type mismatch. was: " + actual.getClass().getSimpleName();
+        }
+    }
 }

@@ -28,11 +28,12 @@ public class ResultStorage {
     final private Path submissionPath;
     private Boolean valid;
     private final StringBuilder feedback;
+    private final StringBuilder minimalFeedback;
 
     public ResultStorage(Path submissionPath) {
         this.submissionPath = submissionPath;
         this.feedback = new StringBuilder();
-
+        this.minimalFeedback = new StringBuilder();
     }
 
     public static Comparator<? super ResultStorage> resultComperator() {
@@ -181,5 +182,14 @@ public class ResultStorage {
                 '}';
     }
 
+
+    public String getMinimalFeedback() {
+        return minimalFeedback.toString();
+    }
+
+    public ResultStorage addMinimalFeedback(String minimalFeedback) {
+        this.minimalFeedback.append(minimalFeedback).append('\n');
+        return this;
+    }
 
 }

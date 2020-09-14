@@ -17,7 +17,10 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -134,12 +137,24 @@ public class TaskEvaluation extends Task<Integer> {
             }
             Platform.runLater(() -> stage.setTitle(""));
             try {
-                List<String> csv = report.getCSV();
+                Path outPath;
                 if (Objects.isNull(csvOut)) {
-                    Platform.runLater(() -> csv.forEach(System.out::println)); //maybe to big
+                    outPath = Paths.get(".").toAbsolutePath();
                 } else {
-                    Files.write(csvOut, csv);
+                    outPath = csvOut.toAbsolutePath();
                 }
+
+                String fileName = new SimpleDateFormat("yyyyMMddHHmm'.csv'").format(new Date());
+
+                List<String> compactCSV = report.getCompactCSV();
+                Files.write(outPath.resolve("compact_" + fileName), compactCSV);
+
+                List<String> fullCSV = report.getFullCSV();
+                Files.write(outPath.resolve("full_" + fileName), fullCSV);
+
+                List<String> feedbackCSV = report.getFeedbackCSV();
+                Files.write(outPath.resolve("feedback_" + fileName), feedbackCSV);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

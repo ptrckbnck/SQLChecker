@@ -6,5 +6,5 @@ public interface SQLResultDiff {
 
     Boolean isOk();
 
-
+    String getMinimalMessage();
 }

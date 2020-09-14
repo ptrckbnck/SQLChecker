@@ -101,6 +101,12 @@ public class Solution extends CheckerFrame {
             diffs.add(diff);
             String s = t.getName() + ": " + diff.getMessage();
             store.addFeedback(s);
+            String minimalMessage = diff.getMinimalMessage();
+            if (!minimalMessage.isEmpty()) {
+                String s2 = t.getName() + ": " + minimalMessage;
+                store.addMinimalFeedback(s2);
+            }
+
             if (verbose) {
                 System.out.println(s);
             }

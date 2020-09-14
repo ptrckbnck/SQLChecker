@@ -18,4 +18,9 @@ public class SQLResultDiffSchemaMismatch implements SQLResultDiff {
     public Boolean isOk() {
         return false;
     }
+
+    @Override
+    public String getMinimalMessage() {
+        return "Schema mismatch: was " + actual.getHeader();
+    }
 }
