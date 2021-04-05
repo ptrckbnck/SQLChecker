@@ -5,7 +5,7 @@ Der SQLChecker wurde bereits mehrfach im Kurs "Datenbanksysteme 1" und im Kurs "
 ## Installation
 Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf z.B. unter https://adoptopenjdk.net/.
   
- Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server-10.3.22](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
+ Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server-10.5.9](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
  `mysql --version` ausführen und ihr Root-Password eingeben. Für die Installation des gewählten Verwaltungssystem richten Sie sich bitte an dessen Anleitung.
  
  Studenten sind in der Lage alle Aufgaben durch Verwendung des SQLCheckers lösen. Da dieser allerdings nur über eine eingeschränkte grafische Oberfläche verfügt, empfiehlt es sich zusätzlich einen Datenbank-Clienten zu installieren, um einfacher SQL-Statements zu testen. [Workbench](https://www.mysql.com/de/products/workbench/) und [HeidiSQL](https://www.heidisql.com/) sind zwei gängige Programme.
