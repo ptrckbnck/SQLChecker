@@ -1,6 +1,6 @@
 # SQLChecker
 Ein wichtiger Bestandteil der Vorlesungungen zu Datenbanksystemen ist das Erlernen von SQL. Dazu müssen die Studenten praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studenten bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studenten. 
-Der SQLChecker wurde bereits mehrfach im Kurs "Datenbanksysteme 1" an der Goethe-Universität erfolgreich eingesetzt. Im kommenden Sommersemester 2020 soll der SQLChecker den Kurs "Programmierung von Datenbanken (PDB)" unterstützen. 
+Der SQLChecker wurde bereits mehrfach im Kurs "Datenbanksysteme 1" und im Kurs "Programmierung von Datenbanken (PDB)" an der Goethe-Universität erfolgreich eingesetzt.  
 
 ## Installation
 Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf z.B. unter https://adoptopenjdk.net/.
