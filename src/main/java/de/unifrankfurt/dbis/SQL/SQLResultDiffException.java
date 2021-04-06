@@ -16,4 +16,9 @@ public class SQLResultDiffException implements SQLResultDiff {
     public Boolean isOk() {
         return false;
     }
+
+    @Override
+    public String getMinimalMessage() {
+        return e.getMessage();
+    }
 }

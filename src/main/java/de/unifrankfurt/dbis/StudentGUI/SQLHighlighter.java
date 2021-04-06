@@ -49,7 +49,7 @@ public class SQLHighlighter {
     private static final String SEMICOLON_PATTERN = ";";
     private static final String STRING_PATTERN = "'([^'\\\\]|\\\\.)*'";
     private static final String NUMERIC_LITERAL_PATTERN = "\\b([0-9]+(\\.[0-9])*)\\b";
-    private static final String COMMENT_PATTERN = "((#).*$)|(/\\*(.|\n)*\\*/)";
+    private static final String COMMENT_PATTERN = "((#).*$)|(/\\*(.|\n)*?\\*/)";
 
 
     private static final Pattern PATTERN = Pattern.compile(
@@ -78,7 +78,7 @@ public class SQLHighlighter {
                     matcher.group("COMMENT") != null ? "comment" :
                             matcher.group("STRING") != null ? "string" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
-                                            matcher.group("SEMICOLON") != null ? "semicolon" :
+                                            matcher.group("SEMICOLON") != null ? "keyword" : //TODO used "keyword" to hotfix color it purple. I dont know how to change color
                                                     matcher.group("NUMERIC") != null ? "numeric" :
                                                             null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);

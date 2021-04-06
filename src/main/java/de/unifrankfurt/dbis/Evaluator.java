@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public class Evaluator {
     private List<Base> samples;
-    private String configPath;
+    private final String configPath;
     private EvalConfig config;
     private Path submissionsPath;
     private SQLScript resetScript;
@@ -37,7 +38,11 @@ public class Evaluator {
             }
 
             Solution sol = s.generateSolution(config.getDataSource(), resetScript);
-            sols.add(sol);
+            if (Objects.isNull(sol)) {
+                System.err.println("Cresting Solution for " + resetScript + " failed.");
+            } else {
+                sols.add(sol);
+            }
         }
         return sols;
     }
@@ -68,7 +73,13 @@ public class Evaluator {
                                                boolean verbose,
                                                boolean csvOnlyBest) {
         if(verbose) {
-            System.out.println(("EVALUATION: " + sub.getAuthors() + " " + sub.getPath().toString()));
+            System.out.println(
+                    "EVALUATION: [" + sub.getAuthors()
+                            .stream()
+                            .map(Student::getName)
+                            .collect(Collectors.joining(","))
+                            + "] "
+                            + sub.getPath().getFileName().toString());
         }
         List<ResultStorage> curStorages = new ArrayList<>();
 

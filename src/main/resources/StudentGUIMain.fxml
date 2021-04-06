@@ -5,7 +5,7 @@
 <?import javafx.scene.text.Font?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml/1" id="AnchorPane" fx:id="basePane" minHeight="500.0" minWidth="500.0"
             nodeOrientation="LEFT_TO_RIGHT" prefHeight="700.0" prefWidth="700.0" style="-fx-background-color: #fff;"
-            xmlns="http://javafx.com/javafx/10.0.1"
+            xmlns="http://javafx.com/javafx/11.0.1"
             fx:controller="de.unifrankfurt.dbis.StudentGUI.StudentGUIController">
     <children>
         <BorderPane prefHeight="712.0" prefWidth="1133.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -59,7 +59,7 @@
                                 <Menu mnemonicParsing="false" text="Ausführen">
                                     <items>
                                         <MenuItem fx:id="resetMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleResetDatabase" text="Vollständg Ausführen"/>
+                                                  onAction="#handleResetDatabase" text="Datenbank Rücksetzen"/>
                                         <MenuItem fx:id="runMenuItem" disable="true" mnemonicParsing="false"
                                                   onAction="#runTaskCode" text="Aufgabe Ausführen"/>
                                         <SeparatorMenuItem mnemonicParsing="false"/>
@@ -67,10 +67,10 @@
                                                   onAction="#handleRunAll" text="Vollständg Ausführen"/>
                                     </items>
                                 </Menu>
-                                <Menu mnemonicParsing="false" text="Olat">
+                                <Menu mnemonicParsing="false" text="Abgabe">
                                     <items>
                                         <MenuItem fx:id="exportMenuItem" disable="true" mnemonicParsing="false"
-                                                  onAction="#handleExportOlat" text="Exportieren ..."/>
+                                                  onAction="#handleExportSubmission" text="Exportieren ..."/>
                                     </items>
                                 </Menu>
                                 <Menu mnemonicParsing="false" text="?">
@@ -88,6 +88,40 @@
                     <items>
                         <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="20.0" tabMaxWidth="200.0">
                             <tabs>
+                                <Tab fx:id="tabTerminal" text="Terminal">
+                                    <content>
+                                        <BorderPane prefHeight="282.0" prefWidth="947.0" AnchorPane.bottomAnchor="0.0"
+                                                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                                                    AnchorPane.topAnchor="0.0">
+                                            <top>
+                                                <ToolBar stylesheets="@button.css" BorderPane.alignment="CENTER">
+                                                    <items>
+                                                        <Button fx:id="runButtonTerminal" mnemonicParsing="false"
+                                                                onAction="#runTerminalCode" text="Ausführen"/>
+                                                        <Button fx:id="undoTerminal" mnemonicParsing="false"
+                                                                onAction="#undoTerminal" text="Rückgängig"/>
+                                                        <Button fx:id="redoButtonTerminal" mnemonicParsing="false"
+                                                                onAction="#redoTerminal" text="Wiederherstellen"/>
+                                                        <Button fx:id="resetButtonTerminal" mnemonicParsing="false"
+                                                                onAction="#handleResetDatabase"
+                                                                text="Datenbank Rücksetzen"/>
+                                                    </items>
+                                                </ToolBar>
+                                            </top>
+                                            <center>
+                                                <SplitPane BorderPane.alignment="CENTER">
+                                                    <items>
+                                                        <BorderPane fx:id="CODEPANE_Terminal">
+                                                            <top>
+                                                                <Label text="SQL" BorderPane.alignment="CENTER"/>
+                                                            </top>
+                                                        </BorderPane>
+                                                    </items>
+                                                </SplitPane>
+                                            </center>
+                                        </BorderPane>
+                                    </content>
+                                </Tab>
                                 <Tab fx:id="tabUebung" text="Übung">
                                     <content>
                                         <BorderPane prefHeight="282.0" prefWidth="947.0" AnchorPane.bottomAnchor="0.0"
@@ -149,7 +183,8 @@
                                             <children>
                                                 <Accordion prefHeight="270.0" prefWidth="708.0"
                                                            AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                           AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0"
+                                                           expandedPane="$DatenbankTitledPane">
                                                     <panes>
                                                         <TitledPane fx:id="DatenbankTitledPane" animated="false"
                                                                     text="Datenbank">

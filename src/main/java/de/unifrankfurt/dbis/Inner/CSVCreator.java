@@ -2,6 +2,7 @@ package de.unifrankfurt.dbis.Inner;
 
 
 import de.unifrankfurt.dbis.SQL.SQLResultDiff;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,12 +14,12 @@ import java.util.stream.Collectors;
 public class CSVCreator {
 
     private final Report report;
-    private ArrayList<Function<ResultStorage, String>> functions;
-    private ArrayList<String> header;
+    private final ArrayList<Function<ResultStorage, String>> functions;
+    private final ArrayList<String> header;
 
     public CSVCreator(Report report) {
-        functions = new ArrayList<>();
-        header = new ArrayList<>();
+        this.functions = new ArrayList<>();
+        this.header = new ArrayList<>();
         this.report = report;
     }
 
@@ -30,6 +31,10 @@ public class CSVCreator {
 
     public String create(ResultStorage resultStorage) {
         return functions.stream().map(x -> x.apply(resultStorage)).collect(Collectors.joining(","));
+    }
+
+    private void addFunction(Function<ResultStorage, String> f) {
+        this.functions.add(f.andThen(StringEscapeUtils::escapeCsv));
     }
 
     public CSVCreator useSubmissionPath() {
@@ -45,14 +50,15 @@ public class CSVCreator {
                 return "unknown";
             }
         };
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("Path");
         return this;
     }
 
+
     public CSVCreator useAuthors() {
         Function<ResultStorage, String> f = x -> csvAuthors(x.getAuthors());
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("Authors");
         return this;
     }
@@ -64,7 +70,7 @@ public class CSVCreator {
 
     public CSVCreator useSolutionName() {
         Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getSolutionName(), "unknown");
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("Solution");
         return this;
     }
@@ -81,7 +87,7 @@ public class CSVCreator {
                     return x.getDiff().get(finalI).isOk().toString();
                 }
             };
-            this.functions.add(f);
+            this.addFunction(f);
 
             this.header.add(tags.get(i));
         }
@@ -93,8 +99,14 @@ public class CSVCreator {
         int size = groups.size();
         for (int i = 0; i < size; i++) {
             final int finalI = i;
-            Function<ResultStorage, String> f = x -> x.getScore().get(finalI).toString();
-            this.functions.add(f);
+            Function<ResultStorage, String> f = x -> {
+                try {
+                    return x.getScore().get(finalI).toString();
+                } catch (Exception e) {
+                    return "0";
+                }
+            };
+            this.addFunction(f);
 
             this.header.add(groups.get(i));
         }
@@ -102,8 +114,15 @@ public class CSVCreator {
     }
 
     public CSVCreator useSumScore() {
-        Function<ResultStorage, String> f = x -> x.getSumScore().toString();
-        this.functions.add(f);
+        Function<ResultStorage, String> f = x ->
+        {
+            try {
+                return x.getSumScore().toString();
+            } catch (Exception e) {
+                return "0";
+            }
+        };
+        this.addFunction(f);
         this.header.add("sum");
         return this;
     }
@@ -111,15 +130,19 @@ public class CSVCreator {
 
 
     public CSVCreator useErrorMsg() {
-        Function<ResultStorage, String> f = x -> Objects.requireNonNullElse(x.getErrorMsg(), "none");
-        this.functions.add(f);
+        Function<ResultStorage, String> f = x -> {
+            Exception ex = x.getException();
+            if (Objects.isNull(ex)) return "none";
+            else return ex.getMessage();
+        };
+        this.addFunction(f);
         this.header.add("ErrorMsg");
         return this;
     }
 
     public CSVCreator useTaskCount() {
         Function<ResultStorage, String> f = x -> String.valueOf(this.report.getSolutionMetadata().getNonStaticTags().size());
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("#Tasks");
         return this;
     }
@@ -133,7 +156,7 @@ public class CSVCreator {
                 return String.valueOf(x.getDiff().stream().map(SQLResultDiff::isOk).filter(i -> i).count());
             }
         };
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("#Success");
         return this;
 
@@ -148,14 +171,14 @@ public class CSVCreator {
             }
 
         };
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("Root");
         return this;
     }
 
     public CSVCreator useEncoding() {
         Function<ResultStorage, String> f = x -> String.valueOf(x.getCharset());
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("Encoding");
         return this;
     }
@@ -171,10 +194,85 @@ public class CSVCreator {
                 return "unknown";
             }
         };
-        this.functions.add(f);
+        this.addFunction(f);
         this.header.add("MatrikelNr");
         return this;
     }
 
 
+    public CSVCreator useName() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getAuthors().stream()
+                        .map(Student::getName)
+                        .sorted()
+                        .collect(Collectors.joining(";"));
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Name");
+        return this;
+    }
+
+    public CSVCreator useEmail() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getAuthors().stream()
+                        .map(Student::getEmailAddress)
+                        .sorted()
+                        .collect(Collectors.joining(";"));
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Email");
+        return this;
+    }
+
+    public CSVCreator useFeedback() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getFeedback();
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Feedback");
+        return this;
+    }
+
+    public CSVCreator useSubmissionCompactPath() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                Path subp = x.getSubmissionPath();
+                if (subp.getParent() == null) {
+                    return subp.getFileName().toString();
+                } else {
+                    return subp.getParent().getFileName().resolve(subp.getFileName()).toString();
+                }
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Path");
+        return this;
+    }
+
+    public CSVCreator useMinimalFeedback() {
+        Function<ResultStorage, String> f = x -> {
+            try {
+                return x.getMinimalFeedback();
+            } catch (Exception e) {
+                return "unknown";
+            }
+        };
+        this.addFunction(f);
+        this.header.add("Feedback");
+        return this;
+    }
 }

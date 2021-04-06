@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="500.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/10.0.1" fx:controller="de.unifrankfurt.dbis.EvalGUI.EvalGUIController">
+            xmlns="http://javafx.com/javafx/11.0.1" fx:controller="de.unifrankfurt.dbis.EvalGUI.EvalGUIController">
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -65,14 +65,14 @@
                                                     </GridPane.margin>
                                                 </TextField>
                                                 <Label alignment="CENTER" contentDisplay="CENTER" minWidth="-Infinity"
-                                                       text="CSVOutPath:" GridPane.rowIndex="1">
+                                                       text="OutputPath:" GridPane.rowIndex="1">
                                                     <GridPane.margin>
                                                         <Insets/>
                                                     </GridPane.margin>
                                                 </Label>
                                                 <TextField fx:id="csvPathTextField" GridPane.columnIndex="1"
                                                            GridPane.rowIndex="1"/>
-                                                <Button mnemonicParsing="false" onAction="#openCSVPath"
+                                                <Button mnemonicParsing="false" onAction="#openOutPath"
                                                         text="Öffnen ..." GridPane.columnIndex="2"
                                                         GridPane.rowIndex="1"/>
                                                 <CheckBox fx:id="useRegEx" mnemonicParsing="false" text="RegEx"
@@ -109,13 +109,18 @@
                                                           AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                                                           AnchorPane.topAnchor="0.0">
                                                     <columnConstraints>
-                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="265.0"
+                                                                           minWidth="10.0" prefWidth="177.0"/>
                                                         <ColumnConstraints hgrow="ALWAYS"
                                                                            maxWidth="1.7976931348623157E308"
-                                                                           minWidth="200.0"/>
+                                                                           minWidth="200.0" prefWidth="318.0"/>
                                                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0"/>
                                                     </columnConstraints>
                                                     <rowConstraints>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
+                                                        <RowConstraints minHeight="10.0" prefHeight="30.0"
+                                                                        vgrow="SOMETIMES"/>
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0"
                                                                         vgrow="SOMETIMES"/>
                                                         <RowConstraints minHeight="10.0" prefHeight="30.0"
@@ -144,7 +149,11 @@
                                                         <Label text="Zeitzone" GridPane.rowIndex="5"/>
                                                         <Label text="Reset Skript" GridPane.rowIndex="6"/>
                                                         <Label text="Solutions Path" GridPane.rowIndex="7"/>
-                                                        <Label text="Submissions Path" GridPane.rowIndex="8"/>
+                                                        <Label prefHeight="16.0" prefWidth="204.0"
+                                                               text="Submissions Path" GridPane.columnSpan="2"
+                                                               GridPane.rowIndex="8"/>
+                                                        <Label prefWidth="108.0" text="Verbose" visible="false"
+                                                               GridPane.rowIndex="9"/>
                                                         <TextField fx:id="databaseTextField" prefHeight="26.0"
                                                                    prefWidth="253.0" GridPane.columnIndex="1"/>
                                                         <TextField fx:id="usernameTextField" GridPane.columnIndex="1"
@@ -163,6 +172,9 @@
                                                                    GridPane.columnIndex="1" GridPane.rowIndex="7"/>
                                                         <TextField fx:id="submissionsPathTextField"
                                                                    GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+                                                        <CheckBox fx:id="verboseCheckBox" mnemonicParsing="false"
+                                                                  visible="false" GridPane.columnIndex="1"
+                                                                  GridPane.rowIndex="9"/>
                                                         <Button mnemonicParsing="false" onAction="#loadResetScriptPath"
                                                                 text="Öffnen ..." GridPane.columnIndex="2"
                                                                 GridPane.rowIndex="6"/>

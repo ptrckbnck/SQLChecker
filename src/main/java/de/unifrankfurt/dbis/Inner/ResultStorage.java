@@ -19,7 +19,6 @@ public class ResultStorage {
     private List<Student> authors;
     private String solutionName;
     private List<SQLResultDiff> diffs;
-    private String errorMsg;
     private List<Integer> score;
     private Charset charset;
     private List<SQLData> sqlData;
@@ -28,16 +27,27 @@ public class ResultStorage {
     private Solution solution;
     final private Path submissionPath;
     private Boolean valid;
+    private final StringBuilder feedback;
+    private final StringBuilder minimalFeedback;
 
     public ResultStorage(Path submissionPath) {
         this.submissionPath = submissionPath;
-
+        this.feedback = new StringBuilder();
+        this.minimalFeedback = new StringBuilder();
     }
 
     public static Comparator<? super ResultStorage> resultComperator() {
         return Comparator.comparingInt(ResultStorage::getSumScore);
     }
 
+    public String getFeedback() {
+        return feedback.toString();
+    }
+
+    public ResultStorage addFeedback(String feedback) {
+        this.feedback.append(feedback).append('\n');
+        return this;
+    }
 
     public List<Student> getAuthors() {
         return authors;
@@ -64,15 +74,6 @@ public class ResultStorage {
 
     public List<SQLResultDiff> getDiff() {
         return diffs;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public ResultStorage setErrorMsg(String errorMsg) {
-        this.errorMsg = errorMsg;
-        return this;
     }
 
 
@@ -171,7 +172,6 @@ public class ResultStorage {
                 "authors=" + authors +
                 ", solutionName='" + solutionName + '\'' +
                 ", diffs=" + diffs +
-                ", errorMsg='" + errorMsg + '\'' +
                 ", score=" + score +
                 ", charset=" + charset +
                 ", sqlResults=" + sqlData +
@@ -182,5 +182,14 @@ public class ResultStorage {
                 '}';
     }
 
+
+    public String getMinimalFeedback() {
+        return minimalFeedback.toString();
+    }
+
+    public ResultStorage addMinimalFeedback(String minimalFeedback) {
+        this.minimalFeedback.append(minimalFeedback).append('\n');
+        return this;
+    }
 
 }

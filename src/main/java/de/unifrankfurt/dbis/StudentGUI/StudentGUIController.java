@@ -22,6 +22,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -40,10 +41,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -80,6 +78,12 @@ public class StudentGUIController implements Initializable {
     public MenuItem exportMenuItem;
     public Label version;
     public AnchorPane basePane;
+    public Tab tabTerminal;
+    public Button runButtonTerminal;
+    public Button undoTerminal;
+    public Button redoButtonTerminal;
+    public Button resetButtonTerminal;
+    public BorderPane CODEPANE_Terminal;
 
     //database
     @FXML
@@ -151,9 +155,14 @@ public class StudentGUIController implements Initializable {
     private Application.Parameters parameters;
     private HostServices hostServies;
     private Stage primaryStage;
+    private CodeArea CodeArea_Terminal;
 
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    public Path getProjectPath() {
+        return projectPath;
     }
 
     /**
@@ -165,6 +174,20 @@ public class StudentGUIController implements Initializable {
         this.projectPath = projectPath;
         this.updateMenu();
     }
+
+    public CodeArea initTerminalCodeArea() {
+        CodeArea codeArea = new CodeArea();
+        codeArea.setStyle("-fx-font-family: monospaced; -fx-font-size: 10pt;");
+        // add line numbers to the left of area
+        codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+
+        Subscription cleanupWhenNoLongerNeedIt = codeArea
+                .multiPlainChanges()
+                .successionEnds(Duration.ofMillis(500))
+                .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+        return codeArea;
+    }
+
 
     /**
      * initializes new CodeArea with styles and listener.
@@ -187,7 +210,8 @@ public class StudentGUIController implements Initializable {
                 // do not emit an event until 500 ms have passed since the last emission of previous stream
                 .successionEnds(Duration.ofMillis(500))
 
-                // run the following code block when previous stream emits an event
+                // run the following code block when previous stream
+                // emits an event
                 .subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
         Subscription cleanupWhenNoLongerNeedIt2 = codeArea
                 .multiPlainChanges()
@@ -237,6 +261,7 @@ public class StudentGUIController implements Initializable {
     }
 
     public Path backupPath() {
+        if (this.projectPath == null) return null;
         return this.projectPath.getParent().resolve(this.projectPath.getFileName() + ".backup");
     }
 
@@ -288,9 +313,11 @@ public class StudentGUIController implements Initializable {
         matNrPartnerTextField.setText(this.GUIConfig.getPartnerMatNr());
         emailPartnerTextField.setText(this.GUIConfig.getPartnerEmail());
         setDisablePartner(!this.GUIConfig.isPartnerOk());
-
+        if (Objects.nonNull(this.GUIConfig.getResetScript())
+                && !this.GUIConfig.getResetScript().isBlank()) {
+            initResetScript(Paths.get(this.GUIConfig.getResetScript()));
+        }
     }
-
 
     /**
      * disables or enables Partner Config Fields
@@ -312,6 +339,16 @@ public class StudentGUIController implements Initializable {
         System.setOut(new PrintStreamCapturer(console, System.out, "> "));
         System.setErr(new PrintStreamCapturer(console, System.err, "> [ERROR] "));
         console.setFont(Font.font("monospaced"));
+
+        //init Terminal
+
+        this.CodeArea_Terminal = initTerminalCodeArea();
+        this.CodeArea_Terminal.getStylesheets().add("/sql.css");
+
+
+        VirtualizedScrollPane<CodeArea> newPane = new VirtualizedScrollPane<>(this.CodeArea_Terminal);
+        this.CODEPANE_Terminal.setCenter(newPane);
+
 
         //init tasks
         CODEPANE.getStylesheets().add("/sql.css");
@@ -358,9 +395,7 @@ public class StudentGUIController implements Initializable {
         mi.setOnAction((x) -> console.setText(""));
         cm.getItems().add(mi);
 
-
         console.setContextMenu(cm);
-
 
     }
 
@@ -492,8 +527,8 @@ public class StudentGUIController implements Initializable {
     }
 
 
-    public void createEmptyFile(Path path) throws IOException {
-        Files.write(path, ("").getBytes(StandardCharsets.UTF_8));
+    public void createEmptyFile(Path path, StandardOpenOption... options) throws IOException {
+        Files.write(path, ("").getBytes(StandardCharsets.UTF_8), options);
     }
 
 
@@ -516,6 +551,7 @@ public class StudentGUIController implements Initializable {
      * Load Config from default Path if present.
      */
     private void loadConfigImplicit() {
+        if (this.projectPath == null) return;
         try {
             GUIConfig c = FileIO.load(defaultConfigPath(this.projectPath), GUIConfig.class);
             initConfig(c);
@@ -542,17 +578,29 @@ public class StudentGUIController implements Initializable {
 
         //check parent folder
         try {
-            Optional<Path> conf = Files.walk(this.projectPath.getParent().getParent(), 1)
+            Path parent = this.projectPath.getParent();
+            if (parent == null) {
+                return;
+            }
+            Path toSearch = parent.getParent();
+            if (toSearch == null) {
+                return;
+            }
+            Optional<Path> conf = Files.walk(toSearch, 1)
+                    .filter(Objects::nonNull)
                     .filter(Files::isReadable)
                     .filter((x) -> x.getFileName().toString().endsWith(".conf"))
                     .findFirst();
             if (conf.isPresent()) {
                 GUIConfig c = FileIO.load(conf.get(), GUIConfig.class);
+                if (c == null) {
+                    return;
+                }
                 initConfig(c);
             }
 
-        } catch (IOException e) {
-            //nothing;}
+        } catch (IOException | NullPointerException e) { //TODO fix Nullpointer Exception
+            // nothing;
         }
     }
 
@@ -563,6 +611,7 @@ public class StudentGUIController implements Initializable {
         if (!this.GUIConfig.getResetScript().isEmpty()) {
             return;
         }
+        if (this.projectPath == null) return;
         Path path = defaultResetPath(this.projectPath);
         if (Files.isReadable(path))
             initResetScript(defaultResetPath(this.projectPath));
@@ -671,8 +720,19 @@ public class StudentGUIController implements Initializable {
         return t;
     }
 
+    private Thread runCode(String sql) {
+
+        SQLRunner runner = new SQLRunner(this.GUIConfig, null, sql, verbose);
+        Thread t = new Thread(runner);
+        System.out.println("SQL Code wird ausgeführt.");
+        t.start();
+        return t;
+    }
+
+
     /**
      * Save current Project to new Path.
+     *
      * @param actionEvent
      */
     public void saveAsProject(ActionEvent actionEvent) {
@@ -704,7 +764,7 @@ public class StudentGUIController implements Initializable {
     public void saveProject(ActionEvent actionEvent) {
         try {
             saveProject(this.projectPath);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             System.err.println("Speichern der Projektes fehlgeschlagen: " + e.getMessage());
         }
     }
@@ -714,15 +774,18 @@ public class StudentGUIController implements Initializable {
      * @param actionEvent
      */
     public void newProject(ActionEvent actionEvent) {
-        closeProject();
         //select template first
         FileChooser templateChooser = new FileChooser();
         templateChooser.setTitle("Öffne Aufgaben-Template Datei");
         templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Template File (*.sqlt)", "*.sqlt"));
-        templateChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL File (*.sql)", "*.sql"));
         fileChooserOpenSetInitDir(templateChooser);
         File template = templateChooser.showOpenDialog(getPrimaryStage());
         if (template == null) return;
+        openTemplateAndCreateNewProject(template);
+
+    }
+
+    private void openTemplateAndCreateNewProject(File template) {
         Base base;
         try {
             base = Base.fromPath(template.toPath());
@@ -732,27 +795,72 @@ public class StudentGUIController implements Initializable {
             return;
         }
 
-        // now select Project Path
-        FileChooser projectChooser = new FileChooser();
-        projectChooser.setTitle("Lege Speicherort des neuen Projekts fest");
-        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
-        projectChooser.setInitialFileName(base.getName() + ".sqlc");
-        projectChooser.setInitialDirectory(template.getParentFile());
-        Stage stageProject = new Stage();
-        File project = projectChooser.showSaveDialog(stageProject);
-        if (project == null) return;
-        try {
-            createEmptyFile(project.toPath());
-            setProjectPath(project.toPath());
-            this.initAssignment(base);
-            loadConfigImplicit();
-            loadResetImplicit();
-            saveProject(project.toPath());
-        } catch (IOException e) {
-            System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
-            setProjectPath(null);
+        Path path = template.
+                getParentFile().
+                toPath()
+                .resolve(base.getName() + ".sqlc");
+
+        Alert alert = alertDefaultNewProjectPath(path);
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            FileChooser projectChooser = new FileChooser();
+            projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+            projectChooser.setInitialFileName(base.getName() + ".sqlc");
+            projectChooser.setInitialDirectory(template.getParentFile());
+            File project = projectChooser.showSaveDialog(getPrimaryStage());
+            if (project == null) return;
+            closeProject();
+            try {
+                createEmptyFile(project.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                setProjectPath(project.toPath());
+                this.initAssignment(base);
+                loadResetImplicit();
+                loadConfigImplicit();
+                saveProject(project.toPath());
+            } catch (IOException e) {
+                System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
+                setProjectPath(null);
+            }
+        } else {
+
+            try {
+                createEmptyFile(path, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+                setProjectPath(path);
+                this.initAssignment(base);
+                loadResetImplicit();
+                loadConfigImplicit();
+                saveProject(path);
+            } catch (FileAlreadyExistsException e) {
+                System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
+                System.err.println("Datei mit dem Namen existiert bereits");
+                setProjectPath(null);
+            } catch (IOException e) {
+                System.err.println("Fehler beim Anlegen der Projekt-Datei: " + e.getMessage());
+                setProjectPath(null);
+            }
         }
 
+
+    }
+
+    private Alert alertDefaultNewProjectPath(Path path) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        String text = "Per Default wird die Projekt-Datei " +
+                "im selben Ort angelegt, in dem sich das Template (.sqlt) befindet. Möchten Sie folgenden Projekt-Pfad ändern? \n";
+        alert.initOwner(this.getPrimaryStage());
+        BorderPane borderPane = new BorderPane();
+        Label label = new Label(text);
+        label.setWrapText(true);
+        label.setPadding(new Insets(5, 5, 5, 5));
+        borderPane.setTop(label);
+        TextArea field = new TextArea(path.toString());
+        field.setEditable(false);
+        field.setWrapText(true);
+        borderPane.setCenter(field);
+        alert.getDialogPane().setContent(borderPane);
+        alert.getDialogPane().setPrefWidth(400);
+        return alert;
     }
 
     private void loadProject(Path path) {
@@ -766,7 +874,6 @@ public class StudentGUIController implements Initializable {
             initAssignment(project.getAssignment());
             initConfig(project.getGUIConfig());
             setProjectPath(path);
-            loadResetImplicit();
         } catch (JsonSyntaxException e) {
             alertNoValidSQLCFile(path);
         } catch (IOException e) {
@@ -792,13 +899,27 @@ public class StudentGUIController implements Initializable {
     public void loadProject(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("öffne Checker Datei");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("SQL Checker File (*.sqlc)", "*.sqlc", "*.sqlt"));
         fileChooserOpenSetInitDir(fileChooser);
         File file = fileChooser.showOpenDialog(getPrimaryStage());
         if (file == null) return;
         closeProject();
+
         Path path = file.toPath();
-        loadProject(path);
+        boolean isSQLT = path.getFileName().toString().toLowerCase().endsWith(".sqlt");
+        if (isSQLT) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Öffnen einer SQLT Datei");
+            String s = "Es wurde versucht eine SQLT-Datei zuöffnen. Möchten Sie ein neues Projekt auf Basis der SQLT Datei anlegen?";
+            alert.setContentText(s);
+            Optional<ButtonType> result = alert.showAndWait();
+            if ((result.isPresent()) && (result.get() == ButtonType.OK)) {
+                openTemplateAndCreateNewProject(file);
+            }
+        } else {
+            loadProject(path);
+        }
+
 
     }
 
@@ -987,10 +1108,10 @@ public class StudentGUIController implements Initializable {
     }
 
     /**
-     * creates zip File with Inner for loading to Olat.
+     * creates zip File with Inner for loading to Submission Platform (olat, moodle, etc).
      * @param actionEvent
      */
-    public void handleExportOlat(ActionEvent actionEvent) {
+    public void handleExportSubmission(ActionEvent actionEvent) {
         if (!mandatoryFieldsOk()) {
             Alert a = new Alert(Alert.AlertType.WARNING,
                     "Bitte geben Sie Vor- und Zuname, Matrikelnummer und E-Mail-Adresse mindestens eines Studenten an.",
@@ -1004,7 +1125,7 @@ public class StudentGUIController implements Initializable {
             }
         }
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Erzeuge Abgabe-Datei für Olat");
+        fileChooser.setTitle("Erzeuge Abgabe-Datei");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Datei (*.txt)", "*.txt"));
         if (projectPath != null) {
             fileChooser.setInitialDirectory(projectPath.getParent().toFile());
@@ -1049,6 +1170,20 @@ public class StudentGUIController implements Initializable {
 
     public void setHostServices(HostServices hostServices) {
         this.hostServies = hostServices;
+    }
+
+
+    public void runTerminalCode(ActionEvent actionEvent) {
+        String sql = this.CodeArea_Terminal.getText();
+        runCode(sql);
+    }
+
+    public void undoTerminal(ActionEvent actionEvent) {
+        this.CodeArea_Terminal.undo();
+    }
+
+    public void redoTerminal(ActionEvent actionEvent) {
+        this.CodeArea_Terminal.redo();
     }
 
 

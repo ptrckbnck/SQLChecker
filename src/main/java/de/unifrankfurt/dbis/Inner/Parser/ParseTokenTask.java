@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * \/*%%Name%%<Type>.<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
+ * \/*%%<Name>%%<Type>%%<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/
  * <Body>
  * <p>
  * \/*%%<Name>%%<Punkte>.<Aufgabengruppe>.<Schema>.<Order>%%*\/

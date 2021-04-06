@@ -62,7 +62,6 @@ public class SQLRunner extends Task<Integer> {
         checkSQL(sql);
         SQLData result = SQLResults.execute(guiConfig.getDataSource(), sql);
         System.out.println(result);
-
         if (Objects.isNull(schema) || !result.getClass().isAssignableFrom(SQLDataTable.class)) return 0;
 
         SchemaTester tester = new SchemaTester(guiConfig.getDataSource(), sql, schema);

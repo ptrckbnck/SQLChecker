@@ -55,23 +55,19 @@ public class TaskSQL implements TaskInterface {
     }
 
     public TaskSQL clearExtra() {
-        return new TaskSQL(this.name, null, null, null, null, this.sql);
+        return new TaskSQL(this.name, null, null, schema, null, this.sql);
     }
 
     @Override
     public String serialize() {
         List<String> extraList = new ArrayList<>();
-        if (Objects.nonNull(score))
-            extraList.add(getScore().toString());
-        if (Objects.nonNull(group))
-            extraList.add(getGroup());
-        if (Objects.nonNull(schema))
-            extraList.add(serializedSchema());
-        if (Objects.nonNull(order))
-            extraList.add(serializedOrder());
+        extraList.add(Objects.nonNull(score) ? getScore().toString() : "");
+        extraList.add(Objects.nonNull(group) ? getGroup() : "");
+        extraList.add(Objects.nonNull(schema) ? serializedSchema() : "");
+        extraList.add(Objects.nonNull(order) ? serializedOrder() : "");
         String extraStr = String.join(ParseTokenTask.getDelimiter(), extraList);
         String tag;
-        if (extraStr.isEmpty())
+        if (extraStr.replace(ParseTokenTask.getDelimiter(), "").isEmpty())
             tag = "/*%%" + getName() + "%%*/\n";
         else
             tag = "/*%%" + getName() + "%%" + ParseTokenTask.id + "%%" + extraStr + "%%*/\n";

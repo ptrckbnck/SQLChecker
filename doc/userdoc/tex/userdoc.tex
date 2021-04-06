@@ -22,7 +22,7 @@
 
 \setminted[bash]{fontsize=\small,tabsize=2,breaklines,style=bw}
 
-
+% TODO UPDATE PICS with olat
 \begin{document}
  \pagenumbering{gobble}
  \hypersetup{pageanchor=false}
@@ -88,7 +88,7 @@ Sie brauchen für jedes Projekt eine SQLChecker-Template-Datei (*.sqlt) und opti
 	\item Nun können Sie Aufgaben im Reiter \fbox{Übung} auswählen und im SQL-Bereich SQL-Statements eintragen. Tragen Sie nur \underline{ein} SQL-Statement pro Aufgabe ein.
 	\item Sie können die Statements testen, indem Sie \fbox{Ausführen} klicken.
 	\item Die Datenbank können Sie über den entsprechenden Button zurücksetzen.
-	\item Sind Sie mit der Bearbeitung der Aufgabe fertig, können Sie die Abgabe-Datei über \fbox{Olat - Exportieren ...} erzeugen, welche Sie im Olat-Kurs hochladen können.
+\item Sind Sie mit der Bearbeitung der Aufgabe fertig, können Sie die Abgabe-Datei über \fbox{Abgabe - Exportieren ...} erzeugen, welche Sie im Online-Kurs hochladen können.
 \end{itemize}
 
 \subsection{Hinweise}
@@ -97,7 +97,7 @@ Sie brauchen für jedes Projekt eine SQLChecker-Template-Datei (*.sqlt) und opti
 \item Während Sie ein neues Projekt anlegen, kann automatisch Ihre alte Konfiguration geladen werden, wenn sich die exportierte Konfigurationsdatei im selben oder dem übergeordneten Ordner des neuen Projekts befindet.
 \item Das Reset-Skript wird automatisch geladen, wenn es sich im selben Ordner des Projekts befindet und \texttt{\textit{<Name der Übung>}\_reset.sql} heißt. Standardmäßig sollte das mitgelieferte Reset-Skript den richtigen Namen tragen. Nennen Sie es nicht um.
 \item Benutzen Sie ausschließlich UTF-8 gültige Zeichen.
-\item Ändern Sie die Abgabe-Datei nach dem Olat-Export nicht. Insbesondere ändern Sie nicht ihre Zeichenkodierung.
+\item Ändern Sie die Abgabe-Datei nach dem Abgabe-Export nicht. Insbesondere ändern Sie nicht ihre Zeichenkodierung.
 \item Benutzen Sie pro einzelner Aufgabe nur \underline{ein} SQL-Statement.
 \item Sie können ein Projekt direkt beim Programmaufruf laden, indem Sie
 \begin{minted}{bash}
@@ -180,7 +180,7 @@ Die Toolbar besteht aus diesen Menüpunkten:
 %			\item[\ref{item:runTask}] Aufgabe Ausführen
 %			\item[\ref{item:runComplete}] Vollständig Ausführen
 %		\end{itemize}
-	\item[\ref{subsubsec:Olat}.] Olat
+\item[\ref{subsubsec:Abgabe}.] Abgabe
 %		\begin{itemize}
 %			\item[\ref{item:export}] Exportieren ...
 %		\end{itemize}
@@ -223,10 +223,10 @@ Um die folgenden Punkte ausführen zu können, müssen die Datenbank-\linebreak 
 	\item[\label{item:runComplete} Vollständig Ausführen] Die SQL-Statements aller Aufgaben werden nacheinander ausgeführt. Dies ist sinnvoll, wenn die Aufgaben voneinander abhängig sind.
 \end{description}
 
-\subsubsection{Olat}
-\label{subsubsec:Olat}
+\subsubsection{Abgabe}
+\label{subsubsec:Abgabe}
 \begin{description}
-	\item[\label{item:export} Exportieren ...] Erstellen Sie die Abgabe-Datei am gewünschten Ort. Laden Sie diese in Olat unverändert hoch.
+\item[\label{item:export} Exportieren ...] Erstellen Sie die Abgabe-Datei am gewünschten Ort. Laden Sie diese in ihren Online-Kurs unverändert hoch.
 \end{description}
 
 \subsubsection{?}

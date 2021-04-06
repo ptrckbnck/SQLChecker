@@ -1,6 +1,7 @@
 package de.unifrankfurt.dbis.IO;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +20,7 @@ public class FileIO {
      * @throws IOException
      */
     private static String loadString(Path path) throws IOException {
-        return new String(Files.readAllBytes(path));
+        return Files.readString(path, StandardCharsets.UTF_8);
     }
 
     /**
@@ -31,22 +32,14 @@ public class FileIO {
      * @throws IOException IO
      */
     public static <T> T load(Path path, Class<T> classOf) throws IOException {
-        return new Gson().fromJson(loadString(path), classOf);
+        try {
+            return new Gson().fromJson(loadString(path), classOf);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
+
     }
 
-    /**
-     * serialize object and save at path.
-     * @param path
-     * @param object
-     * @throws IOException
-     */
-    public static void save(Path path, Object object) throws IOException {
-        if (Files.exists(path)) {
-            Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
-        }
-        Files.createFile(path);
-        Files.write(path, (new Gson()).toJson(object).getBytes());
-    }
 
     /**
      * Create File at path with given String text.
@@ -60,6 +53,6 @@ public class FileIO {
             Files.move(path, path.getParent().resolve(path.getFileName() + ".backup"), StandardCopyOption.REPLACE_EXISTING);
         }
         Files.createFile(path);
-        Files.write(path, text.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, text, StandardCharsets.UTF_8);
     }
 }
