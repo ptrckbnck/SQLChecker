@@ -1,7 +1,7 @@
-#ADMIN DOC
+# ADMIN DOC
 Diese Anleitung richtet sich an diejenigen, die Übungen erstellen und auswerten möchten. Studenten die Abgaben erstellen möchte, sollten sich diese [Anleitung](README.md) durchlesen.
 
-##SQLChecker in Console
+## SQLChecker in Console
 Neben der StudentGUI und der EvaluationsGUI kann der SQLChecker auch als Terminal-Programm genutzt werden. Über das Terminal können die GUIs mit zusätzlichen Optionen gestartet werden. Auch kann die Auswertung der Studentenabgaben vollständig über Console ausgeführt werden. So kann dieser Vorgang leicht in andere Scripte eingebettet werden. Eine Übersicht der Befehle sieht man hier:   
 
 ```
@@ -31,7 +31,7 @@ A tool a create and evaluate exercises for SQL.
     --version                 prints version of SQLChecker
 ```
  
-##EvaluationsGUI
+## EvaluationsGUI
 Die EvaluationsGUI (EGUI) startet man über den Terminal-Befehl  `sqlchecker -e`.
 
 Ähnlich wie die bei der SGUI benötigt die EGUI diverse Informationen für die Datenbankverbindung. Diese erreicht man über den Tab Einstellungen. Zusätzlich wird für die Durchführung der Auswertung der Abgaben folgende Angaben benötigt.
@@ -49,13 +49,13 @@ Im Textfeld `CSVOutPath` kann der Pfad angeben, an dem das Resultat der Auswertu
 
 Ist mindestens eine gültige Abgabe vorhanden, kann über den Button `Run` die Evaluation durchgeführt werden. In der Console werden sie über den Fortschritt informiert.
 
-##Übungen definieren
+## Übungen definieren
 Aus Sicht eines Übungsleiters sind vier Dateien erforderlich, um eine
 Übung erfolgreich durchzuführen: Eine Template-Datei (.sqlt), ein Reset-
 skript (.sql), eine Lösungs-Datei (.sql) und eine Evaluation-Konfigurationsdatei
 (.ini). Beispiele dieser Dateien sind unter [examples](/examples) zu finden.
 
-###Die Tag-Annotation
+### Die Tag-Annotation
 Die Template-Datei, die Studentenabgabe und die Lösungsdatei haben eine spezielle Syntax. Sie besitzen Tag-Elemente, welche folgende Form haben:
 
 `/*%%<name>%%<type>%%<extra>%%*/` 
@@ -70,7 +70,7 @@ Es gibt mehrere Regeln die zu beachten sind.
 - Leere Elemente können weggelassen werden, wenn alle folgenden Elemente ebenfalls leer sind. `/*%%<name>%%*/` ist ein gültiger Tag.
 
 Text zwischen zwei Tag-Elementen beinhaltet SQL-Code. Dieser Code ist dem vorherigen Tag-Element zugeordnet und wird als Body des Tag-Element bezeichnet.
-####head
+#### head
  Ein Tag mit Type `head` beinhaltet die Definition der Datei. Er sollte nur einmal vorhanden sein und möglichst an erster Stelle stehen. Der Name des Tags wird ignoriert. Extra beinhaltet ein Json-String. Drei Json-Attribute sind relevant `name`, `type` und `authors`. Authors sind nur für Submission relevant. Name beinhaltet den Namen der Übung. Ein Template, eine Submission und eine Solution der selben Übung müssen den gleichen Namen tragen. Type beinhaltet den Typ der Datei. Es gibt zur Zeit vier gültige Bezeichner: `submission`, `solution`, `template` und `unkown`. Authors definiert die Studenten, welche an der Submission beteiligt sind. Dies ist eine List von Listen. Eine innere Liste bezeichnet je einen Studenten. Eine solche Liste besteht aus Name, Email-Adresse und Matrikelnummer des Studenten in dieser Reihenfolge.
  
  Folgendes Beispiel zeigt einen gültigen Head Tag:
@@ -125,16 +125,16 @@ Die beiden Tabellen sind im unordered Mode gleich. Auch unter der Ordnung `["0"]
 
   
   
-###Das Template
+### Das Template
 Das Template ist eine Tag-annotierte Datei. Sie enthält genau ein Head-Tag und beliebig viele Task-Tags. Eine Template-Datei wird von Studenten zum Initialisieren einer neuen Übung benötigt. Die Datei definiert, welche Aufgaben im SQLChecker zum Bearbeiten angezeigt werden.
  
  Das Template wird einer Solution zugeordnet und muss genau so viele Task-Tags in gleicher Reihenfolge und gleichem Namen, wie das Solution-File besitzen. Der im Head-Tag definierte Name, ist der Name der Übung und muss dem angegeben Namen im Solution-File entsprechen. Für die Task-Tags ist nur der Name relevant, die restlichen Felder können weggelassen werden. Der Body der Task-Tags ist der Code der einzelnen Aufgaben, den die Studenten beim Initialisieren der Übung im SQL-Checker angezeigt bekommen.
 
-###Das Resetskript
+### Das Resetskript
 Das Resetskript ist ein SQL-Skript. Der SQLChecker führt dieses Skript während der Evaluation vor jedem Test einer Abgabe aus. Studenten können das Resetskript in der Student-GUI ausführen. Es sollte darauf geachtet werden, dass kein Statement SQL-Fehler verursacht. Zum Beispiel sollte `DROP DATABASE
 IF EXISTS <name> ;`, statt `DROP DATABASE <name> ;` genutzt werden, damit kein Fehler auftritt, wenn noch keine entsprechende Datenbank existiert. Damit der SQL-Checker das Skript bei der Initialisierung der Übung in der StudentGUI automatisch findet, muss der Name der Datei folgendermaßen aussehen: `<name>_reset.sql`. `<name>` ist der Name der Übung, welcher in dem den Studenten mitgelieferten Template angegeben ist. Außerdem muss sich das Skript im selber Ordner befinden, in dem das Projekt initialisiert wird.
 
-###Die Solution
+### Die Solution
 Die Solution-Datei ist eine weitere Tag-annotierte Datei. Sie besitzt genau einen Head-Tag und beliebig viele Static- und Task-Tags. Im Head der Solution wird der Name der Übung definiert. Zugehörige Templates und Studenabgaben müssen sich nach diesen Namen richtigen und den gleichen Namen besitzen.
  
  Die Task-Tags definieren die Aufgaben, welche die Studenten bearbeiten sollen. Der Body des Tasks enthält ein SQL-Statement. Ist dieses Statement ein Select-Befehl wird auf Basis des Ergebnis der Ausführung des Befehls, das erwartete Ergebnis der Aufgabe generiert, nach der die Abgaben der Studenten gegen geprüft werden. Ist das Ergebnis des Tasks der Solution identisch mit dem Task der Abgabe, so gilt die Aufgabe als bestanden. Im Task-Tag können noch weitere Angaben gesetzt werden, wann eine Aufgabe als bestanden gilt (siehe Task-Tag).
