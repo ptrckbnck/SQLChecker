@@ -44,9 +44,9 @@ Nachdem sie erfolgreich ein Projekt angelegt haben, sehen Sie auf der linken Sei
 
 Nun legen Sie das Reset Skript fest, dass Sie zuvor übersprungen haben. Dazu gehen sie wieder zu `Einstellung` `Datenbank` und wählen sie den Pfad zum zur Übung mitgeliefertem SQL-Skript. Das Skript hat die Aufgabe, die nötigen Datenbank-Einträge für die Bearbeitung der Aufgabenstellung zu erzeugen und die Datenbank nach belieben in diesen Zustand zurückzuversetzen zu können.
 
-Jetzt können Sie die Aufgaben bearbeiten. Wechseln dazu wieder zu `Übung` `Aufgaben`. Klicken Sie auf die Aufgabe, die sie Bearbeiten möchten. Auf der rechten Seite, dem Textfeld namens `SQL`, können sie ihren SQL-Code zur Lösung der Aufgabe eintragen. Sie können die Code testen, indem sie in der Leiste unterhalb von `Übung` auf den Button `Ausführen` klicken. Das Ergebnis der Auswertung des SQL-Befehls erscheint im Textfeld mit dem Namen `Ausgabe`.
+Jetzt können Sie die Aufgaben bearbeiten. Wechseln dazu wieder zu `Übung` `Aufgaben`. Klicken Sie auf die Aufgabe, die Sie Bearbeiten möchten. Auf der rechten Seite, dem Textfeld namens `SQL`, können sie ihren SQL-Code zur Lösung der Aufgabe eintragen. Sie können die Code testen, indem sie in der Leiste unterhalb von `Übung` auf den Button `Ausführen` klicken. Das Ergebnis der Auswertung des SQL-Befehls erscheint im Textfeld mit dem Namen `Ausgabe`.
 
-Nachdem Sie jede Aufgabe bearbeitet haben, können sie Abgabe exportieren. Dazu klicken sie auf `Olat` `Exportieren` und anschließend auf speichern. Nennen Sie die Datei am besten so wie vorgeschlagen. Die erzeugte Textdatei reichen Sie bei ihrem Übungsleiter ein. 
+Nachdem Sie jede Aufgabe bearbeitet haben, können sie die Abgabe exportieren. Dazu klicken Sie auf `Abgabe` `Exportieren` und anschließend auf speichern. Nennen Sie die Datei am besten so wie vorgeschlagen. Die erzeugte Textdatei reichen Sie bei ihrem Übungsleiter ein. 
 
  
 
