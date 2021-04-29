@@ -269,10 +269,18 @@ public class StudentGUIController implements Initializable {
      * creates new Config Object everytime settings get modified.
      */
     public void updateConfig() {
+        Integer port;
+        try {
+            port = Integer.valueOf(portTextField.getText());
+            this.portTextField.setStyle("");
+        } catch (NumberFormatException ex) {
+            port = this.GUIConfig.getPort();
+            this.portTextField.setStyle("-fx-text-inner-color: red; -fx-font-weight: bold;");
+        }
         this.GUIConfig = new GUIConfigBuilder().setUsername(usernameTextField.getText())
                 .setPassword(passwordTextField.getText())
                 .setHost(hostTextField.getText())
-                .setPort(Integer.valueOf(portTextField.getText()))
+                .setPort(port)
                 .setDatabaseName(databaseTextField.getText())
                 .setResetScript(resetScriptPathTextField.getText())
                 .setTimezone(timezoneTextField.getText())
@@ -360,7 +368,7 @@ public class StudentGUIController implements Initializable {
         version.setText("Version " + Runner.getVersion());
 
         initConfig(null);
-        //updateMenu(); //TODo check this. is this needed?
+        //updateMenu(); //TODo
 
 
         //Config Fields listener
@@ -1185,6 +1193,5 @@ public class StudentGUIController implements Initializable {
     public void redoTerminal(ActionEvent actionEvent) {
         this.CodeArea_Terminal.redo();
     }
-
 
 }
