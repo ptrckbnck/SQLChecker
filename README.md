@@ -1,5 +1,5 @@
 # SQLChecker
-Ein wichtiger Bestandteil der Vorlesungungen zu Datenbanksystemen ist das Erlernen von SQL. Dazu müssen die Studenten praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studenten bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studenten. 
+Ein wichtiger Bestandteil der Vorlesungungen zu Datenbanksystemen ist das Erlernen von SQL. Dazu müssen die Studierenden praxisorientierte Aufgaben bewältigen. Der SQLChecker ist ein handliches Werkzeug mit dem SQL-Aufgaben erstellt und von den Studierenden bearbeitet werden können. Der SQLChecker übernimmt zudem automatisiert die Auswertung der Abgaben der Studierenden. 
 Der SQLChecker wurde bereits mehrfach im Kurs "Datenbanksysteme 1" und im Kurs "Programmierung von Datenbanken (PDB)" an der Goethe-Universität erfolgreich eingesetzt.  
 
 ## Installation
@@ -8,7 +8,7 @@ Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nich
  Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server-10.5.9](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
  `mysql --version` ausführen und ihr Root-Password eingeben. Für die Installation des gewählten Verwaltungssystem richten Sie sich bitte an dessen Anleitung.
  
- Studenten sind in der Lage alle Aufgaben durch Verwendung des SQLCheckers lösen. Da dieser allerdings nur über eine eingeschränkte grafische Oberfläche verfügt, empfiehlt es sich zusätzlich einen Datenbank-Clienten zu installieren, um einfacher SQL-Statements zu testen. [Workbench](https://www.mysql.com/de/products/workbench/) und [HeidiSQL](https://www.heidisql.com/) sind zwei gängige Programme.
+ Studierende sind in der Lage alle Aufgaben durch Verwendung des SQLCheckers lösen. Da dieser allerdings nur über eine eingeschränkte grafische Oberfläche verfügt, empfiehlt es sich zusätzlich einen Datenbank-Clienten zu installieren, um einfacher SQL-Statements zu testen. [Workbench](https://www.mysql.com/de/products/workbench/) und [HeidiSQL](https://www.heidisql.com/) sind zwei gängige Programme.
  
  Laden Sie abschließend das aktuelle Build des [SQLCheckers](https://github.com/ptrckbnck/SQLChecker/releases) herunter. Dieses Jar-File führen Sie mit Java im Terminal aus:
  
@@ -22,7 +22,7 @@ Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nich
   `sudo chmod +x sqlchecker-<Versionsnummer>.jar`
  
 ## Verwendung
-Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleiter und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md) (nicht aktuell). 
+Diese Anleitung richtet sich an Studierende, welche den SQL-Checker zur Bearbeitung der Aufgaben nutzen wollen. An Übungsleitende und andere Interessierte zur Erstellung von Aufgaben richtet sich diese [Anleitung](README-ADMIN.md) (nicht aktuell). 
 
  Nachdem Sie `java -jar sqlchecker-<Versionsnummer>.jar` ausgeführt haben erscheint die GUI des SQLCheckers.
   
@@ -33,7 +33,7 @@ Diese Anleitung richtet sich an Studenten, welche den SQL-Checker zur Bearbeitun
    
  Alle Felder außer dem Reset Skript sind Pflichtfelder. Lassen sie dieses Feld zunächst frei.
   
- Unter dem Eintrag Student legen Sie die Informationen fest, die Sie brauchen um Ihre Abgabe einzureichen. Bitte füllen sie jedes Feld aus und falls Sie mit einem Partner arbeiten, auch die Felder Ihres Partners. Abgaben ohne diese Einträge werden nicht bewertet.
+ Unter dem Eintrag Student legen Sie die Informationen fest, die Sie brauchen um Ihre Abgabe einzureichen. Bitte füllen sie jedes Feld aus und falls Sie mit eine\*r Partner\*In arbeiten, auch die Felder Ihre\*r Partner\*In. Abgaben ohne diese Einträge werden nicht bewertet.
 
 ### Ein Projekt bearbeiten
 Unter einem Projekt versteht sich die Bearbeitung eines Aufgabenblatts. Jedes Aufgabenblatt kommt mit zwei Dateien. Einem SQL-Checker-Template (\*.sqlt) und einem SQL-Skript (\*.sql).
