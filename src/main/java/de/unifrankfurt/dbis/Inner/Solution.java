@@ -73,14 +73,22 @@ public class Solution extends CheckerFrame {
                          DataSource source,
                          SQLScript resetScript,
                          Base base,
-                         boolean verbose) throws SQLException {
+                         boolean verbose) throws SQLException, InvalidSubmissionException {
+        if (this.getTasks().size() != base.getTasks().size()) {
+            String errorString =
+                    String.format("Submission named \"%s\" has invalid number of tasks: %d",
+                            base.name, base.getTasks().size());
+            throw new InvalidSubmissionException(errorString);
+        }
+
+
         store.setCharset(base.getCharset());
         resetScript.execute(source);
-
         ScoreGroup group = getScoreGroup();
         List<SQLResultDiff> diffs = new ArrayList<>();
         List<SQLData> results = new ArrayList<>();
         int subTask = 0;
+
         for (int i = 0; i < this.getTasks().size(); i++) {
             TaskInterface t = this.getTasks().get(i);
             SQLData expectedResult = this.getExpectedResults().get(i);

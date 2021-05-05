@@ -83,8 +83,7 @@ public class Evaluator {
         }
         List<ResultStorage> curStorages = new ArrayList<>();
 
-        //try to fix sub, if possible
-        sub.isSubmissionFor(sols.get(0));
+
 
         //run evaluation for every given solution
         for (Solution sol : sols) {
@@ -97,7 +96,17 @@ public class Evaluator {
             resultStorage.setAuthors(sub.getAuthors());
             resultStorage.setSolution(sol);
             resultStorage.setSolutionName(sol.getName());
+
             try {
+                if (Objects.isNull(sub.getName())) {
+                    throw new InvalidSubmissionException("Not a submission");
+                }
+                if (sol.getTasks().size() != sub.getTasks().size()) {
+                    String errorString =
+                            String.format("Submission named \"%s\" has invalid number of tasks: %d",
+                                    sub.getName(), sub.getTasks().size());
+                    throw new InvalidSubmissionException(errorString);
+                }
                 sol.evaluate(resultStorage, source, resetScript, sub, verbose);
             } catch (Exception e) {
                 resultStorage.setBase(sub)

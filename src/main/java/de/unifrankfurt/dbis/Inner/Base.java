@@ -132,7 +132,7 @@ public class Base extends CheckerFrame {
     }
 
     public boolean isSubmissionFor(Solution solution) {
-        if (!getName().equals(solution.getName())) {
+        if (Objects.isNull(this.getName()) || !this.getName().equals(solution.getName())) {
             return false;
         }
         return this.getTags().equals(solution.getNonStaticTags());

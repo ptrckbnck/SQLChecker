@@ -115,13 +115,19 @@ public class Report {
         HashMap<SubmissiopathSolutionGroup, Integer> ssgMap = new HashMap<>();
         for (ResultStorage resultStorage : resultStorages) {
             int i = 0;
+            boolean is_invalid = Objects.isNull(resultStorage.getScore());
             for (String group : groups) {
                 SubmissiopathSolutionGroup ssg = new SubmissiopathSolutionGroup(
                         resultStorage.getSubmissionPath().toString(),
                         resultStorage.getSolutionName(),
                         group
                 );
-                ssgMap.put(ssg, resultStorage.getScore().get(i++));
+                if (is_invalid) {
+                    ssgMap.put(ssg, 0);
+                } else {
+                    ssgMap.put(ssg, resultStorage.getScore().get(i++));
+                }
+
             }
         }
 
