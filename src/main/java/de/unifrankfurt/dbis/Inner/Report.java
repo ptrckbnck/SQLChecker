@@ -216,7 +216,8 @@ public class Report {
                 .useEmail()
                 .useMatrikelNr()
                 .useSolutionName()
-                .useMinimalFeedback();
+                .useMinimalFeedback()
+                .useErrorMsg();
 
         List<String> list = new ArrayList<>();
         list.add(csvCreator.createCSVHeader());

@@ -96,12 +96,13 @@ public class Evaluator {
             resultStorage.setAuthors(sub.getAuthors());
             resultStorage.setSolution(sol);
             resultStorage.setSolutionName(sol.getName());
-
+            int sol_no_task = sol.getNonStaticTags().size();
+            int sub_no_task = sub.getTasks().size();
             try {
                 if (Objects.isNull(sub.getName())) {
                     throw new InvalidSubmissionException("Not a submission");
                 }
-                if (sol.getTasks().size() != sub.getTasks().size()) {
+                if (sol_no_task != sub_no_task) {
                     String errorString =
                             String.format("Submission named \"%s\" has invalid number of tasks: %d",
                                     sub.getName(), sub.getTasks().size());
