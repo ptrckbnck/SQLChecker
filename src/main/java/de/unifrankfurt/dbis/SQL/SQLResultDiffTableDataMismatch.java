@@ -41,13 +41,15 @@ public class SQLResultDiffTableDataMismatch implements SQLResultDiff {
 
     private String missing() {
         final List<Integer> missing = this.diff.getMissing();
-        if (missing.isEmpty() || missing.equals(this.diff.getLinesExpected())) return "";
+        //if (missing.isEmpty() || missing.equals(this.diff.getLinesExpected())) return "";
+        if (missing.isEmpty()) return "";
         return "\nMissing:\n" + render(lineNrsToData(missing, expected.getData()));
     }
 
     private String surplus() {
         final List<Integer> surplus = this.diff.getSurplus();
-        if (surplus.isEmpty() || surplus.equals(this.diff.getLinesActual())) return "";
+        //if (surplus.isEmpty() || surplus.equals(this.diff.getLinesActual())) return "";
+        if (surplus.isEmpty()) return "";
         return "\nSurplus:\n" + render(lineNrsToData(diff.getSurplus(), actual.getData()));
     }
 
@@ -76,6 +78,10 @@ public class SQLResultDiffTableDataMismatch implements SQLResultDiff {
             at.addRow(row.stream().map(o -> (Objects.isNull(o) || !o.getClass().isAssignableFrom(String.class)) ? Objects.toString(o) : "'" + o + "'").collect(Collectors.toList())); //TODO Better toString representation, custom SQLDataobject?
         }
         at.addRule();
-        return at.render();
+        try {
+            return at.render();
+        } catch (IllegalArgumentException ex) {
+            return "Could not render Table: " + ex.getMessage();
+        }
     }
 }

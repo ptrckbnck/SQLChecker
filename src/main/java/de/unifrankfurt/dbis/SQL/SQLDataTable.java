@@ -81,8 +81,9 @@ public class SQLDataTable implements SQLData {
             sb.append(String.join("\t", header)).append("\n");
             data.forEach(x -> sb.append(String.join("\t", Objects.toString(x))).append("\n"));
             return sb.toString();
+        } catch (IllegalArgumentException ex) {
+            return "Could not render Table: " + ex.getMessage();
         }
-
     }
 
 
