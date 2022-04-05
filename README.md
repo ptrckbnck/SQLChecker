@@ -3,7 +3,7 @@ Ein wichtiger Bestandteil der Vorlesungungen zu Datenbanksystemen ist das Erlern
 Der SQLChecker wurde bereits mehrfach im Kurs "Datenbanksysteme 1" und im Kurs "Programmierung von Datenbanken (PDB)" an der Goethe-Universität erfolgreich eingesetzt.  
 
 ## Installation
-Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf z.B. unter https://adoptopenjdk.net/.
+Der SQLChecker ist vollständig in Java 11 erstellt worden. Das Projekt ist nicht mit älteren Versionen von Java kompatibel. Aktuelle Java Versionen finden sich auf z.B. unter https://adoptium.net/de/ oder https://jdk.java.net/.
   
  Um SQLChecker vollständig nutzen zu können, müssen Sie ein SQL-Datenbankverwaltungssysteme installieren. Empfohlen wird [MariaDB Community Server](https://mariadb.com/downloads/) sein. Sie können überprüfen, ob Ihr Datenbanksystem korrekt installiert ist und läuft, indem Sie 
  `mysql --version` ausführen und ihr Root-Password eingeben. Für die Installation des gewählten Verwaltungssystem richten Sie sich bitte an dessen Anleitung.
