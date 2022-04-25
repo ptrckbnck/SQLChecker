@@ -55,6 +55,11 @@ public class Assignment {
         return codes;
     }
 
+    public void setCodes(List<String> codes) {
+        this.codes.clear();
+        this.codes.addAll(codes);
+    }
+
     public void setCode(int task, String sql) {
         this.codes.set(task, sql);
     }

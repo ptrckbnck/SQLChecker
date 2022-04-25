@@ -19,7 +19,7 @@ public class FileIO {
      * @return String
      * @throws IOException
      */
-    private static String loadString(Path path) throws IOException {
+    public static String loadString(Path path) throws IOException {
         return Files.readString(path, StandardCharsets.UTF_8);
     }
 

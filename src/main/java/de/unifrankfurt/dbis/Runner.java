@@ -4,6 +4,7 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import de.unifrankfurt.dbis.EvalGUI.EvalGUIApp;
 import de.unifrankfurt.dbis.Inner.Report;
 import de.unifrankfurt.dbis.Inner.Solution;
+import de.unifrankfurt.dbis.StudentGUI.Bypass;
 import de.unifrankfurt.dbis.StudentGUI.StudentGUIApp;
 import javafx.application.Application;
 import org.apache.commons.cli.*;
@@ -48,11 +49,26 @@ public class Runner {
             return;
         }
 
-        if (commandLine.hasOption("h")){
+        if (commandLine.hasOption("h")) {
             printHelp(options);
             return;
         }
 
+        if (commandLine.hasOption("x")) {
+            String[] optionValues = commandLine.getOptionValues("x");
+            Path sqlPath = Path.of(optionValues[0]);
+            Path templatePath = Path.of(optionValues[1]);
+            String[] author = commandLine.getOptionValues("author");
+            try {
+                Bypass.createSubmission(author,
+                        sqlPath,
+                        templatePath,
+                        commandLine.getOptionValue("o")); //TODO
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+            return;
+        }
 
         if (!commandLine.hasOption("e") && !commandLine.hasOption("t")) {
             List<String> newargs = new ArrayList<>();
@@ -106,10 +122,7 @@ public class Runner {
             try {
                 Evaluator evaluator = new Evaluator(configPath);
 
-                boolean verbose = false;
-                if (commandLine.hasOption("v")) {
-                    verbose = true;
-                }
+                boolean verbose = commandLine.hasOption("v");
                 if (verbose) System.out.println("Loading Ressources:----------------------------");
                 evaluator.loadRessources(verbose);
                 if (verbose) System.out.println("create Solution----------------------------");
@@ -233,6 +246,21 @@ public class Runner {
         Options options = new Options();
 
         OptionGroup optStart = new OptionGroup();
+        optStart.addOption(Option.builder("x")
+                .longOpt("export")
+                .argName("code path> <template path>")
+                .optionalArg(false)
+                .desc("creates Submission without GUI\n" +
+                        "Your submission Code should like this" +
+                        "/*%%Aufgabe%%*/" +
+                        "select 'Hello World!';" +
+                        "Each Task is defined by /*%%<task>%%*/ followed by the sqlcode." +
+                        "Your file needs the same amount of tasks as defined in the template" +
+                        "Be careful. Your code will not be checked for validity." +
+                        "The submission will be created in the same folder as your template by default.")
+                .hasArg(true)
+                .numberOfArgs(2)
+                .build());
         optStart.addOption(Option.builder("s")
                 .longOpt("start")
                 .desc("runs SQLChecker-StudentGUI. This parameter can be omitted. " +
@@ -310,6 +338,20 @@ public class Runner {
                 .build();
         options.addOption(version);
 
+        Option author = Option.builder(null)
+                .numberOfArgs(3)
+                .longOpt("author")
+                .argName("name> <email> <matrikel-number")
+                .desc("Author name, email and matrikel-number. Only needed in Export Mode")
+                .optionalArg(true)
+                .build();
+        options.addOption(author);
+
+        Option template = Option.builder(null)
+                .longOpt("codePath")
+                .desc("Path to Code in export mode")
+                .build();
+        options.addOption(version);
         return options;
     }
 }

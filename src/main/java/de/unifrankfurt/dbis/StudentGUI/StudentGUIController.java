@@ -5,7 +5,7 @@ package de.unifrankfurt.dbis.StudentGUI;/*
  */
 
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import de.unifrankfurt.dbis.IO.FileIO;
 import de.unifrankfurt.dbis.IO.SQLCheckerProject;
@@ -529,8 +529,10 @@ public class StudentGUIController implements Initializable {
             });
         }
         Files.write(path,
-                new Gson().toJson(
-                        new SQLCheckerProject(this.GUIConfig, this.assignment)).getBytes(StandardCharsets.UTF_8)
+                new GsonBuilder().setPrettyPrinting()
+                        .create()
+                        .toJson(new SQLCheckerProject(this.GUIConfig, this.assignment)
+                        ).getBytes(StandardCharsets.UTF_8)
         );
     }
 
