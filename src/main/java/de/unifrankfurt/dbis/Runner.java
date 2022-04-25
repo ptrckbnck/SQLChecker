@@ -230,6 +230,7 @@ public class Runner {
      */
     private static void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
+        formatter.setWidth(100);
         String ls = System.lineSeparator();
         String header = ls + "SQLChecker" + ls
                 + "A tool a create and evaluate exercises for SQL.";
@@ -243,21 +244,26 @@ public class Runner {
      * @return Options
      */
     private Options createOptions() {
-        Options options = new Options();
+        String _sep = System.getProperty("line.separator");
 
+        Options options = new Options();
         OptionGroup optStart = new OptionGroup();
         optStart.addOption(Option.builder("x")
                 .longOpt("export")
-                .argName("code path> <template path>")
+                .argName("codePath> <templatePath")
                 .optionalArg(false)
-                .desc("creates Submission without GUI\n" +
-                        "Your submission Code should like this" +
-                        "/*%%Aufgabe%%*/" +
-                        "select 'Hello World!';" +
-                        "Each Task is defined by /*%%<task>%%*/ followed by the sqlcode." +
-                        "Your file needs the same amount of tasks as defined in the template" +
-                        "Be careful. Your code will not be checked for validity." +
-                        "The submission will be created in the same folder as your template by default.")
+                .desc("Creates Submission without GUI" + _sep +
+                        "This option requires two arguments, 'codePath' and 'templatePath'." + _sep +
+                        "The first is the path to your sql-statements. " +
+                        "Each Task in this file is defined by /*%%<task>%%*/ followed by the sqlcode." + _sep +
+                        "The second argument 'templatePath' defines the used femplate-file. " +
+                        "Your file needs the same amount of tasks as defined in the template. " +
+                        "The submission will be created in the same folder as your template by default. " +
+                        "Define your author-information with option '--author'" + _sep +
+                        "Example code-file:" + _sep +
+                        "/*%%Aufgabe1%%*/" + _sep +
+                        "select 'Hello World!';" + _sep
+                )
                 .hasArg(true)
                 .numberOfArgs(2)
                 .build());
