@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public abstract class SQLResults {
-
-    public static SQLData execute(DataSource source, String sql) {
+    public static SQLData execute(DataSource source, String sql, int timeout) {
         try (Connection con = source.getConnection()) {
             Statement stmt = con.createStatement();
+            stmt.setQueryTimeout(timeout);
             boolean e = stmt.execute(sql);
             int updateCount;
             SQLData result;
@@ -36,6 +36,11 @@ public abstract class SQLResults {
             return new SQLDataFail(e);
         }
 
+    }
+
+    public static SQLData execute(DataSource source, String sql) {
+        //timeout after 60 seconds;
+        return SQLResults.execute(source, sql, 60);
     }
 }
 
